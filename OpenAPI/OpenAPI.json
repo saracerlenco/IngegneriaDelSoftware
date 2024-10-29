@@ -1,0 +1,309 @@
+{
+    "openapi": "3.0.0", 
+    "info": {
+        "version": "1.0",
+        "title": "DiscoverTrento API",
+        "description": "API autenticazione, registrazione, accesso e gestione area personale"     
+    },
+    "paths": {
+        "/login": {
+            "post": {
+                "summary": "Autenticazione utente tramite credenziali locali",
+                "description": "L'utente può autenticarsi immettendo username e password",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "description": "Nome utente",
+                                        "example": "Pippo"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "description": "Password associata all'account",
+                                        "example": "PasswordDiPippo123F"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "response": {
+                    "200": {
+                        "description": "L'autenticazione tramite credenziali locali è avvenuto con successo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "token": {
+                                            "type": "string",
+                                            "description": "Token JWT da utilizzare per autenticare richieste future",
+                                            "example": "kjcn3u94eniuqxnie9denind"
+                                        },
+                                        "role": {
+                                            "type": "string",
+                                            "description": "Ruolo dell'utente, serve per il reindirizzamento alla dashboard",
+                                            "example": "cittadino"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credenziali non valide"
+                    },
+                    "500": {
+                        "description": "Errore del server"
+                    }
+                }
+            }
+        },
+
+        "/login/google": {
+            "post": {
+                "summary": "Autenticazione utente tramite credenziali Google",
+                "description": "Permette all'utente di autenticarsi utilizzando le proprie credenziali Google",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "googleToken": {
+                                        "type": "string",
+                                        "description": "Token di autenticazione fornito dall'API di Google",
+                                        "example": "kwqnx87374b37x"
+                                    }
+                                },
+                                "required": ["googleToken"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "L'autenticazione tramite credenziali Google è avvenuta con successo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "token": {
+                                            "type": "string",
+                                            "description": "Token JWT da utilizzare per autenticare richieste future"
+                                        },
+                                        "role": {
+                                            "type": "string",
+                                            "description": "Ruolo dell'utente, serve per il reindirizzamento alla dashboard",
+                                            "example": "cittadino"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Token di Google non valido o scaduto"
+                    },
+                    "500": {
+                        "description": "Errore del server"
+                    }
+                }
+            }
+        },
+
+        "/logout": {
+            "post": {
+                "summary": "Logout utente",
+                "description": "Invalidazione del token di autenticazione dell'utente",
+                "responses": {
+                    "200": {
+                        "description": "Il logout è avvenuto con successo"
+                    },
+                    "401": {
+                        "description": "Errore: token non valido o mancante"
+                    },
+                    "500": {
+                        "description": "Errore del server"
+                    }
+                }
+            }
+        },
+
+        "/registrazione/cittadino": {
+            "post": {
+                "summary": "Registrazione cittadino",
+                "description": "Registra un cittadino con i dati immessi e invia una email di conferma",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nome": { "type": "string" },
+                                    "cognome": { "type": "string" },
+                                    "email": { "type": "string" },
+                                    "codice_fiscale": { "type": "string" },
+                                    "password": { "type": "string" }
+                                },
+                                "required": ["nome", "cognome", "email", "codice fiscale", "password"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registrazione dell'utente cittadino avvenuta con successo"
+                    },
+                    "400": {
+                        "description": "Dati inseriti non tutti validi"
+                    },
+                    "500": {
+                        "description": "Errore del server"
+                    }
+                }
+            }
+        },
+        "/registrazione/azienda": {
+            "post": {
+                "summary": "Registrazione azienda",
+                "description": "Registra un'azienda e invia un'email di conferma al comune",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nome_azienda": { "type": "string" },
+                                    "partita_IVA": { "type": "string" },
+                                    "email": { "type": "string" },
+                                    "password": { "type": "string" }
+                                },
+                                "required": ["nome azienda", "partita IVA", "email", "password"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registrazione dell'utente azienda avvenuta con successo"
+                    },
+                    "400": {
+                        "description": "Dati inseriti non tutti validi"
+                    },
+                    "500": {
+                        "description": "Errore del server"
+                    }
+                }
+            }
+        },
+        "/registrazione/operatore_comunale": {
+            "post": {
+                "summary": "Registrazione operatore comunale",
+                "description": "Registrazione dell'utente operatore comunale",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nome": { "type": "string" },
+                                    "cognome": { "type": "string" },
+                                    "email": { "type": "string" },
+                                    "codice_fiscale": { "type": "string" },
+                                    "password": { "type": "string" }
+                                },
+                                "required": ["nome", "cognome", "email", "codice fiscale", "password"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registrazione dell'utente operatore comunale avvenuta con successo"
+                    },
+                    "400": {
+                        "description": "Dati inseriti non tutti validi"
+                    },
+                    "500": {
+                        "description": "Errore del server"
+                    }
+                }
+            }
+        },
+
+        "/area_personale/{ruolo}": {
+            "get": {
+                "summary": "Visualizza area personale",
+                "description": "Permette di visualizzare i dati dell'area personale dell'utente",
+                "parameters": [
+                    {
+                        "name": "ruolo",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": ["cittadino", "azienda", "operatore_comunale"]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Dati personali dell'utente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "dati": { "type": "object" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Errore del server"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Modifica dati personali",
+                "description": "Permette all'utente di modificate i propri dati dell'area personale",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "dati": { "type": "object" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Dati modificati con successo"
+                    },
+                    "400": {
+                        "description": "Dati inseriti non validi"
+                    },
+                    "500": {
+                        "description": "Errore del server"
+                    }
+                }
+            }
+        }
+    }
+}

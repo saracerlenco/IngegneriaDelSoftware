@@ -1,0 +1,181 @@
+{
+  "openapi": "3.0.0",
+  "info": {    
+    "version": "1.0.0",
+    "title": "DiscoverTrento API",
+    "description": "API per feedback"
+  },
+  
+  "paths": {
+    "/area_personale/{id_utente}/feedback": {
+  "post": {
+    "summary": "Lascia feedback evento",
+    "description": "Permette di lasciare feedback e commenti agli eventi.",
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "comment": {
+                "type": "string",
+                "example": "Evento ben organizzato"
+              },
+              "id_evento": {
+                "type": "string",
+                "example": "1234"
+              },
+              "username": {
+                "type": "string",
+                "example": "Pino_Daniele"
+              },
+              "rating": {
+                "type": "integer",
+                "example": 5
+              }
+            },
+            "required": ["id_evento", "username", "rating"]
+          }
+        }
+      }
+    },
+    "responses": {
+      "201": {
+        "description": "Feedback registrato",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Feedback registrato"
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Richiesta non valida: dati mancanti o non validi",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Richiesta non valida "
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Errore del server",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Errore del server, riprova più tardi! "
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+"/area_personale/{id_utente}/feedback/{id_evento}": {
+  "get": {
+    "summary": "Media valutazioni + commenti",
+    "description": "Recupera la media delle valutazioni e tutti i commenti di un evento specifico",
+    "parameters": [
+      {
+        "name": "id_evento",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Recupero con successo",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "media_rating": {
+                  "type": "number",
+                  "example": 4.5
+                },
+                "comments": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "username": {
+                        "type": "string"
+                      },
+                      "commento": {
+                        "type": "string",
+                        "example": "Evento ben organizzato"
+                      },
+                      "rating": {
+                        "type": "integer",
+                        "example": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Evento non trovato",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Evento non trovato"
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Errore del server",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Errore del server, riprova più tardi"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+}
+}
