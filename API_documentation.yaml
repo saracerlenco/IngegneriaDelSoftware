@@ -65,6 +65,14 @@ paths:
                       type: "integer"
         "500":
           description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
 
   /eventi/partecipa/{id_evento}:
     post:
@@ -78,12 +86,45 @@ paths:
             type: "string"
           description: "ID dell'evento"
       responses:
-        "200":
+        "201":
           description: "Partecipazione all'evento segnata con successo"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id_partecipazione:
+                    type: "string"
+                    description: "ID della partecipazione creata"
+                    example: "12345"
+                  messaggio:
+                    type: "string"
+                    description: "Messaggio di conferma"
+                    example: "La partecipazione è stata registrata con successo."
+                  id_evento:
+                    type: "string"
+                    description: "ID dell'evento a cui partecipi"
+                    example: "67890"
         "404":
           description: "Evento non trovato"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Evento non trovato"
         "500":
           description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
 
   /eventi/proponi:
     post:
@@ -110,11 +151,40 @@ paths:
               required: ["nome_evento", "data", "luogo", "tipologia"]
       responses:
         "201":
-          description: "La proposta dell'evento è avvenuta con successo"
+          description: "La proposta dell'evento è avvenuta con successo" #più che proposta, creazione??
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id_evento:
+                    type: "string"
+                    description: "ID dell'evento creato"
+                    example: "12345"
+                  messaggio:
+                    type: "string"
+                    description: "Messaggio di conferma"
+                    example: "L'evento è stato creato con successo."
         "400":
-          description: "I dati inseriti non sono tutti validi o mancano"
+          description: "Richiesta non valida: dati mancanti o non validi"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Richiesta non valida"
         "500":
           description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
 
   /eventi/sponsorizza/{id_evento}:
     post:
@@ -144,14 +214,55 @@ paths:
                   type: "string"
               required: ["nome_azienda", "contatto", "email"]
       responses:
-        "200":
+        "201":
           description: "La richiesta di sponsorizzazione è stata inviata al comune con successo"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id_partecipazione:
+                    type: "string"
+                    description: "ID della richiesta di partecipazione creata"
+                    example: "12345"
+                  messaggio:
+                    type: "string"
+                    description: "Messaggio di conferma"
+                    example: "La richiesta di partecipazione è stata registrata con successo."
+                  id_evento:
+                    type: "string"
+                    description: "ID dell'evento a cui partecipi"
+                    example: "67890"
         "400":
-          description: "Dati non validi o mancanti"
+          description: "Richiesta non valida: dati mancanti o non validi"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Richiesta non valida"
         "404":
           description: "Evento non trovato"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Evento non trovato"
         "500":
           description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
 
   # autenticazione e accesso
 
@@ -192,8 +303,24 @@ paths:
                     example: "cittadino"
         "401":
           description: "Credenziali non valide"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Credenziali non valide"
         "500":
           description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
 
   /login/google:
     post:
@@ -227,9 +354,25 @@ paths:
                     description: "Ruolo dell'utente, serve per il reindirizzamento alla dashboard"
                     example: "cittadino"
         "401":
-          description: "Token di Google non valido o scaduto"
+          description: "Errore: token Google non valido o mancante"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Token non valido"
         "500":
           description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
 
   /logout:
     post:
@@ -240,8 +383,24 @@ paths:
           description: "Il logout è avvenuto con successo"
         "401":
           description: "Errore: token non valido o mancante"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Token non valido"
         "500":
           description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
 
   #registrazione
 
@@ -264,16 +423,47 @@ paths:
                   type: "string"
                 codice_fiscale:
                   type: "string"
+                username:
+                  type: "string"
                 password:
                   type: "string"
               required: ["nome", "cognome", "email", "codice fiscale", "password"]
       responses:
         "201":
           description: "Registrazione dell'utente cittadino avvenuta con successo"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id_user:
+                    type: "string"
+                    description: "ID dell'account appena creato'"
+                    example: "12345"
+                  messaggio:
+                    type: "string"
+                    description: "Messaggio di conferma"
+                    example: "L'account è stato creato con successo."
         "400":
-          description: "Dati inseriti non tutti validi"
+          description: "Richiesta non valida: dati mancanti o non validi"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Richiesta non valida"
         "500":
           description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
 
   /registrazione/azienda:
     post:
@@ -298,10 +488,39 @@ paths:
       responses:
         "201":
           description: "Registrazione dell'utente azienda avvenuta con successo"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id_user:
+                    type: "string"
+                    description: "ID dell'account appena creato'"
+                    example: "12345"
+                  messaggio:
+                    type: "string"
+                    description: "Messaggio di conferma"
+                    example: "L'account è stato creato con successo."
         "400":
-          description: "Dati inseriti non tutti validi"
+          description: "Richiesta non valida: dati mancanti o non validi"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Richiesta non valida"
         "500":
           description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
 
   /registrazione/operatore_comunale:
     post:
@@ -328,10 +547,39 @@ paths:
       responses:
         "201":
           description: "Registrazione dell'utente operatore comunale avvenuta con successo"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id_user:
+                    type: "string"
+                    description: "ID dell'account appena creato'"
+                    example: "12345"
+                  messaggio:
+                    type: "string"
+                    description: "Messaggio di conferma"
+                    example: "L'account è stato creato con successo."
         "400":
-          description: "Dati inseriti non tutti validi"
+          description: "Richiesta non valida: dati mancanti o non validi"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Richiesta non valida"
         "500":
           description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
 
   #gestione area personale       
 
@@ -358,6 +606,14 @@ paths:
                     type: "object"
         "500":
           description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
     put:
       summary: "Modifica dati personali"
       description: "Permette all'utente di modificare i propri dati dell'area personale"
@@ -374,9 +630,25 @@ paths:
         "200":
           description: "Dati modificati con successo"
         "400":
-          description: "Dati inseriti non validi"
+          description: "Richiesta non valida: dati mancanti o non validi"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Richiesta non valida"
         "500":
           description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
 
   #gestione feedback 
 
@@ -391,7 +663,7 @@ paths:
             schema:
               type: "object"
               properties:
-                comment:
+                commento:
                   type: "string"
                   example: "Evento ben organizzato"
                 id_evento:
@@ -412,9 +684,17 @@ paths:
               schema:
                 type: "object"
                 properties:
+                  id_feedback: 
+                    type: "string"
+                    description: "ID del feedback appena creato"
+                    example: "12345"
                   message:
                     type: "string"
                     example: "Feedback registrato"
+                  id_evento:
+                    type: "string"
+                    description: "ID dell'evento a cui è relativo il feedback"
+                    example: "67890"
         "400":
           description: "Richiesta non valida: dati mancanti o non validi"
           content:
@@ -515,10 +795,38 @@ paths:
       responses:
         "201":
           description: "Proposta di coupon al comune avvenuta con successo"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id_proposta_coupon: 
+                    type: "string"
+                    description: "ID della proposta coupon appena creata"
+                    example: "12345"
+                  message:
+                    type: "string"
+                    example: "Proposta registrata"
         "400":
-          description: "I dati inseriti non sono validi o sono mancanti"
+          description: "Richiesta non valida: dati mancanti o non validi"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Richiesta non valida"
         "500":
           description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
 
   /coupon/approva/{id_coupon}:
     post:
@@ -548,11 +856,35 @@ paths:
         "200":
           description: "Il coupon è stato approvato dal comune con successo"
         "400":
-          description: "Dati di approvazione non validi - non è stata selezionata la scelta approva/non_approva"
+          description: "Richiesta non valida: dati mancanti o non validi"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Richiesta non valida"
         "404":
           description: "Coupon non trovato"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Coupon non trovato"
         "500":
           description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
 
   /coupon/punti/{id_coupon}:
     post:
@@ -580,11 +912,35 @@ paths:
         "200":
           description: "Punteggio assegnato al coupon con successo"
         "400":
-          description: "Dati inseriti non validi"
+          description: "Richiesta non valida: dati mancanti o non validi"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Richiesta non valida"
         "404":
           description: "Coupon non trovato"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Coupon non trovato"
         "500":
           description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
 
   #gestione punti
 
@@ -613,9 +969,32 @@ paths:
         "200":
           description: "Assegnazione del punteggio all'evento avvenuta con successo"
         "400":
-          description: "Dati inseriti non validi"
+          description: "Richiesta non valida: dati mancanti o non validi"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Richiesta non valida"
         "404":
           description: "Evento non trovato"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Evento non trovato"
         "500":
           description: "Errore del server"
-
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
