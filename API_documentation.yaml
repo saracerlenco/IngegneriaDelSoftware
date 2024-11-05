@@ -1,0 +1,621 @@
+openapi: 3.0.0
+info:
+  title: DiscoverTrento API
+  description: "documentazione API per la webapp DiscoverTrento"
+  version: "1.0"
+
+#IMPORTANTE! DOBBIAMO SOSTITUIRE I SERVER CON I NOSTRI
+servers:
+  - url: http://api.example.com/v1
+    description: Optional server description, e.g. Main (production) server
+  - url: http://staging-api.example.com
+    description: Optional server description, e.g. Internal staging server for testing
+
+paths:
+
+  #gestione eventi
+
+  /eventi:
+    get:
+      summary: "Lista degli eventi"
+      description: "Restituisce la lista degli eventi, filtrabili per tipologia o data"
+      parameters:
+        - name: "tipologia"
+          in: "query"
+          schema:
+            enum: ["sportivo", "culturale", "volontariato"]
+          description: "Tipologia dell'evento"
+          example: "sportivo"
+        - name: "data"
+          in: "query"
+          schema:
+            type: "string"
+            format: "date"
+          description: "Data dell'evento (formato: YYYY-MM-DD)"
+        - name: "luogo"
+          in: "query"
+          schema:
+            type: "string"
+          description: "Luogo dell'evento"
+          example: "Piazza Duomo"
+      responses:
+        "200":
+          description: "Lista degli eventi"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    id_evento:
+                      type: "string"
+                    nome_evento:
+                      type: "string"
+                    data:
+                      type: "string"
+                      format: "date"
+                    luogo:
+                      type: "string"
+                    tipologia:
+                      enum: ["sportivo", "culturale", "volontariato"]
+                    descrizione:
+                      type: "string"
+                    punti:
+                      type: "integer"
+        "500":
+          description: "Errore del server"
+
+  /eventi/partecipa/{id_evento}:
+    post:
+      summary: "Partecipazione ad un evento"
+      description: "Permette agli utenti cittadini che hanno effettuato il login di segnare la propria partecipazione ad un evento, visualizzandolo poi aggiunto alla propria to-attend-list"
+      parameters:
+        - name: "id_evento"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+          description: "ID dell'evento"
+      responses:
+        "200":
+          description: "Partecipazione all'evento segnata con successo"
+        "404":
+          description: "Evento non trovato"
+        "500":
+          description: "Errore del server"
+
+  /eventi/proponi:
+    post:
+      summary: "Proposta evento"
+      description: "Consente a cittadini e operatore comunale di proporre un evento, specificandone i dettagli, luogo e data"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                nome_evento:
+                  type: "string"
+                data:
+                  type: "string"
+                  format: "date"
+                luogo:
+                  type: "string"
+                tipologia:
+                  enum: ["sportivo", "culturale", "volontariato"]
+                descrizione:
+                  type: "string"
+              required: ["nome_evento", "data", "luogo", "tipologia"]
+      responses:
+        "201":
+          description: "La proposta dell'evento è avvenuta con successo"
+        "400":
+          description: "I dati inseriti non sono tutti validi o mancano"
+        "500":
+          description: "Errore del server"
+
+  /eventi/sponsorizza/{id_evento}:
+    post:
+      summary: "Richiesta sponsorizzazione evento"
+      description: "Permette alle aziende di proporsi come sponsor per un evento"
+      parameters:
+        - name: "id_evento"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+          description: "ID dell'evento"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                nome_azienda:
+                  type: "string"
+                contatto:
+                  type: "string"
+                email:
+                  type: "string"
+                annotazioni:
+                  type: "string"
+              required: ["nome_azienda", "contatto", "email"]
+      responses:
+        "200":
+          description: "La richiesta di sponsorizzazione è stata inviata al comune con successo"
+        "400":
+          description: "Dati non validi o mancanti"
+        "404":
+          description: "Evento non trovato"
+        "500":
+          description: "Errore del server"
+
+  # autenticazione e accesso
+
+  /login:
+    post:
+      summary: "Autenticazione utente tramite credenziali locali"
+      description: "L'utente può autenticarsi immettendo username e password"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                username:
+                  type: "string"
+                  description: "Nome utente"
+                  example: "Pippo"
+                password:
+                  type: "string"
+                  description: "Password associata all'account"
+                  example: "PasswordDiPippo123F"
+      responses:
+        "200":
+          description: "L'autenticazione tramite credenziali locali è avvenuta con successo"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  token:
+                    type: "string"
+                    description: "Token JWT da utilizzare per autenticare richieste future"
+                    example: "kjcn3u94eniuqxnie9denind"
+                  role:
+                    type: "string"
+                    description: "Ruolo dell'utente, serve per il reindirizzamento alla dashboard"
+                    example: "cittadino"
+        "401":
+          description: "Credenziali non valide"
+        "500":
+          description: "Errore del server"
+
+  /login/google:
+    post:
+      summary: "Autenticazione utente tramite credenziali Google"
+      description: "Permette all'utente di autenticarsi utilizzando le proprie credenziali Google"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                googleToken:
+                  type: "string"
+                  description: "Token di autenticazione fornito dall'API di Google"
+                  example: "kwqnx87374b37x"
+              required: ["googleToken"]
+      responses:
+        "201":
+          description: "L'autenticazione tramite credenziali Google è avvenuta con successo"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  token:
+                    type: "string"
+                    description: "Token JWT da utilizzare per autenticare richieste future"
+                  role:
+                    type: "string"
+                    description: "Ruolo dell'utente, serve per il reindirizzamento alla dashboard"
+                    example: "cittadino"
+        "401":
+          description: "Token di Google non valido o scaduto"
+        "500":
+          description: "Errore del server"
+
+  /logout:
+    post:
+      summary: "Logout utente"
+      description: "Invalidazione del token di autenticazione dell'utente"
+      responses:
+        "200":
+          description: "Il logout è avvenuto con successo"
+        "401":
+          description: "Errore: token non valido o mancante"
+        "500":
+          description: "Errore del server"
+
+  #registrazione
+
+  /registrazione/cittadino:
+    post:
+      summary: "Registrazione cittadino"
+      description: "Registra un cittadino con i dati immessi e invia una email di conferma"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                nome:
+                  type: "string"
+                cognome:
+                  type: "string"
+                email:
+                  type: "string"
+                codice_fiscale:
+                  type: "string"
+                password:
+                  type: "string"
+              required: ["nome", "cognome", "email", "codice fiscale", "password"]
+      responses:
+        "201":
+          description: "Registrazione dell'utente cittadino avvenuta con successo"
+        "400":
+          description: "Dati inseriti non tutti validi"
+        "500":
+          description: "Errore del server"
+
+  /registrazione/azienda:
+    post:
+      summary: "Registrazione azienda"
+      description: "Registra un'azienda e invia un'email di conferma al comune"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                nome_azienda:
+                  type: "string"
+                partita_IVA:
+                  type: "string"
+                email:
+                  type: "string"
+                password:
+                  type: "string"
+              required: ["nome azienda", "partita IVA", "email", "password"]
+      responses:
+        "201":
+          description: "Registrazione dell'utente azienda avvenuta con successo"
+        "400":
+          description: "Dati inseriti non tutti validi"
+        "500":
+          description: "Errore del server"
+
+  /registrazione/operatore_comunale:
+    post:
+      summary: "Registrazione operatore comunale"
+      description: "Registrazione dell'utente operatore comunale"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                nome:
+                  type: "string"
+                cognome:
+                  type: "string"
+                email:
+                  type: "string"
+                codice_fiscale:
+                  type: "string"
+                password:
+                  type: "string"
+              required: ["nome", "cognome", "email", "codice fiscale", "password"]
+      responses:
+        "201":
+          description: "Registrazione dell'utente operatore comunale avvenuta con successo"
+        "400":
+          description: "Dati inseriti non tutti validi"
+        "500":
+          description: "Errore del server"
+
+  #gestione area personale       
+
+  /area_personale/{ruolo}:
+    get:
+      summary: "Visualizza area personale"
+      description: "Permette di visualizzare i dati dell'area personale dell'utente"
+      parameters:
+        - name: "ruolo"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            enum: ["cittadino", "azienda", "operatore_comunale"]
+      responses:
+        "200":
+          description: "Dati personali dell'utente"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  dati:
+                    type: "object"
+        "500":
+          description: "Errore del server"
+    put:
+      summary: "Modifica dati personali"
+      description: "Permette all'utente di modificare i propri dati dell'area personale"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                dati:
+                  type: "object"
+      responses:
+        "200":
+          description: "Dati modificati con successo"
+        "400":
+          description: "Dati inseriti non validi"
+        "500":
+          description: "Errore del server"
+
+  #gestione feedback 
+
+  /area_personale/{id_utente}/feedback:
+    post:
+      summary: "Lascia feedback evento"
+      description: "Permette di lasciare feedback e commenti agli eventi."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                comment:
+                  type: "string"
+                  example: "Evento ben organizzato"
+                id_evento:
+                  type: "string"
+                  example: "1234"
+                username:
+                  type: "string"
+                  example: "Pino_Daniele"
+                rating:
+                  type: "integer"
+                  example: 5
+              required: ["id_evento", "username", "rating"]
+      responses:
+        "201":
+          description: "Feedback registrato"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                    example: "Feedback registrato"
+        "400":
+          description: "Richiesta non valida: dati mancanti o non validi"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Richiesta non valida"
+        "500":
+          description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi!"
+
+  /area_personale/{id_utente}/feedback/{id_evento}:
+    get:
+      summary: "Media valutazioni + commenti"
+      description: "Recupera la media delle valutazioni e tutti i commenti di un evento specifico"
+      parameters:
+        - name: "id_evento"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "Recupero con successo"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  media_rating:
+                    type: "number"
+                    example: 4.5
+                  comments:
+                    type: "array"
+                    items:
+                      type: "object"
+                      properties:
+                        username:
+                          type: "string"
+                        commento:
+                          type: "string"
+                          example: "Evento ben organizzato"
+                        rating:
+                          type: "integer"
+                          example: 5
+        "404":
+          description: "Evento non trovato"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Evento non trovato"
+        "500":
+          description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
+
+#gestione coupon
+
+  /coupon/offri:
+    post:
+      summary: "Offri coupon"
+      description: "Permette alle aziende di proporre coupon e sconti - poi dovranno essere approvati e convertiti in punti dal comune"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                nome_azienda:
+                  type: "string"
+                descrizione_coupon:
+                  type: "string"
+                sconto_offerto:
+                  type: "number"
+                  format: "float"
+              required: ["nome_azienda", "descrizione_coupon", "sconto_offerto"]
+      responses:
+        "201":
+          description: "Proposta di coupon al comune avvenuta con successo"
+        "400":
+          description: "I dati inseriti non sono validi o sono mancanti"
+        "500":
+          description: "Errore del server"
+
+  /coupon/approva/{id_coupon}:
+    post:
+      summary: "Approva coupon"
+      description: "Permette al comune di approvare le offerte di coupon proposte dalle aziende"
+      parameters:
+        - name: "id_coupon"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+          description: "ID del coupon"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                approvato:
+                  type: "boolean"
+                motivo_rifiuto:
+                  type: "string"
+                  description: "Specifica la motivazione in caso di rifiuto del coupon"
+              required: ["approvato"]
+      responses:
+        "200":
+          description: "Il coupon è stato approvato dal comune con successo"
+        "400":
+          description: "Dati di approvazione non validi - non è stata selezionata la scelta approva/non_approva"
+        "404":
+          description: "Coupon non trovato"
+        "500":
+          description: "Errore del server"
+
+  /coupon/punti/{id_coupon}:
+    post:
+      summary: "Assegna punti a coupon"
+      description: "Permette all'operatore comunale di assegnare un determinato punteggio ai coupon proposti dalle aziende"
+      parameters:
+        - name: "id_coupon"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+          description: "ID del coupon"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                punteggio:
+                  type: "integer"
+                  description: "Valore assegnato al coupon sotto forma di punti"
+              required: ["punteggio"]
+      responses:
+        "200":
+          description: "Punteggio assegnato al coupon con successo"
+        "400":
+          description: "Dati inseriti non validi"
+        "404":
+          description: "Coupon non trovato"
+        "500":
+          description: "Errore del server"
+
+  #gestione punti
+
+  /eventi/punti/{id_evento}:
+    post:
+      summary: "Assegna punti a eventi"
+      description: "Permette all'operatore comunale di assegnare un punteggio ad un evento"
+      parameters:
+        - name: "id_evento"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+          description: "ID dell'evento"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                punteggio:
+                  type: "string"
+              required: ["punteggio"]
+      responses:
+        "200":
+          description: "Assegnazione del punteggio all'evento avvenuta con successo"
+        "400":
+          description: "Dati inseriti non validi"
+        "404":
+          description: "Evento non trovato"
+        "500":
+          description: "Errore del server"
+
