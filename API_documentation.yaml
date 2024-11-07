@@ -25,6 +25,8 @@ paths:
     post:
       summary: "Autenticazione utente tramite credenziali locali"
       description: "L'utente può autenticarsi immettendo username e password"
+      tags: 
+        - "session"
       requestBody:
         required: true
         content:
@@ -79,6 +81,8 @@ paths:
     delete:
       summary: "Logout utente"
       description: "Invalidazione del token di autenticazione dell'utente"
+      tags: 
+        - "session"
       security:
         - TokenAutenticazione: []  
       responses:
@@ -110,6 +114,8 @@ paths:
     post:
       summary: "Registrazione utente cittadino"
       description: "Registrazione dell'utente con richiesta di parametri specifici per il cittadino"
+      tags: 
+        - "cittadino"
       requestBody:
         required: true
         content:
@@ -169,6 +175,8 @@ paths:
     get:
       summary: "Area personale dell'utente cittadino"
       description: "Permette all'utente cittadino di visualizzare i dati della propria area personale"
+      tags: 
+        - "cittadino"
       security:
         - TokenAutenticazione: []       
       responses:
@@ -194,6 +202,8 @@ paths:
     put:
       summary: "Modifica dati personali"
       description: "Permette all'utente cittadino di modificare i propri dati dell'area personale"
+      tags: 
+        - "cittadino"
       security:
         - TokenAutenticazione: []       
       requestBody:
@@ -233,6 +243,8 @@ paths:
     post:
       summary: "Registrazione utente operatore comunale"
       description: "Registrazione dell'utente con richiesta di parametri specifici per l'operatore comunale"
+      tags: 
+        - "operatore_comunale"
       requestBody:
         required: true
         content:
@@ -292,6 +304,8 @@ paths:
     get:
       summary: "Area personale dell'utente operatore comunale"
       description: "Permette all'utente operatore comunale di visualizzare i dati della propria area personale"
+      tags: 
+        - "operatore_comunale"
       security:
         - TokenAutenticazione: []      
       responses:
@@ -317,6 +331,8 @@ paths:
     put:
       summary: "Modifica dati personali"
       description: "Permette all'utente operatore comunale di modificare i propri dati dell'area personale"
+      tags: 
+        - "operatore_comunale"
       security:
         - TokenAutenticazione: []       
       requestBody:
@@ -356,6 +372,8 @@ paths:
     post: 
       summary: "Registrazione utente azienda"
       description: "Registrazione dell'utente con richiesta di parametri specifici per l'azienda"
+      tags: 
+        - "azienda"
       requestBody:
         required: true
         content:
@@ -413,6 +431,8 @@ paths:
     get:
       summary: "Area personale dell'utente azienda"
       description: "Permette all'utente azienda di visualizzare i dati della propria area personale"
+      tags: 
+        - "azienda"
       security:
         - TokenAutenticazione: []       
       responses:
@@ -438,6 +458,8 @@ paths:
     put:
       summary: "Modifica dati personali"
       description: "Permette all'utente azienda di modificare i propri dati dell'area personale"
+      tags: 
+        - "azienda"
       security:
         - TokenAutenticazione: []       
       requestBody:
@@ -479,6 +501,8 @@ paths:
     get:
       summary: "Lista degli eventi"
       description: "Restituisce la lista degli eventi, filtrabili per tipologia o data"
+      tags: 
+        - "evento"
       parameters:
         - name: "tipologia"
           in: "query"
@@ -539,6 +563,8 @@ paths:
     post:
       summary: "Proposta evento"
       description: "Consente a cittadino e operatore comunale di proporre un evento, specificandone i dettagli, luogo e data"
+      tags: 
+        - "evento"
       security:
         - TokenAutenticazione: []       
       requestBody:
@@ -621,6 +647,8 @@ paths:
     post:
       summary: "Partecipazione ad un evento"
       description: "Permette all'utente cittadino che ha effettuato il login di segnare la propria partecipazione ad un evento, visualizzandolo poi aggiunto alla propria to-attend-list"
+      tags: 
+        - "partecipazione"
       security:
         - TokenAutenticazione: []
       responses:
@@ -666,6 +694,8 @@ paths:
     get:
       summary: "Lista partecipazioni"
       description: "Restituisce una lista di partecipazione dei cittadini agli eventi"
+      tags: 
+        - "partecipazione"
       security:
         - TokenAutenticazione: []       
       responses:
@@ -695,6 +725,8 @@ paths:
     delete:
       summary: "Cancellazione partecipazione"
       description: "Permette di annullare la partecipazione di un cittadino ad un evento"
+      tags: 
+        - "partecipazione"
       security:
         - TokenAutenticazione: []       
       responses:
@@ -732,6 +764,8 @@ paths:
     post:
       summary: "Sponsorizzazione di un evento"
       description: "Permette all'utente azienda che ha effettuato il login di segnare la propria sponsorizzazione ad un evento, visualizzandolo poi aggiunto alla propria to-sponsor-list"
+      tags: 
+        - "sponsorizzazione"
       security:
         - TokenAutenticazione: []       
       responses:
@@ -777,6 +811,8 @@ paths:
     get:
       summary: "Lista sponsorizzazioni"
       description: "Restituisce una lista di eventi sponsorizzati dalle aziende"
+      tags: 
+        - "sponsorizzazione"
       security:
         - TokenAutenticazione: []       
       responses:
@@ -806,6 +842,8 @@ paths:
     delete:
       summary: "Cancellazione sponsorizzazione"
       description: "Permette all'azienda di annullare la sponsorizzazione di un evento"
+      tags: 
+        - "sponsorizzazione"
       security:
         - TokenAutenticazione: []       
       responses:
@@ -844,6 +882,8 @@ paths:
     post:
       summary: "Lascia feedback evento"
       description: "Permette ai cittadini che hanno partecipato ad un evento di lasciare feedback e commenti allo stesso"
+      tags: 
+        - "feedback"
       security:
         - TokenAutenticazione: []       
       parameters:
@@ -909,6 +949,8 @@ paths:
     get:
       summary: "Recensioni eventi"
       description: "Restituisce gli eventi con i relativi feedback (rating + eventuale commento)"
+      tags: 
+        - "feedback"
       security:
         - TokenAutenticazione: []       
       responses:
@@ -961,6 +1003,8 @@ paths:
     post:
       summary: "Offri coupon"
       description: "Permette alle aziende di proporre coupon e sconti - poi dovranno essere approvati e convertiti in punti dal comune"
+      tags: 
+        - "coupon"
       security:
         - TokenAutenticazione: [] 
       requestBody:
@@ -1024,6 +1068,8 @@ paths:
     get:
       summary: "Lista dei coupon"
       description: "Restituisce la lista dei coupon offerti dalle aziende"
+      tags: 
+        - "coupon"
       security:
         - TokenAutenticazione: []      
       responses:
@@ -1067,6 +1113,8 @@ paths:
     put: 
       summary: "Approva coupon e associa punti"
       description: "Permette all'operatore comunale di approvare i coupon e associargli un punteggio"
+      tags: 
+        - "coupon"
       security:
         - TokenAutenticazione: []
       requestBody:
@@ -1118,6 +1166,8 @@ paths:
     delete:
       summary: "Cancellazione coupon"
       description: "Permette di annullare un coupon"
+      tags: 
+        - "coupon"
       security:
         - TokenAutenticazione: []       
       responses:
