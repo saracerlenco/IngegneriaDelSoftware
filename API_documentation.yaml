@@ -86,7 +86,7 @@ paths:
       security:
         - TokenAutenticazione: []  
       responses:
-        "200":
+        "204":
           description: "Il logout è avvenuto con successo"
         "401":
           description: "Errore: token non valido o mancante"
@@ -730,7 +730,7 @@ paths:
       security:
         - TokenAutenticazione: []       
       responses:
-        "200":
+        "204":
           description: "La partecipazione è stata annullata con successo"
         "404":
           description: "Errore: partecipazione non trovata"
@@ -847,7 +847,7 @@ paths:
       security:
         - TokenAutenticazione: []       
       responses:
-        "200":
+        "204":
           description: "La sponsorizzazione è stata annullata con successo"
         "404":
           description: "Errore: sponsorizzazione non trovata"
@@ -1171,7 +1171,7 @@ paths:
       security:
         - TokenAutenticazione: []       
       responses:
-        "200":
+        "204":
           description: "Il coupon è stato annullato con successo"
         "404":
           description: "Errore: coupon non trovato"
