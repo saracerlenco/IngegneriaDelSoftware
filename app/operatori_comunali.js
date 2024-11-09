@@ -2,13 +2,7 @@ const express = ('express');
 const router = express.Router();
 const operatore_comunale = require('./models/operatore_comunale');
 
-// router.get('/area_personale/{operatore_comunale}', async (req,res) => {
-//     let operatore_comunale = await Operatore_comunale.findOne({email: req.bdy.email });
-//     res.status(200).json({
-//         self:TODO
-//     })
-// })
-
+// Registrazione nuovo operatore_comunale
 router.post('', async (req,res) => {
     let operatore_comunale = new Operatore_comunale({
         nome: req.body.email,
@@ -39,9 +33,47 @@ router.post('', async (req,res) => {
 
     let operatore_comunaleId = operatore_comunale.id;
 
-    res.location("progettoComune/app/cittadini" + operatore_comunaleId).status(201).send(); // ????
+    res.location("/ap1/v1/operatori_comunali" + operatore_comunaleId).status(201).send(); // ????
 
 });
+
+
+// Visualizzazione area personale dell'operatore_comunale
+router.get('', async (req,res) => {
+    if(!req.loggedUser) { return; }
+    
+    let operatore_comunale = await Operatore_Comunale.findOne({email: req.body.email });
+    res.status(200).json({
+        self: 'api/v1/azienda',
+        nome: operatore_comunale.nome,
+        cognome: operatore_comunale.cognome,
+        email: operatore_comunale.email,
+        codice_fiscale: operatore_comunale.codice_fiscale,
+        password: operatore_comunale.password
+    })
+})
+
+// Modifica area personale operatore_comunale DA RIVEDERE 
+router.put('', async(req,res) => {
+    try{
+        const { dati } = req.body;
+        if(!dati){ return res.status(400).json({error:"Richiesta non valida: dati mancanti o non validi"})};
+
+        const operatore_comunale = await Operatore_Comunale.findOneAndUpdate(
+            { email: req.loggedUser.email },
+            { $set: dati },
+            { new: true }
+        );
+        res.status(200).json({
+            message: "Dati modificati con successo",
+            dati: operatore_comunale
+        });
+
+    } catch(err) {
+        console.error(err);
+        res.status(500).json({ error: "Errore del server, riprova più tardi"});
+    }
+})
 
 function checkIfEmailInString(text) {
     // eslint-disable-next-line

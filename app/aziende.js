@@ -2,13 +2,7 @@ const express = ('express');
 const router = express.Router();
 const azienda = require('./models/azienda');
 
-// router.get('/area_personale/{azienda}', async (req,res) => {
-//     let azienda = await Azienda.findOne({email: req.bdy.email });
-//     res.status(200).json({
-//         self:TODO
-//     })
-// })
-
+// Registrazione nuova azienda
 router.post('', async (req,res) => {
     let azienda = new Azienda({
         nome_azienda: req.body.email,
@@ -34,9 +28,45 @@ router.post('', async (req,res) => {
 
     let aziendaId = azienda.id;
 
-    res.location("progettoComune/app/cittadini" + aziendaId).status(201).send(); // ????
+    res.location("/api/v1/aziende" + aziendaId).status(201).send(); // ????
 
 });
+
+// Visualizzazione area personale dell'azienda
+router.get('', async (req,res) => {
+    if(!req.loggedUser) { return; }
+    
+    let azienda = await Azienda.findOne({email: req.body.email });
+    res.status(200).json({
+        self: 'api/v1/azienda',
+        nome: azienda.nome_azienda,
+        partita_IVA: azienda.partita_IVA,
+        email: azienda.email,
+        password: azienda.password
+    })
+})
+
+// Modifica area personale azienda DA RIVEDERE 
+router.put('', async(req,res) => {
+    try{
+        const { dati } = req.body;
+        if(!dati){ return res.status(400).json({error:"Richiesta non valida: dati mancanti o non validi"})};
+
+        const azienda = await Azienda.findOneAndUpdate(
+            { email: req.loggedUser.email },
+            { $set: dati },
+            { new: true }
+        );
+        res.status(200).json({
+            message: "Dati modificati con successo",
+            dati: azienda
+        });
+
+    } catch(err) {
+        console.error(err);
+        res.status(500).json({ error: "Errore del server, riprova più tardi"});
+    }
+})
 
 function checkIfEmailInString(text) {
     // eslint-disable-next-line

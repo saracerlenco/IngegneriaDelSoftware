@@ -16,5 +16,8 @@ module.exports = mongoose.model('Evento', new Schema({
             message: '{VALUE} non è un numero intero - i punti devono essere di tipo intero'
         },
         default: 0
+    },
+    creatore: {
+        type: Schema.Types._id, ref: 'Cittadino'
     }
 }));
