@@ -1,10 +1,10 @@
-const express = ('express');
+const express = require('express');
 const router = express.Router();
-const operatore_comunale = require('./models/operatore_comunale');
+const Operatore_Comunale = require('./models/operatore_comunale');
 
 // Registrazione nuovo operatore_comunale
 router.post('', async (req,res) => {
-    let operatore_comunale = new Operatore_comunale({
+    let operatore_comunale = new Operatore_Comunale({
         nome: req.body.email,
         cognome: req.body.cognome,
         email: req.body.email,

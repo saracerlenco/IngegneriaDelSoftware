@@ -1,10 +1,10 @@
 // Aggiungere accesso con credenziali Google???
 const express = require('express');
 const router = express.Router();
-const Cittadino = require('.models/Cittadino');
-const Operatore_Comunale = require('.models/operatore_comunale');
-const Azienda = require('.models/Azienda');
-const jwt = require('jswebtoken');
+const Cittadino = require('./models/cittadino');
+const Operatore_Comunale = require('./models/operatore_comunale');
+const Azienda = require('./models/azienda');
+const jwt = require('jsonwebtoken');
 
 router.post('', async function(req,res) {
     // Verifica della tipologia di utente TODO

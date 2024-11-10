@@ -1,6 +1,6 @@
-const express = ('express');
+const express = require('express');
 const router = express.Router();
-const azienda = require('./models/azienda');
+const Azienda = require('./models/azienda');
 
 // Registrazione nuova azienda
 router.post('', async (req,res) => {
