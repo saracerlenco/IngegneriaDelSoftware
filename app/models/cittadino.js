@@ -6,5 +6,10 @@ module.exports = mongoose.model('Citadino', new Schema({
     email: String,
     codice_fiscale: String,
     username: String,
-    password: String
+    password: String,
+    ruolo: {
+        type: String,
+        enum: ['cittadino', 'azienda', 'operatore_comunale'],
+        default: 'cittadino'
+    }
 }));
