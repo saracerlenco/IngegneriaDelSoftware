@@ -6,7 +6,7 @@ info:
 
 #IMPORTANTE! DOBBIAMO SOSTITUIRE I SERVER CON I NOSTRI
 servers:
-  - url: http://localhost:8000/api/v1
+  - url: http://localhost:3000/api/v1
     description: Localhost
 
 components:
@@ -21,10 +21,10 @@ components:
 paths:
 
 # session per gestire LOGIN (post) e LOGOUT (delete) degli utenti
-  /session:
+  /sessions:
     post:
       summary: "Autenticazione utente tramite credenziali locali"
-      description: "L'utente può autenticarsi immettendo username e password"
+      description: "L'utente può autenticarsi immettendo email e password"
       tags: 
         - "session"
       requestBody:
@@ -34,14 +34,18 @@ paths:
             schema:
               type: "object"
               properties:
-                username:
+                email:
                   type: "string"
-                  description: "Nome utente"
-                  example: "Pippo"
+                  description: "Email utente"
+                  example: "Pippo@gmail.com"
                 password:
                   type: "string"
                   description: "Password associata all'account"
                   example: "PasswordDiPippo123F"
+                ruolo:
+                  enum: ["cittadino", "azienda", "operatore_comunale"]
+                  description: "Ruolo dell'utente - cittadino, azienda o operatore_comunale"
+                  example: "cittadino"
       responses:
         "200":
           description: "L'autenticazione tramite credenziali locali è avvenuta con successo"
@@ -110,7 +114,7 @@ paths:
                     example: "Errore del server, riprova più tardi"  
 
 # 3 tipi di utenti con registrazione (post), visualizzazione (get) e modifica (put/patch) dell'area personale
-  /cittadino: 
+  /cittadini: 
     post:
       summary: "Registrazione utente cittadino"
       description: "Registrazione dell'utente con richiesta di parametri specifici per il cittadino"
@@ -239,7 +243,7 @@ paths:
                     type: "string"
                     example: "Errore del server, riprova più tardi"
 
-  /operatore_comunale: 
+  /operatori_comunali: 
     post:
       summary: "Registrazione utente operatore comunale"
       description: "Registrazione dell'utente con richiesta di parametri specifici per l'operatore comunale"
@@ -368,7 +372,7 @@ paths:
                     type: "string"
                     example: "Errore del server, riprova più tardi"
 
-  /azienda: 
+  /aziende: 
     post: 
       summary: "Registrazione utente azienda"
       description: "Registrazione dell'utente con richiesta di parametri specifici per l'azienda"
@@ -497,7 +501,7 @@ paths:
 
 
   #gestione eventi
-  /evento:
+  /eventi:
     get:
       summary: "Lista degli eventi"
       description: "Restituisce la lista degli eventi, filtrabili per tipologia o data"
@@ -636,8 +640,71 @@ paths:
                     type: "string"
                     example: "Errore del server, riprova più tardi"
 
+  /eventi/:id_evento:
+    put: 
+      summary: "Assegnazione punti ad un evento"
+      description: "Permette all'utente operatore_comunale di assegnare un punteggio ad un evento"
+      tags:
+        - "evento"
+      security:
+        - TokenAutenticazione: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                punti:
+                  type: "integer"
+                  description: "Punteggio assegnato al coupon"
+              required: [ "punti"]
+      responses:
+        "200":
+          description: "Il punteggio è stato assegnato all'evento dal comune con successo"
+        "400":
+          description: "Richiesta non valida: dati mancanti o non validi"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Richiesta non valida"
+        "403":  
+          description: "Forbidden: la tipologia di utente non permette la proposta di coupon"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Azione non permessa"
+        "404":
+          description: "Evento non trovato"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Evento non trovato"
+        "500":
+          description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
 
-  /partecipazione/{id_evento}:
+
+  /partecipazioni/{id_evento}:
     parameters:
       - name: "id_evento"
         in: "path"
@@ -671,6 +738,16 @@ paths:
                     type: "string"
                     description: "ID dell'evento a cui partecipi"
                     example: "67890"
+        "403":  
+          description: "Forbidden: la tipologia di utente non permette la proposta di coupon"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Azione non permessa"
         "404":
           description: "Evento non trovato"
           content:
@@ -712,6 +789,16 @@ paths:
                       type: "string"
                     id_cittadino:
                       type: "string"
+        "404":
+          description: "Evento non trovato"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Evento non trovato"
         "500":
           description: "Errore del server"
           content:
@@ -754,7 +841,7 @@ paths:
                     example: "Errore del server, riprova più tardi"
 
 
-  /sponsorizzazione/{id_evento}:
+  /sponsorizzazioni/{id_evento}:
     parameters:
       - name: "id_evento"
         in: "path"
@@ -872,7 +959,7 @@ paths:
 
 
   #gestione feedback 
-  /feedback/{id_evento}:
+  /feedbacks/{id_evento}:
     parameters:
     - name: "id_evento"
       in: "path"
@@ -999,7 +1086,7 @@ paths:
                     example: "Errore del server, riprova più tardi"
 
 #gestione coupon
-  /coupon:
+  /coupons:
     post:
       summary: "Offri coupon"
       description: "Permette alle aziende di proporre coupon e sconti - poi dovranno essere approvati e convertiti in punti dal comune"
@@ -1102,7 +1189,7 @@ paths:
                   error:
                     type: "string"
                     example: "Errore del server, riprova più tardi"
-  /coupon/{id_coupon}:  
+  /coupons/:id_coupon:  
     parameters:
     - name: "id_coupon"
       in: "path"
@@ -1143,6 +1230,16 @@ paths:
                   error:
                     type: "string"
                     example: "Richiesta non valida"
+        "403":  
+          description: "Forbidden: la tipologia di utente non permette la proposta di coupon"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Azione non permessa"
         "404":
           description: "Coupon non trovato"
           content:

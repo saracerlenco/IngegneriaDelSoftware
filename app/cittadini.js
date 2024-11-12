@@ -1,61 +1,63 @@
 const express = require ('express');
 const router = express.Router();
 const Cittadino = require('./models/cittadino');
+const tokenChecker = require('./tokenChecker');
 
 // Registrazione nuovo cittadino
 router.post('', async (req,res) => {
-    let cittadino = new Cittadino({
-        nome: req.body.email,
+    try{
+        let cittadino = new Cittadino({
+        nome: req.body.nome,
         cognome: req.body.cognome,
         email: req.body.email,
         codice_fiscale: req.body.codice_fiscale,
         username: req.body.username,
         password: req.body.password,
-    });
+        });
 
-    if(!cittadino.nome || typeof cittadino.nome != 'string') {
-        res.status(400).json({ error: 'Il campo nome deve essere di tipo string'});
-        return;
-    } 
-    if (!cittadino.cognome || typeof cittadino.cognome != 'string') {
-        res.status(400).json({ error: 'Il campo cognome deve essere di tipo string'});
-        return;
-    } 
-    if (!cittadino.email || typeof cittadino.email != 'string' || !checkIfEmailInString(cittadino.email)) {
-        res.status(400).json({ error: 'Il campo email deve essere di tipo string di formato email'});
-        return;
-    } 
-    if (!cittadino.codice_fiscale || typeof cittadino.codice_fiscale != 'string') {
-        res.status(400).json({ error: 'Il campo codice_fiscale deve essere di tipo string'});
-        return;
+        if(!cittadino.nome || typeof cittadino.nome != 'string') {
+            return res.status(400).json({ error: 'Richiesta non valida: il campo nome deve essere di tipo string'});
+        } 
+        if (!cittadino.cognome || typeof cittadino.cognome != 'string') {
+            return res.status(400).json({ error: 'Richiesta non valida: il campo cognome deve essere di tipo string'});
+        } 
+        if (!cittadino.email || typeof cittadino.email != 'string' || !checkIfEmailInString(cittadino.email)) {
+            return res.status(400).json({ error: 'Richiesta non valida: il campo email deve essere di tipo string di formato email'});
+        } 
+        if (!cittadino.codice_fiscale || typeof cittadino.codice_fiscale != 'string') {
+            return res.status(400).json({ error: 'Richiesta non valida: il campo codice_fiscale deve essere di tipo string'});
+        }
+        
+        cittadino = await cittadino.save();
+
+        res.location("/api/v1/cittadini").status(201).send();
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Errore del server, riprova più tardi"});
     }
-    
-    cittadino = await cittadino.save();
-
-    let cittadinoId = cittadino.id;
-
-    res.location("/api/v1/cittadini" + cittadinoId).status(201).send();
 
 });
 
 // Visualizzazione area personale del cittadino
-router.get('', async (req,res) => {
-    if(!req.loggedUser) { return; }
-    
-    let cittadino = await Cittadino.findOne({email: req.body.email });
-    res.status(200).json({
-        self: 'api/v1/cittadino',
-        nome: cittadino.nome,
-        cognome: cittadino.cognome,
-        email: cittadino.email,
-        codice_fiscale: cittadino.codice_fiscale,
-        username: cittadino.username,
-        password: cittadino.password
-    })
+router.get('', tokenChecker, async (req,res) => {
+    try {        
+        let cittadino = await Cittadino.findOne({email: req.loggedUser.email });
+        res.status(200).json({
+            self: '/api/v1/cittadini',
+            nome: cittadino.nome,
+            cognome: cittadino.cognome,
+            email: cittadino.email,
+            codice_fiscale: cittadino.codice_fiscale,
+            username: cittadino.username,
+        })
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Errore del server, riprova più tardi"});
+    }
 })
 
 // Modifica area personale cittadino DA RIVEDERE 
-router.put('', async(req,res) => {
+router.put('', tokenChecker, async(req,res) => {
     try{
         const { dati } = req.body;
         if(!dati){ return res.status(400).json({error:"Richiesta non valida: dati mancanti o non validi"})};
@@ -72,7 +74,7 @@ router.put('', async(req,res) => {
 
     } catch(err) {
         console.error(err);
-        res.status(500).json({ error: "Errore del server, riprova più tardi"});
+        return res.status(500).json({ error: "Errore del server, riprova più tardi"});
     }
 })
 
