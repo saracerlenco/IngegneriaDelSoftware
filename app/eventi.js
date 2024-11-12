@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Evento = require('./models/evento.js');
+const tokenChecker = require('./tokenChecker.js');
 
 //  Resituisce un array di eventi in base a un filtro
 router.get('', async (req,res) => {
@@ -12,51 +13,42 @@ router.get('', async (req,res) => {
             filtro.tipologia = req.query.tipologia;
         }
         if(req.query.data){
-            filtro.data = new Date(req.query.data); // converte la data in fomrato Date
+            filtro.data = new Date(req.query.data); // converte la data in formato Date
         }
         if(req.query.luogo){
             filtro.luogo = req.query.luogo;
         }
 
-        // Ricerca degli eventi dìnel DB in base al filtro
+        // Ricerca degli eventi nel DB in base al filtro
         const eventi = await Evento.find(filtro);
 
-        // Mappa i risultati nel formato JSON richiesto
-        const response = eventi.map(evento => ({
+        // Invio della lista come risposta
+        res.status(200).json(eventi.map(evento => ({
+            self: '/api/v1/eventi',
             id_evento: evento._id,
-            nome_evento: evento,
-            data: evento.dara,
+            nome_evento: evento.nome_evento,
+            data: evento.data,
             luogo: evento.luogo,
             tipologia: evento.tipologia,
             descrizione: evento.descrizione,
             punti: evento.punti,
             creatore: evento.creatore.username
-        }))
-
-        // Invio della lista come risposta
-        res.status(200).json(response);
+        })));
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "Errore del server, riprova più tardi"});
+        return res.status(500).json({ error: "Errore del server, riprova più tardi"});
     }
 });
 
-// router.get('/:id', async (req,res) => {
-//     let evento = req['evento'];
-//     res.status(200).json({
-//         self: '/eventi' + evento.id_evento,
-//         nome_evento: evento.nome_evento
-//     });
-// });
-
 // Creazione nuovo evento
-router.post('', async (req,res) => {
+router.post('', tokenChecker, async (req,res) => {
     try{
-        // TODO: da ricavare la tipologia di creatore dell'evento e verificare che non sia un'azienda (errore 403)
+        if(req.loggedUser.ruolo=='azienda'){
+            return res.status(403).json({ error: "Azione non permessa: la tipologia di utente non permette la proposta di eventi"});
+        }
         
         if(!req.body.nome_evento || !req.body.data || !req.body.luogo || !req.body.tipologia || !req.body.descrizione) {
-            res.status(400).json({ error: 'Richiesta non valida: dati mancanti o non validi'});
-            return;
+            return res.status(400).json({ error: 'Richiesta non valida: dati mancanti o non validi'});
         }
 
         let evento = new Evento({
@@ -65,16 +57,44 @@ router.post('', async (req,res) => {
             luogo: req.body.luogo,
             tipologia: req.body.tipologia,
             descrizione: req.body.descrizione,
-            // creatore: COME FARE A RICAVARE L'_ID DEL CREATORE ???
+            creatore: req.loggedUser._id
         });
         evento = await evento.save();
-        let eventoId = evento.id_evento;
-        console.log('Evento creato con successo');
-        res.location("/eventi" + eventoId).status(201).send();
+        //console.log('Evento creato con successo');
+        res.location("/api/v1/eventi").status(201).send();
 } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Errore del server, riprova più tardi"});
+    return res.status(500).json({ error: "Errore del server, riprova più tardi"});
 }
+});
+
+// DA CONTROLLARE SU POSTMAN
+router.put('/:id_evento', async (req,res) => {
+    try{
+        if(req.loggedUser.ruolo != 'operatore_comunale'){
+            return res.status(403).json({ error: "Azione non permessa: la tipologia di utente non permette l'assegnazione di punti ad un evento"});
+        }
+        if(!req.params.id_evento){
+            return res.status(404).json({ error: "Evento non trovato"});
+        }
+        const { punti } = req.body.punti;
+        if(!punti) {
+            return res.status(400).json({ error: "Richiesta non valida: dati mancanti o non validi"});
+        }
+        const { dati } = req.body;
+        const evento = await Evento.findOneAndUpdate(
+            { _id: req.params.id_evento },
+            { $set: dati },
+            { new: true }
+        );
+        res.status(200).json({
+            message: "Dati modificati con successo",
+            dati: evento
+        })
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({ error: "Errore del server, riprova più tardi"});
+    }
 });
 
 module.exports = router;

@@ -1,39 +1,45 @@
 // Aggiungere accesso con credenziali Google???
 const express = require('express');
 const router = express.Router();
-const Cittadino = require('.models/Cittadino');
-const Operatore_Comunale = require('.models/operatore_comunale');
-const Azienda = require('.models/Azienda');
-const jwt = require('jswebtoken');
+const Cittadino = require('./models/cittadino');
+const Operatore_Comunale = require('./models/operatore_comunale');
+const Azienda = require('./models/azienda');
+const jwt = require('jsonwebtoken');
+const tokenChecker = require('./tokenChecker');
 
 router.post('', async function(req,res) {
-    // Verifica della tipologia di utente TODO
-    if(req.body.ruolo=='cittadino') {
-        let utente = await Cittadino.findOne({ email: req.body.email }).exec()
-    } else if(req.body.ruolo=='azienda'){
-        let utente = await Azienda.findOne({ email: req.body.email }).exec()
+    let utente = {};
+    
+    if(req.body.ruolo == 'cittadino') {
+        console.log(await Cittadino.find({}))
+        utente = await Cittadino.findOne({ email: req.body.email }).lean();
+        console.log("Utente: " + utente);
+    } else if(req.body.ruolo == 'azienda'){
+        utente = await Azienda.findOne({ email: req.body.email }).exec();
     } else {
-        let utente = await Operatore_Comunale.findOne({ email: req.body.email }).exec()
+        utente = await Operatore_Comunale.findOne({ email: req.body.email }).exec();
     }
+
     
     // Autenticazione dell'utente
-    if(!utente) res.json({
+    if(!utente) return res.status(404).json({
         success: false,
         message: 'Utente non trovato'
     })
-    if(utente.password != req.body.password) res.json({
+    utente.ruolo = req.body.ruolo;
+    if(utente.password != req.body.password) return res.status(401).json({
         succes: false,
-        message: 'Utente non trovato'
+        message: 'Password errata'
     })
 
     // Creazione del token
     const payload = { 
         email: utente.email,
-        id: utente._id,
-        other_data: encrypted_in_the_token
+        _id: utente._id,
+        ruolo: utente.ruolo
     }
-    const options = { expiresIn: 86400 } //il token ha validità 24h
-    const token = jwt.sign(payload,proccess.env.JWT_SECRET, options);
+    const options = { expiresIn: 43200 } //il token ha validità 12h
+    const token = jwt.sign(payload, process.env.JWT_SECRET, options);
 
     res.json({
         success: true,
@@ -41,8 +47,17 @@ router.post('', async function(req,res) {
         token: token,
         email: utente.email,
         id: utente._id,
-        self: "api/v1/"+utente._id
+        self: "/api/v1/"+utente._id
     });
 });
+
+router.delete('', tokenChecker, async (req,res) => {
+    try{
+        //TODO
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Errore del server, riprova più tardi"});
+    }
+})
 
 module.exports = router;

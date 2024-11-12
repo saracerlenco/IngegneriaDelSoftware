@@ -1,15 +1,10 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-module.exports = mongoose.model('Citadino', new Schema({
+module.exports = mongoose.model('Cittadino', new Schema({
     nome: String,
     cognome: String,
     email: String,
     codice_fiscale: String,
     username: String,
     password: String,
-    ruolo: {
-        type: String,
-        enum: ['cittadino', 'azienda', 'operatore_comunale'],
-        default: 'cittadino'
-    }
 }));
