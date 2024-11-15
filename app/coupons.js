@@ -72,10 +72,7 @@ router.put('/:id_coupon', async(req,res) => {
             { $set: dati }, // ???
             { new: true }
         );
-        res.status(200).json({
-            message: "Dati modificati con successo",
-            dati: coupon
-        })
+        res.status(200).send();
 
     } catch (err) {
         console.error(err);
