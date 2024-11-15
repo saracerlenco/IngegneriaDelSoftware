@@ -1,5 +1,5 @@
 require('dotenv').config(); // carica le variabili di ambiente
-const app = require('./app.js'); // importa l'app configurata in app.js
+const app = require('./app/app.js'); // importa l'app configurata in app.js
 const mongoose = require('mongoose');
 
 const port = process.env.PORT || 8000;
