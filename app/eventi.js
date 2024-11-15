@@ -69,7 +69,7 @@ router.post('', tokenChecker, async (req,res) => {
 });
 
 // DA CONTROLLARE SU POSTMAN
-router.put('/:id_evento', async (req,res) => {
+router.put('/:id_evento', tokenChecker, async (req,res) => {
     try{
         if(req.loggedUser.ruolo != 'operatore_comunale'){
             return res.status(403).json({ error: "Azione non permessa: la tipologia di utente non permette l'assegnazione di punti ad un evento"});
@@ -77,20 +77,17 @@ router.put('/:id_evento', async (req,res) => {
         if(!req.params.id_evento){
             return res.status(404).json({ error: "Evento non trovato"});
         }
-        const { punti } = req.body.punti;
-        if(!punti) {
+        const dati = req.body;
+        if(!dati) {
             return res.status(400).json({ error: "Richiesta non valida: dati mancanti o non validi"});
         }
-        const { dati } = req.body;
+        
         const evento = await Evento.findOneAndUpdate(
             { _id: req.params.id_evento },
             { $set: dati },
             { new: true }
         );
-        res.status(200).json({
-            message: "Dati modificati con successo",
-            dati: evento
-        })
+        res.status(200).send();
     } catch(err) {
         console.error(err);
         return res.status(500).json({ error: "Errore del server, riprova più tardi"});

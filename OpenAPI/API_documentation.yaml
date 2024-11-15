@@ -704,7 +704,7 @@ paths:
                     example: "Errore del server, riprova più tardi"
 
 
-  /partecipazioni/{id_evento}:
+  /partecipazioni/:id_evento:
     parameters:
       - name: "id_evento"
         in: "path"
@@ -841,7 +841,7 @@ paths:
                     example: "Errore del server, riprova più tardi"
 
 
-  /sponsorizzazioni/{id_evento}:
+  /sponsorizzazioni/:id_evento:
     parameters:
       - name: "id_evento"
         in: "path"
@@ -959,7 +959,7 @@ paths:
 
 
   #gestione feedback 
-  /feedbacks/{id_evento}:
+  /feedbacks/:id_evento:
     parameters:
     - name: "id_evento"
       in: "path"
@@ -1290,3 +1290,4 @@ paths:
                   error:
                     type: "string"
                     example: "Errore del server, riprova più tardi"
+                    

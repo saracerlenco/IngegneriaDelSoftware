@@ -18,7 +18,6 @@ router.get('/:id_evento', async (req,res) => {
         let feedbacks = await Feedback.find(filtro);
         res.status(200).json(feedbacks.map( feedback => ({
             self: `/api/v1/feedbacks/${req.params.id_evento}`,
-            //id_evento: req.params.id_evento, // Teoricamente non serve
             username: feedback.id_cittadino,
             rating: feedback.rating,
             commento: feedback.commento

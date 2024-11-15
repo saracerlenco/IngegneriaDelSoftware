@@ -20,9 +20,7 @@ router.post('/:id_evento', async (req,res) => {
             id_azienda: req.loggedUser._id
         });
         sponsorizzazione = await sponsorizzazione.save();
-        res.location(`/api/v1/sponsorizzazioni/${req.params.id_evento}`).status(201).json({
-            message: "La sponsorizzazione dell'evento è stata registrata con successo"
-        });
+        res.location(`/api/v1/sponsorizzazioni/${req.params.id_evento}`).status(201).send();
     } catch (err) {
         console.error(err);
         return res.status(500).json({ error: "Errore del server, riprova più tardi"});

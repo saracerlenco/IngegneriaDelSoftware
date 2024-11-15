@@ -42,12 +42,11 @@ router.post('', async function(req,res) {
     const token = jwt.sign(payload, process.env.JWT_SECRET, options);
 
     res.json({
-        success: true,
         message: 'Token creato con successo',
         token: token,
         email: utente.email,
         id: utente._id,
-        self: "/api/v1/"+utente._id
+        self: "/api/v1/cittadini"
     });
 });
 
