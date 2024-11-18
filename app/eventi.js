@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Evento = require('./models/evento.js');
-const tokenChecker = require('./tokenChecker.js');
+const { tokenChecker } = require('./tokenChecker.js');
 
 //  Resituisce un array di eventi in base a un filtro
 router.get('', async (req,res) => {

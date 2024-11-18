@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Azienda = require('./models/azienda');
-const tokenChecker = require('./tokenChecker');
+const { tokenChecker } = require('./tokenChecker');
 
 // Registrazione nuova azienda
 router.post('', async (req,res) => {

@@ -1,7 +1,7 @@
 const express = require ('express');
 const router = express.Router();
 const Cittadino = require('./models/cittadino');
-const tokenChecker = require('./tokenChecker');
+const { tokenChecker } = require('./tokenChecker.js');
 
 // Registrazione nuovo cittadino
 router.post('', async (req,res) => {

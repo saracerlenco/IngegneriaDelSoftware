@@ -5,7 +5,7 @@ const Cittadino = require('./models/cittadino');
 const Operatore_Comunale = require('./models/operatore_comunale');
 const Azienda = require('./models/azienda');
 const jwt = require('jsonwebtoken');
-const tokenChecker = require('./tokenChecker');
+const { tokenChecker, revoke } = require('./tokenChecker');
 
 router.post('', async function(req,res) {
     let utente = {};
@@ -27,10 +27,7 @@ router.post('', async function(req,res) {
         message: 'Utente non trovato'
     })
     utente.ruolo = req.body.ruolo;
-    if(utente.password != req.body.password) return res.status(401).json({
-        succes: false,
-        message: 'Password errata'
-    })
+    if(utente.password != req.body.password) return res.status(401).json({ error: "Errore: Token non valido o inesistente" });
 
     // Creazione del token
     const payload = { 
@@ -50,9 +47,15 @@ router.post('', async function(req,res) {
     });
 });
 
-router.delete('', tokenChecker, async (req,res) => {
+router.delete('', async (req,res) => {
     try{
-        //TODO
+        const token = req.header.authorization?.split(' '[1]);
+        if(token){
+            revoke(token);
+            return res.status(401).json({ error: "Errore: Token non valido o inesistente"})
+        }
+        
+        res.status(204).json({ message: "Logout effettuato con successo"});
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Errore del server, riprova più tardi"});

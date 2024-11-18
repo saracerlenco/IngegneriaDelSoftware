@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Operatore_Comunale = require('./models/operatore_comunale');
-const tokenChecker = require('./tokenChecker');
+const { tokenChecker } = require('./tokenChecker');
 
 // Registrazione nuovo operatore_comunale
 router.post('', async (req,res) => {

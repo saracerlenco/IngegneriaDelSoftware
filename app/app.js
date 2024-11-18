@@ -1,6 +1,6 @@
 const Path = require('path');
 
-const express= require('express');
+const express = require('express');
 const app = express();
 
 // Rotta di esempio
@@ -10,7 +10,7 @@ app.get('/', (req,res) => {
 
 // authentication
 const authentication = require('./authentication.js');
-const tokenChecker = require('./tokenChecker');
+const { tokenChecker, revoke } = require('./tokenChecker');
 
 // importazione file che definiscono le rotte
 const cittadini = require('./cittadini.js');
@@ -21,6 +21,7 @@ const feedbacks = require('./feedbacks.js');
 const coupons = require('./coupons.js');
 const partecipazioni = require('./partecipazioni.js');
 const sponsorizzazioni = require('./sponsorizzazioni.js');
+const shops = require('./shops.js');
 
 // configurazione middleware
 app.use(express.json());
@@ -48,6 +49,9 @@ app.use('/api/v1/partecipazioni', partecipazioni);
 
 app.use('/api/v1/sponsorizzazioni', tokenChecker);
 app.use('/api/v1/sponsorizzazioni', sponsorizzazioni);
+
+app.use('/api/v1/shops', tokenChecker);
+app.use('/api/v1/shops', shops);
 
 //Esportazione apllicazione configurata
 module.exports = app;

@@ -1161,7 +1161,7 @@ paths:
         - TokenAutenticazione: []      
       responses:
         "200":
-          description: "Lista degli eventi"
+          description: "Lista dei coupon"
           content:
             application/json:
               schema:
@@ -1290,4 +1290,104 @@ paths:
                   error:
                     type: "string"
                     example: "Errore del server, riprova più tardi"
-                    
+                  
+  /shop:
+    get:
+      summary: "Lista dei coupon del cittadino"
+      description: "Restituisce la lista dei coupon offerti dalle aziende che il cittadino ha ottenuto convertendo i punti guadagnati"
+      tags: 
+        - "shop"
+      security:
+        - TokenAutenticazione: []      
+      responses:
+        "200":
+          description: "Lista dei coupon"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    id_coupon:
+                      type: "string"
+        "403":  
+          description: "Forbidden: la tipologia di utente non permette la proposta di coupon"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Azione non permessa"
+        "500":
+          description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
+  /shop/id_coupon:
+    post:
+      summary: "Aggiungi coupon allo shop del cittadino"
+      description: "Permette ai cittadini di convertire i propri punti in coupon"
+      tags: 
+        - "shop"
+      security:
+        - TokenAutenticazione: []       
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                id_coupon:
+                  type: "string"
+                  example: "1234"
+      responses:
+        "201":
+          description: "Coupon aggiunto allo shop"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id_coupon: 
+                    type: "string"
+                    description: "ID del coupon appena aggiunto allo shop"
+                    example: "12345"
+        "403":  
+          description: "Forbidden: la tipologia di utente non permette la proposta di coupon"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Azione non permessa"
+        "404":
+          description: "Errore: coupon non trovato"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Coupon inesistente"
+        "500":
+          description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi!"
