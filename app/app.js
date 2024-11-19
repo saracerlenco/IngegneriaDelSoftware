@@ -21,7 +21,7 @@ const feedbacks = require('./feedbacks.js');
 const coupons = require('./coupons.js');
 const partecipazioni = require('./partecipazioni.js');
 const sponsorizzazioni = require('./sponsorizzazioni.js');
-const shops = require('./shops.js');
+const coupons_cittadino = require('./coupons_cittadino.js');
 
 // configurazione middleware
 app.use(express.json());
@@ -50,8 +50,8 @@ app.use('/api/v1/partecipazioni', partecipazioni);
 app.use('/api/v1/sponsorizzazioni', tokenChecker);
 app.use('/api/v1/sponsorizzazioni', sponsorizzazioni);
 
-app.use('/api/v1/shops', tokenChecker);
-app.use('/api/v1/shops', shops);
+app.use('/api/v1/coupons_cittadino', tokenChecker);
+app.use('/api/v1/coupons_cittadino', coupons_cittadino);
 
 //Esportazione apllicazione configurata
 module.exports = app;
