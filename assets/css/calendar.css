@@ -1,0 +1,30 @@
+
+.calendar-container {
+    display: flex; /* Disposizione orizzontale */
+    align-items: start; /* Allinea label e input verticalmente */
+    gap: 10px; /* Spazio tra label e input */
+    background: #ffffff;
+}
+
+.calendar-label {
+    font-size: 16px;
+    color: #333;
+    white-space: nowrap; /* Impedisce che la label vada a capo */
+}
+
+.date-picker {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    max-width: 250px;
+    transition: border-color 0.3s ease;
+}
+
+.date-picker:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 3px rgba(0, 123, 255, 0.3);
+}
+

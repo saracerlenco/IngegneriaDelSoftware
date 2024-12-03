@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>DiscoverTrento</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="shortcut icon" href="images/logo.ico" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper" class="fade-in">
+
+				<!-- Intro -->
+					<div id="intro">
+						<h1>Discover-Trento</h1>
+						<p>Un sito per esplorare il comune di Trento, partecipare ad eventi e utilizzare al meglio il tuo tempo libero.</p>
+						<p>
+							WebApp a cura di Sara Cerlenco, Davide Gaspari, Stefania La Rosa
+						</p>
+						
+					</div>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li class="active"><a href="index.html">Mappa</a></li>
+							<li><a href="pages/eventi.html">Eventi</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a href="pages/login.html">Login </a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+				<div id="main">
+					<meta charset="UTF-8">
+					<meta name="viewport" content="width=device-width, initial-scale=1.0">
+					<title></title>
+					<!-- Includi i file di Leaflet -->
+					<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+					<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+					<style>
+						#map {
+							height: 700px;
+							width: 100%;
+						}
+					</style>
+					<h4>Scopri gli eventi di oggi</h4>
+					<!-- Contenitore della mappa -->
+					<div id="map"></div>
+					<script>
+						// Inizializza la mappa e imposta la vista iniziale
+						var map = L.map('map').setView([46.0667, 11.1211], 10); // Coordinate di Povo
+
+						// Aggiungi il layer OpenStreetMap
+						L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+							attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+						}).addTo(map);
+
+						// Aggiungi un marker
+						L.marker([46.0656, 11.1498]).addTo(map)
+							.bindPopup('Noi siamo qui :)')
+							.openPopup();
+					</script>					
+				</div>
+			<!-- Copyright -->
+			<div id="copyright">
+				<ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
