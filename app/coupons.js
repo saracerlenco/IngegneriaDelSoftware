@@ -68,7 +68,7 @@ router.put('/:id_coupon', tokenChecker, async(req,res) => {
         if(!req.body.approvato || !req.body.punti){
             return res.status(400).json({ error: "Richiesta non valida: dati mancanti o non validi"});
         }
-        const { dati } = req.body; // va bene ???
+        const { dati } = req.body;
 
         if( req.loggedUser.ruolo != 'operatore_comunale'){
             return res.status(403).json({ error: "Azione non permessa"});

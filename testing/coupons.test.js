@@ -116,7 +116,7 @@ describe('PUT /coupons/:{id_coupon}', () => {
     expect(res.status).toBe(200);
   });
 
-  test('Coupon non ritrovato', async () => {
+  test('Coupon non trovato', async () => {
     const res = await request(app)
       .put('/api/v1/coupons/'+'6781868e62905e7412640d06')
       .set('x-access-token', tokenComune)
