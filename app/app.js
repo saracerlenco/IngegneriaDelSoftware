@@ -5,12 +5,12 @@ const app = express();
 
 // Rotta di esempio
 app.get('/', (req,res) => {
-    res.send('hello world!');
+    res.status(200).send('Hello world!');
 });
 
 // authentication
 const authentication = require('./authentication.js');
-const { tokenChecker, revoke } = require('./tokenChecker');
+const { tokenChecker, revoke } = require('./tokenChecker.js');
 
 // importazione file che definiscono le rotte
 const cittadini = require('./cittadini.js');
@@ -53,5 +53,5 @@ app.use('/api/v1/sponsorizzazioni', sponsorizzazioni);
 app.use('/api/v1/coupons_cittadino', tokenChecker);
 app.use('/api/v1/coupons_cittadino', coupons_cittadino);
 
-//Esportazione apllicazione configurata
+//Esportazione applicazione configurata
 module.exports = app;

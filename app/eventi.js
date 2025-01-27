@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Evento = require('./models/evento.js');
 const { tokenChecker } = require('./tokenChecker.js');
+const { Types } = require('mongoose');
 
 //  Resituisce un array di eventi in base a un filtro
 router.get('', async (req,res) => {
@@ -44,7 +45,7 @@ router.get('', async (req,res) => {
 router.post('', tokenChecker, async (req,res) => {
     try{
         if(req.loggedUser.ruolo=='azienda'){
-            return res.status(403).json({ error: "Azione non permessa: la tipologia di utente non permette la proposta di eventi"});
+            return res.status(401).json({ error: "Azione non permessa: la tipologia di utente non permette la proposta di eventi"});
         }
         
         if(!req.body.nome_evento || !req.body.data || !req.body.luogo || !req.body.tipologia || !req.body.descrizione) {
@@ -60,12 +61,11 @@ router.post('', tokenChecker, async (req,res) => {
             creatore: req.loggedUser._id
         });
         evento = await evento.save();
-        //console.log('Evento creato con successo');
         res.location("/api/v1/eventi").status(201).send();
-} catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Errore del server, riprova più tardi"});
-}
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Errore del server, riprova più tardi"});
+    }
 });
 
 // DA CONTROLLARE SU POSTMAN
@@ -75,7 +75,10 @@ router.put('/:id_evento', tokenChecker, async (req,res) => {
             return res.status(403).json({ error: "Azione non permessa: la tipologia di utente non permette l'assegnazione di punti ad un evento"});
         }
         if(!req.params.id_evento){
-            return res.status(404).json({ error: "Evento non trovato"});
+            return res.status(400).json({ error: "Manca id Evento"});
+        }
+        if(!Types.ObjectId.isValid(req.params.id_evento)){
+            return res.status(401)
         }
         const dati = req.body;
         if(!dati) {

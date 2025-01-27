@@ -1,12 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const Feedback = require('./models/feedback.js');
-const Evento = require('./models/evento.js')
+const Evento = require('./models/evento.js');
+const { tokenChecker } = require('./tokenChecker.js');
 
 //  Resituisce un array di feedback associati ad un evento
-router.get('/:id_evento', async (req,res) => {
+router.get('/:id_evento', tokenChecker, async (req,res) => {
     try{
-        if (!req.params.id_evento) {
+        if(req.loggedUser.ruolo != 'operatore_comunale'){
+            return res.status(403).json({ error: 'Utente non autorizzato' });
+        }
+        
+        let evento = await Evento.findById(req.params.id_evento);
+        if (!evento) {
             return res.status(404).json({ error: "Evento non trovato"});
         }
         
@@ -31,11 +37,16 @@ router.get('/:id_evento', async (req,res) => {
 
 
 // Creazione nuovo feedback
-router.post('/:id_evento', async (req,res) => {
+router.post('/:id_evento', tokenChecker, async (req,res) => {
     try{        
+        
+        if(req.loggedUser.ruolo != 'cittadino'){
+            return res.status(403).json({ error: 'Utente non autorizzato' });
+        }
+
         // Validazione dei dati
-        if (req.body.rating < 1 || req.body.rating > 5 ){
-            return res.status(400).json({ error: "Richiesta non valida: valore del rating non valido"});
+        if ((req.body.rating < 1 || req.body.rating > 5) || !req.body.rating ){
+            return res.status(400).json({ error: "Dati mancanti o non validi"});
         }
 
         let evento = await Evento.findById(req.params.id_evento);

@@ -29,7 +29,7 @@ router.post('', async (req,res) => {
         
         operatore_comunale = await operatore_comunale.save();
 
-        res.location("/ap1/v1/operatori_comunali").status(201).send();
+        res.location("/api/v1/operatori_comunali").status(201).send();
     } catch (err) {
         console.error(err);
         return res.status(500).json({ error: "Errore del server, riprova più tardi"});
@@ -59,7 +59,7 @@ router.get('', tokenChecker, async (req,res) => {
 router.put('', tokenChecker, async(req,res) => {
     try{
         const { dati } = req.body;
-        if(!dati){ return res.status(400).json({error:"Richiesta non valida: dati mancanti o non validi"})};
+        if(!dati){ return res.status(400).json({error:"Richiesta non valida"})};
 
         const operatore_comunale = await Operatore_Comunale.findOneAndUpdate(
             { email: req.loggedUser.email },

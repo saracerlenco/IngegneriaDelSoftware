@@ -1,4 +1,5 @@
 // Aggiungere accesso con credenziali Google???
+const bcrypt = require('bcrypt');
 const express = require('express');
 const router = express.Router();
 const Cittadino = require('./models/cittadino');
@@ -24,10 +25,12 @@ router.post('', async function(req,res) {
     // Autenticazione dell'utente
     if(!utente) return res.status(404).json({
         success: false,
-        message: 'Utente non trovato'
+        error: 'Utente non trovato'
     })
     utente.ruolo = req.body.ruolo;
-    if(utente.password != req.body.password) return res.status(401).json({ error: "Errore: Token non valido o inesistente" });
+    const passwordMatch = await bcrypt.compare(req.body.password, utente.password);
+    if (!passwordMatch) return res.status(401).json({ error: 'Credenziali non valide' });
+
 
     // Creazione del token
     const payload = { 
@@ -43,17 +46,17 @@ router.post('', async function(req,res) {
         token: token,
         email: utente.email,
         id: utente._id,
-        self: "/api/v1/cittadini"
+        self: "/api/v1/${req.body.ruolo}s"
     });
 });
 
-router.delete('', async (req,res) => {
+router.delete('', tokenChecker, async (req,res) => {
     try{
-        const token = req.header.authorization?.split(' '[1]);
-        if(token){
-            revoke(token);
-            return res.status(401).json({ error: "Errore: Token non valido o inesistente"})
+        const token = req.header("x-access-token")
+        if(!token){
+            return res.status(403).json({ error: "Token non valido"})
         }
+        revoke(token);
         
         res.status(204).json({ message: "Logout effettuato con successo"});
     } catch (err) {
