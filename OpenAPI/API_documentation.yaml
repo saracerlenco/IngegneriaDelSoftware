@@ -72,6 +72,16 @@ paths:
                   error:
                     type: "string"
                     example: "Credenziali non valide"
+        "404":
+          description: "Credenziali non valide"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Utente non trovato"
         "500":
           description: "Errore del server"
           content:
@@ -92,6 +102,16 @@ paths:
       responses:
         "204":
           description: "Il logout è avvenuto con successo"
+        "400":
+          description: "Errore: token non valido o mancante"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Token mancante"
         "401":
           description: "Errore: token non valido o mancante"
           content:
@@ -704,6 +724,64 @@ paths:
                     example: "Errore del server, riprova più tardi"
 
 
+  /partecipazioni:
+    get:
+      summary: "Partecipazioni agli eventi"
+      description: "Permette all'utente cittadino che ha effettuato il login di visualizzare la propria to-attend-list"
+      tags: 
+        - "partecipazione"
+      security:
+        - TokenAutenticazione: []
+      responses:
+        "200":
+          description: "Lista degli eventi"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    id_evento:
+                      type: "string"
+                    nome_evento:
+                      type: "string"
+                    data:
+                      type: "string"
+                      format: "date"
+                    luogo:
+                      type: "string"
+                    tipologia:
+                      enum: ["sportivo", "culturale", "volontariato"]
+                    descrizione:
+                      type: "string"
+                    punti:
+                      type: "integer"
+                    creatore:
+                      type: "string"
+                      description: "id del cittadino o dell'operatore comunale che ha creato l'evento"
+        "403":  
+          description: "Forbidden: la tipologia di utente non permette la visualizzazione della partecipazione agli eventi"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Azione non permessa"
+        "500":
+          description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
+
+  
   /partecipazioni/:id_evento:
     parameters:
       - name: "id_evento"
@@ -739,7 +817,7 @@ paths:
                     description: "ID dell'evento a cui partecipi"
                     example: "67890"
         "403":  
-          description: "Forbidden: la tipologia di utente non permette la proposta di coupon"
+          description: "Forbidden: la tipologia di utente non permette la partecipazione agli eventi"
           content:
             application/json:
               schema:
@@ -768,47 +846,57 @@ paths:
                   error:
                     type: "string"
                     example: "Errore del server, riprova più tardi"
-    get:
-      summary: "Lista partecipazioni"
-      description: "Restituisce una lista di partecipazione dei cittadini agli eventi"
-      tags: 
-        - "partecipazione"
-      security:
-        - TokenAutenticazione: []       
-      responses:
-        "200":
-          description: "Lista partecipazioni dei cittadini agli eventi"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  type: "object"
-                  properties:
-                    id_evento:
-                      type: "string"
-                    id_cittadino:
-                      type: "string"
-        "404":
-          description: "Evento non trovato"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  error:
-                    type: "string"
-                    example: "Evento non trovato"
-        "500":
-          description: "Errore del server"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  error:
-                    type: "string"
-                    example: "Errore del server, riprova più tardi"
+    # get:
+    #   summary: "Lista partecipazioni"
+    #   description: "Restituisce una lista di partecipazione dei cittadini agli eventi"
+    #   tags: 
+    #     - "partecipazione"
+    #   security:
+    #     - TokenAutenticazione: []       
+    #   responses:
+    #     "200":
+    #       description: "Lista partecipazioni dei cittadini agli eventi"
+    #       content:
+    #         application/json:
+    #           schema:
+    #             type: "array"
+    #             items:
+    #               type: "object"
+    #               properties:
+    #                 id_evento:
+    #                   type: "string"
+    #                 id_cittadino:
+    #                   type: "string"
+    #     "403":  
+    #       description: "Forbidden: la tipologia di utente non permette la visualizzazione delle partecipazioni agli eventi"
+    #       content:
+    #         application/json:
+    #           schema:
+    #             type: "object"
+    #             properties:
+    #               error:
+    #                 type: "string"
+    #                 example: "Azione non permessa"
+    #     "404":
+    #       description: "Evento non trovato"
+    #       content:
+    #         application/json:
+    #           schema:
+    #             type: "object"
+    #             properties:
+    #               error:
+    #                 type: "string"
+    #                 example: "Evento non trovato"
+    #     "500":
+    #       description: "Errore del server"
+    #       content:
+    #         application/json:
+    #           schema:
+    #             type: "object"
+    #             properties:
+    #               error:
+    #                 type: "string"
+    #                 example: "Errore del server, riprova più tardi"
     delete:
       summary: "Cancellazione partecipazione"
       description: "Permette di annullare la partecipazione di un cittadino ad un evento"
@@ -819,8 +907,8 @@ paths:
       responses:
         "204":
           description: "La partecipazione è stata annullata con successo"
-        "404":
-          description: "Errore: partecipazione non trovata"
+        "403":
+          description: "Utente non autorizzato"
           content:
             application/json:
               schema:
@@ -828,7 +916,75 @@ paths:
                 properties:
                   error:
                     type: "string"
-                    example: "Partecipazione inesistente"
+                    example: "Token mancante"
+        
+        "404":
+          description: "Evento inesistente"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Evento inesistente"
+        "500":
+          description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
+
+  /sponsorizzazioni:
+    get:
+      summary: "Sponsorizzazione degli eventi"
+      description: "Permette all'utente azienda che ha effettuato il login di visualizzare gli eventi che sponsorizza"
+      tags: 
+        - "sponsorizzazione"
+      security:
+        - TokenAutenticazione: []
+      responses:
+        "200":
+          description: "Lista degli eventi"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    id_evento:
+                      type: "string"
+                    nome_evento:
+                      type: "string"
+                    data:
+                      type: "string"
+                      format: "date"
+                    luogo:
+                      type: "string"
+                    tipologia:
+                      enum: ["sportivo", "culturale", "volontariato"]
+                    descrizione:
+                      type: "string"
+                    punti:
+                      type: "integer"
+                    creatore:
+                      type: "string"
+                      description: "id del cittadino o dell'operatore comunale che ha creato l'evento"
+        "403":  
+          description: "Forbidden: la tipologia di utente non permette la visualizzazione delle sponsorizzazioni degli eventi"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Azione non permessa"
         "500":
           description: "Errore del server"
           content:
@@ -875,6 +1031,16 @@ paths:
                     type: "string"
                     description: "ID dell'evento sponsorizzato"
                     example: "67890"
+        "403":  
+          description: "Forbidden: la tipologia di utente non permette la sponsorizzazione di eventi"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Azione non permessa"
         "404":
           description: "Evento non trovato"
           content:
@@ -895,37 +1061,37 @@ paths:
                   error:
                     type: "string"
                     example: "Errore del server, riprova più tardi"
-    get:
-      summary: "Lista sponsorizzazioni"
-      description: "Restituisce una lista di eventi sponsorizzati dalle aziende"
-      tags: 
-        - "sponsorizzazione"
-      security:
-        - TokenAutenticazione: []       
-      responses:
-        "200":
-          description: "Lista eventi sponsorizzati dalle aziende"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  type: "object"
-                  properties:
-                    id_evento:
-                      type: "string"
-                    id_azienda:
-                      type: "string"
-        "500":
-          description: "Errore del server"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  error:
-                    type: "string"
-                    example: "Errore del server, riprova più tardi"
+    # get:
+    #   summary: "Lista sponsorizzazioni"
+    #   description: "Restituisce una lista di eventi sponsorizzati dalle aziende"
+    #   tags: 
+    #     - "sponsorizzazione"
+    #   security:
+    #     - TokenAutenticazione: []       
+    #   responses:
+    #     "200":
+    #       description: "Lista eventi sponsorizzati dalle aziende"
+    #       content:
+    #         application/json:
+    #           schema:
+    #             type: "array"
+    #             items:
+    #               type: "object"
+    #               properties:
+    #                 id_evento:
+    #                   type: "string"
+    #                 id_azienda:
+    #                   type: "string"
+    #     "500":
+    #       description: "Errore del server"
+    #       content:
+    #         application/json:
+    #           schema:
+    #             type: "object"
+    #             properties:
+    #               error:
+    #                 type: "string"
+    #                 example: "Errore del server, riprova più tardi"
     delete:
       summary: "Cancellazione sponsorizzazione"
       description: "Permette all'azienda di annullare la sponsorizzazione di un evento"
@@ -1023,6 +1189,26 @@ paths:
                   error:
                     type: "string"
                     example: "Richiesta non valida"
+        "403":  
+          description: "Forbidden: la tipologia di utente non permette l'eliminazione di coupon"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Azione non permessa"
+        "404":
+          description: "Evento non trovato"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Evento non trovato"
         "500":
           description: "Errore del server"
           content:
@@ -1064,6 +1250,16 @@ paths:
                         rating:
                           type: "integer"
                           example: 5
+        "403":  
+          description: "Forbidden: la tipologia di utente non permette l'eliminazione di coupon"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Azione non permessa"
         "404":
           description: "Evento non trovato"
           content:
@@ -1179,6 +1375,16 @@ paths:
                       type: "boolean"
                     punti:
                       type: "integer"
+        "403":  
+          description: "Forbidden: la tipologia di utente non permette la proposta di coupon"  # deve essere il comune
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Azione non permessa"
         "500":
           description: "Errore del server"
           content:
@@ -1270,6 +1476,16 @@ paths:
       responses:
         "204":
           description: "Il coupon è stato annullato con successo"
+        "403":  
+          description: "Forbidden: la tipologia di utente non permette l'eliminazione di coupon"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Azione non permessa"
         "404":
           description: "Errore: coupon non trovato"
           content:

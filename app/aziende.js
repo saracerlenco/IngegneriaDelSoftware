@@ -48,7 +48,7 @@ router.get('', tokenChecker, async (req,res) => {
 router.put('', tokenChecker, async(req,res) => {
     try{
         const { dati } = req.body;
-        if(!dati){ return res.status(400).json({error:"Richiesta non valida: dati mancanti o non validi"})};
+        if(!dati){ return res.status(400).json({error:"Richiesta non valida"})};
 
         const azienda = await Azienda.findOneAndUpdate(
             { email: req.loggedUser.email },

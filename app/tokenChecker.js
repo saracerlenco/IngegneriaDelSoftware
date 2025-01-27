@@ -1,22 +1,22 @@
 const jwt = require('jsonwebtoken');
+const ObjectId = require('mongoose').Types.ObjectId
 
 const tokenBlackList = new Set();
 
 const tokenChecker = function (req, res, next) {
     
-    var token = req.body.token || req.query.token || req.headers['authorization'];
-    //var token = req.headers.authorization?.split(' ')[1];
+    const token = req.body.token || req.query.token || req.headers['authorization'] || req.headers['x-access-token'];
 
-    if(!token) return res.status(401).json({
+    if(!token) return res.status(400).json({
         success: false,
-        message: 'Token inesistente'
+        error: 'Token mancante'
     })
-    token = token.split(" ")[1];
+
 
     jwt.verify(token,process.env.JWT_SECRET, (err,decoded) => {
-        if(err) return res.status(403).json({
+        if(err) return res.status(401).json({
             success: false,
-            message: "Token non valido"
+            error: "Token non valido"
         }); 
 
         if(tokenBlackList.has(token)){

@@ -2,10 +2,17 @@ const express = require('express');
 const router = express.Router();
 const Coupon = require('./models/coupon.js');
 const eventi = require('./eventi.js');
+const { tokenChecker } = require('./tokenChecker.js');
+const { findById } = require('./models/cittadino.js');
+const evento = require('./models/evento.js');
 
 //  Resituisce una lista di coupon
-router.get('', async (req,res) => {
+router.get('', tokenChecker, async (req,res) => {
     try{        
+        if(req.loggedUser.ruolo != 'operatore_comunale'){
+            return res.status(403).json({ error: "Azione non permessa" });
+        }
+        
         const coupons = await Coupon.find();
 
         // Invio della lista come risposta
@@ -32,7 +39,7 @@ router.post('', async (req,res) => {
         }
         
         if(!req.body.descrizione_coupon || !req.body.sconto_offerto){
-            return res.status(400).json({ error: "Richiesta non valida: dati mancanti o non validi"});
+            return res.status(400).json({ error: "Dati mancanti o non validi"});
         }
 
         let coupon = new Coupon({
@@ -51,9 +58,10 @@ router.post('', async (req,res) => {
 });
 
 // Approvazione coupon e assegnazione punti
-router.put('/:id_coupon', async(req,res) => {
+router.put('/:id_coupon', tokenChecker, async(req,res) => {
     try{
-        if(!req.params.id_coupon){
+        let c = await Coupon.findById(req.params.id_coupon);
+        if(!req.params.id_coupon || !c){
             return res.status(404).json({ error: "Coupon non trovato"});
         }
         
@@ -61,17 +69,18 @@ router.put('/:id_coupon', async(req,res) => {
             return res.status(400).json({ error: "Richiesta non valida: dati mancanti o non validi"});
         }
         const { dati } = req.body; // va bene ???
-        // debug
-        //console.log( "approvato " +req.body.approvato +"   punti: " +req.body.punti);
-        if( req.loggedUser.ruolo!='operatore_comunale'){
-            return res.status(403).json({ error: "Azione non permessa: la tipologia di utente non permette la proposta di eventi"});
+
+        if( req.loggedUser.ruolo != 'operatore_comunale'){
+            return res.status(403).json({ error: "Azione non permessa"});
         }
         
         const coupon = await Coupon.findOneAndUpdate(
             { _id: req.params.id_coupon },
-            { $set: dati }, // ???
+            { $set: {approvato: req.body.approvato, punti: req.body.punti} },
             { new: true }
+            
         );
+        coupon.save();
         res.status(200).send();
 
     } catch (err) {
@@ -81,8 +90,12 @@ router.put('/:id_coupon', async(req,res) => {
 });
 
 // Cancellazione coupon
-router.delete('/:id_coupon', async (req,res) => {
+router.delete('/:id_coupon', tokenChecker, async (req,res) => {
     try{
+        if(req.loggedUser.ruolo != 'azienda'){
+            return res.status(403).json({ error: 'Azione non permessa' });
+        }
+        
         const id_coupon = req.params.id_coupon;
         const coupon = await Coupon.findByIdAndDelete(id_coupon);
         if(!coupon) {

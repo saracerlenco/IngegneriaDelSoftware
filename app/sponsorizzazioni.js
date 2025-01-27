@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const Sponsorizzazione = require('./models/sponsorizzazione.js');
 const Evento = require('./models/evento.js');
+const Azienda = require('./models/azienda.js')
 const sponsorizzazione = require('./models/sponsorizzazione.js');
+const { tokenChecker } = require('./tokenChecker.js');
 
-router.post('/:id_evento', async (req,res) => {
+router.post('/:id_evento', tokenChecker, async (req,res) => {
     try{
         if(req.loggedUser.ruolo != 'azienda'){
             return res.status(403).json({ error: "Azione non permessa: la tipologia di utente non permette la proposta di un coupon"});
@@ -27,12 +29,12 @@ router.post('/:id_evento', async (req,res) => {
     }
 });
 
-router.get('/:id_evento', async (req,res) => {
+router.get('', tokenChecker, async (req,res) => {
     try{
         let filtro = {};
         filtro.id_evento = req.params.id_evento;
-        if(!filtro){
-            return res.status(404).json({ error: "Evento non trovato"});
+        if(req.loggedUser.ruolo != 'azienda'){
+            return res.status(403).json({ error: "Azione non permessa: la tipologia di utente non permette la proposta di un coupon"});
         }
 
         let sponsorizzazioni= await Sponsorizzazione.find(filtro);
@@ -48,12 +50,16 @@ router.get('/:id_evento', async (req,res) => {
 });
 
 // Cancellazione coupon
-router.delete('/:id_evento', async (req,res) => {
+router.delete('/:id_evento', tokenChecker, async (req,res) => {
     try{
+        if(req.loggedUser.ruolo != 'azienda'){
+            return res.status(403).json({ error: "Utente non autorizzato" });
+        }
+        
         const id_evento = req.params.id_evento;
         const evento = await Evento.findById(id_evento);
         if(!evento) {
-            return res.status(404).json({ error: "Errore: evento inesistente" });
+            return res.status(404).json({ error: "Evento inesistente" });
         }
 
         const sponsorizzazione = await Sponsorizzazione.findOneAndDelete({

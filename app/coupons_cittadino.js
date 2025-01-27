@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const Coupon_Cittadino = require('./models/coupon_cittadino.js');
 const Coupon = require('./models/coupon.js');
+const { tokenChecker } = require('./tokenChecker.js');
 
-router.get('', async (req,res) => {
+router.get('', tokenChecker, async (req,res) => {
     try{
         if(req.loggedUser.ruolo != 'cittadino'){
-            return res.status(403).json({ error: "Azione non permessa: la tipologia di utente non permette la proposta di un coupon"});
+            return res.status(403).json({ error: "Azione non permessa"});
         }
         
         let filtro = {};
@@ -24,10 +25,10 @@ router.get('', async (req,res) => {
     }
 });
 
-router.post('/:id_coupon', async (req,res) => {
+router.post('/:id_coupon', tokenChecker, async (req,res) => {
     try{
         if(req.loggedUser.ruolo != 'cittadino'){
-            return res.status(403).json({ error: "Azione non permessa: la tipologia di utente non permette la proposta di un coupon"});
+            return res.status(403).json({ error: "Azione non permessa"});
         }
         
         let coupon = await Coupon.findById(req.params.id_coupon);
