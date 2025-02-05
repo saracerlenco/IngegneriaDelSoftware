@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>DiscoverTrento</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="../assets/css/main.css" />
+    <link rel="shortcut icon" href="../images/logo.ico" />
+    <link rel="stylesheet" href="../assets/css/calendar.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+	<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+</head>
+<body class="is-preload">
+
+	<!-- Wrapper -->
+	<div id="wrapper">
+
+		<!-- Header -->
+		<header id="header">
+			<h1>Discover-Trento</h1>
+		</header>
+
+		<!-- Nav -->
+		<nav id="nav">
+			<ul class="links">
+				<li><a href="../index.html">Mappa</a></li>
+				<li><a href="eventi.html">Eventi</a></li>
+				<li><a href="operatore_comunale_area_personale.html">Area personale</a></li>
+                <li class="active"><a href="proponi _evento.html">proponi evento</a></li>
+			</ul>
+		</nav>
+
+		<!-- Main -->
+		<div id="main">
+
+			<!-- Selezione -->
+			<section class="post">
+				<h2>Riempi i campi e proponi il tuo evento!</h2>
+                <script>
+                    function verifica_dati(button)
+                    {
+                            const inputs = document.querySelectorAll('input');
+                            const all_filled = Array.from(inputs).every(input => input.value.trim() !== '');
+                            if (!all_filled) {
+                                alert("Tutti i campi sono obbligatori");
+                                return; // Stop further execution
+                            }
+                            else{
+                                alert("Evento proposto con successo");
+                                window.location.href = 'eventi.html';            
+                            }                           
+                        }                        
+                        
+                    const now = new Date();
+                    // Formatta la data in modo compatibile con datetime-local
+                    const formattedNow = now.toISOString().slice(0, 16);
+                    // Imposta il valore minimo dell'input
+                    document.querySelector('#datetime').setAttribute('min', formattedNow);
+                </script>
+                <form method="post" action="#">
+                    <div class="fields">
+                        <div class="field">
+                            <label>Nome:</label>
+                            <input type="text" name="nome_evento" id="nome" />
+                        </div>
+                        <div class="field" >
+                            <div class="col-6 col-12-small">
+                                <label>Inizio evento:</label>
+                                <!--<input type="text" id="data_inizio" class="date-picker" placeholder="Clicca per scegliere una data">-->
+                                <input type="text" id="date-picker" name="data_inizio" class="date-picker" placeholder="Clicca per scegliere una data"> 
+                                <label>Data fine:</label>
+                                <!--<input type="text" id="data_fine" name="data_fine" class="date-picker" placeholder="Clicca per scegliere una data">-->
+                                <input type="text" id="date-picker" name="data_fine" class="date-picker" placeholder="Clicca per scegliere una data">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label>Location:</label>
+                            <input type="text" name="location" id="location" />
+                        </div>
+                    </div>
+                     <div class="col-6 col-12-small">
+                        <ul class="actions stacked">
+                            <li><a onclick="verifica_dati(this)" class="button">Proponi evento</a></li>
+                        </ul>
+                    </div>
+                </form>
+			</section>
+
+		</div>
+
+		<!-- Copyright -->
+		<div id="copyright">
+			<ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5	
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/browser.min.js"></script>
+			<script src="../assets/js/breakpoints.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+            <script src="../assets/js/calendar.js"></script>
+			<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+            
+
+	</body>
+</html>
