@@ -43,7 +43,7 @@
 					</select>
 				</form>
                 <script>
-                    function verifica_dati(button)
+                    async function verifica_dati(button)
                     {
                             const p1 = document.querySelector('#password1').value;
                             const p2 = document.querySelector('#password2').value;
@@ -56,9 +56,49 @@
                             }
                             else{
                                 if (p1 == p2) {
-                                //DATI DA INSERIRE NEL DB
-                                    alert("Registrazione avvenuta con successo");
-                                    window.location.href = 'login.html';
+                                    const userData = {
+                                        nome: document.querySelector('#nome').value,
+                                        cognome: document.querySelector('#cognome')?.value || '',
+                                        codice_fiscale: document.querySelector('#codice_fiscale')?.value || '',
+                                        partita_IVA: document.querySelector('#partita_iva')?.value || '',
+                                        username: document.querySelector('#username')?.value || '',
+                                        email: document.querySelector('#email').value,
+                                        password: p1,
+                                        ruolo: document.querySelector('#scelta').value, // cittadino, azienda, operatore_comunale
+                                    };
+
+                                    try {
+                                        const menu = document.getElementById('scelta');
+                                        var tipologia;
+                                        if(menu.value=="cittadino")
+                                        {
+                                            tipologia="cittadini";
+                                        }
+                                        else if(menu.value=="operatore_comunale")
+                                        {
+                                            tipologia="operatori_comunali";
+                                        }
+                                        else if(menu.value=="azienda") {
+                                            tipologia="aziende";
+                                        }
+                                        const response = await fetch("http://localhost:3000/api/v1/"+tipologia, {
+                                            method: "POST",
+                                            headers: {
+                                                "Content-Type": "application/json"
+                                            },
+                                            body: JSON.stringify(userData)
+                                        });
+
+                                        if (response.status == 201){
+                                            alert("Registrazione avvenuta con successo!");
+                                            window.location.href = 'login.html';
+                                        } else {
+                                            alert("Errore nella registrazione: " + result.message);
+                                        }
+                                    } catch (error) {
+                                        console.error("Errore:", error);
+                                        alert("Errore nella connessione al server.");
+                                    }
                                 } else {
                                     alert("Le password non corrispondono");
                                 } 
