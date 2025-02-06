@@ -1,0 +1,133 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>DiscoverTrento</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="../assets/css/main.css" />
+    <link rel="shortcut icon" href="../images/logo.ico" />
+
+
+	<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+</head>
+<body class="is-preload">
+
+	<!-- Wrapper -->
+	<div id="wrapper">
+
+		<!-- Header -->
+		<header id="header">
+			<h1>Discover-Trento</h1>
+		</header>
+
+		<!-- Nav -->
+		<nav id="nav">
+			<ul class="links">
+				<li><a href="../index.html">Mappa</a></li>
+				<li><a href="eventi.html">Eventi</a></li>
+				<li class="active"><a href="cittadino_area_personale.html">Area personale</a></li>
+			</ul>
+            <ul class="icons">
+                <li><a href="pages/login.html">Logout </a></li>
+            </ul>
+		</nav>
+
+		<!-- Main -->
+		<div id="main">
+
+			<!-- Selezione -->
+            <div class="row gtr-uniform">    
+                <div class="col-6 col-12-xsmall">
+                    
+                    <section class="post">
+                        <h3>Benvenuta/o nella tua area personale</h3>
+                        <form method="post" action="#">
+                            <p>I tuoi dati personali:</p> <!--DATI DA INSERIRE DA DB NEL VALUE DELLE LABEL-->
+                            <div class="fields">
+                                <div class="field">
+                                    <label>Nome:</label>
+                                    <input type="text" disabled name="nome" id="nome_cittadino" value="NomeCittadino"/>
+                                </div>
+                                <div class="field">
+                                    <label>Cognome:</label>
+                                    <input type="text" disabled name="cognome" id="cognome_cittadino" value="CognomeCittadino"/>
+                                </div>
+                                <div class="field">
+                                    <label>Codice fiscale:</label>
+                                    <input type="text" disabled name="codice_fiscale" id="codice_fiscale_cittadino" value="CodiceFiscaleCittadino"/>
+                                </div>
+                                <div class="field">
+                                    <label>Username:</label>
+                                    <input type="text" disabled name="username" id="username_cittadino" value="UsernameCittadino"/>
+                                </div>
+                                <div class="field">
+                                    <label>Email:</label>
+                                    <input type="email" disabled name="email" id="email_cittadino" value="Email@Cittadino"/>
+                                </div>
+                            </div>
+                            <div class="col-6 col-12-small">
+                                <ul class="actions stacked">
+                                    <li><a onclick="AbilitaDisabilita(this)" class="button">Modifica dati</a></li>
+                                </ul>
+                            </div>
+                            <script>
+                                function AbilitaDisabilita(button)
+                                {
+                                    const inputs = document.querySelectorAll('input');
+                                    const isDisabled = inputs[0].hasAttribute('disabled');
+
+                                    if (isDisabled) {
+                                        inputs.forEach(input => input.removeAttribute('disabled'));
+                                        button.innerText = "Salva dati";
+                                    } else {
+                                        inputs.forEach(input => input.setAttribute('disabled', 'disabled'))
+                                        button.innerText = "Modifica dati";
+                                    } 
+                                }
+                            </script>
+                        </form>				
+                    </section>
+                </div>
+                <div class="col-6 col-12-xsmall">
+                    <section class="post">
+                        <h3> ‎ </h3>
+                        <p>Ecco cosa puoi fare:</p>
+                        <form method="post" action="#">
+                            <table>
+                                <tr>
+                                    <td><label>Punti evento totali:</label></td>
+                                    <td><label>1000</label></td> <!--DA DB-->
+                                </tr>
+                                <tr>
+                                    <td><a href="#" class="button fit">Proponi evento</a></td>
+                                    <td><a href="#" class="button fit">Eventi prenotati</a></td>
+                                </tr>
+                                
+                                <tr>
+                                    <td><a href="#" class="button fit">Shop Coupon</a></td>
+                                    <td><a href="#" class="button fit">I tuoi coupon</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="#" class="button fit">Lascia feedback</a></td>     
+                                </tr>
+                            </table>
+                        </form>				
+                    </section>
+                </div>
+            </div>
+        </div>
+		<!-- Copyright -->
+		<div id="copyright">
+			<ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5	
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/browser.min.js"></script>
+			<script src="../assets/js/breakpoints.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>

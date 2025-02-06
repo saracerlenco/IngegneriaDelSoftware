@@ -1,0 +1,217 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>DiscoverTrento</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="../assets/css/main.css" />
+    <link rel="shortcut icon" href="../images/logo.ico" />
+	<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+</head>
+<body class="is-preload">
+
+	<!-- Wrapper -->
+	<div id="wrapper">
+
+		<!-- Header -->
+		<header id="header">
+			<h1>Discover-Trento</h1>
+		</header>
+
+		<!-- Nav -->
+		<nav id="nav">
+			<ul class="links">
+				<li><a href="../index.html">Mappa</a></li>
+				<li><a href="eventi.html">Eventi</a></li>
+				<li class="active"><a href="registrazione.html">Registrazione</a></li>
+			</ul>
+		</nav>
+
+		<!-- Main -->
+		<div id="main">
+
+			<!-- Selezione -->
+			<section class="post">
+				<h2>Benvenuta/o nella registrazione!</h2>
+				<form id="registration-form">
+					<label for="scelta">Come vuoi registrarti:</label>
+					<select id="scelta" name="scelta">
+						<option value="" disabled selected>Seleziona un'opzione</option>
+						<option value="cittadino">Cittadino</option>
+						<option value="azienda">Azienda</option>
+						<option value="operatore_comunale">Operatore comunale</option>
+					</select>
+				</form>
+                <script>
+                    function verifica_dati(button)
+                    {
+                            const p1 = document.querySelector('#password1').value;
+                            const p2 = document.querySelector('#password2').value;
+                            const inputs = document.querySelectorAll('input');
+                            const all_filled = Array.from(inputs).every(input => input.value.trim() !== '');
+                            if (!all_filled) {
+                                alert("Tutti i campi sono obbligatori");
+                                return; // Stop further execution
+
+                            }
+                            else{
+                                if (p1 == p2) {
+                                //DATI DA INSERIRE NEL DB
+                                    alert("Registrazione avvenuta con successo");
+                                    window.location.href = 'login.html';
+                                } else {
+                                    alert("Le password non corrispondono");
+                                } 
+                            }                           
+                        }                        
+
+                </script>
+				<!-- Contenuto dinamico -->
+				<div id="contenuto">
+					<p>Effettua una selezione per visualizzare il contenuto.</p>
+				</div>
+                
+				<!-- script js per gestire il contenuto dinamico -->
+				<script>
+					const menu = document.getElementById('scelta');
+					const contenuto = document.getElementById('contenuto');
+
+                    
+					menu.addEventListener('change', () => {
+						const scelta = menu.value;
+
+						// Aggiorna in maniera dinamica il codice in base alla scelta dell'utente
+						switch (scelta) {
+							case 'cittadino':
+								contenuto.innerHTML = `<p>Hai selezionato <strong>Cittadino</strong>. Inserisci i tuoi dati!</p>
+                                <form method="post" action="#">
+                                    <div class="fields">
+                                        <div class="field">
+                                            <label for="nome">Nome:</label>
+                                            <input type="text" name="nome" id="nome" />
+                                        </div>
+                                        <div class="field">
+                                            <label for="cognome">Cognome:</label>
+                                            <input type="text" name="cognome" id="cognome" />
+                                        </div>
+                                        <div class="field">
+                                            <label for="codice_fiscale">Codice fiscale:</label>
+                                            <input type="text" name="codice_fiscale" id="codice_fiscale" />
+                                        </div>
+                                        <div class="field">
+                                            <label for="username">Username:</label>
+                                            <input type="text" name="username" id="username" />
+                                        </div>
+                                        <div class="field">
+                                            <label for="email">Email:</label>
+                                            <input type="email" name="email" id="email" />
+                                        </div>
+                                        <div class="field">
+                                            <label for="password1">Password:</label>
+                                            <input type="password" name="password1" id="password1" />
+                                        </div>
+                                        <div class="field">
+                                            <label for="password2">Conferma password:</label>
+                                            <input type="password" name="password2" id="password2" />
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-12-small">
+                                        <ul class="actions stacked">
+                                            <li><a onclick="verifica_dati(this)" class="button">Registrati</a></li>
+                                        </ul>
+                                    </div>
+                                </form>`;
+								break;
+							case 'azienda':
+								contenuto.innerHTML = `<p>Hai selezionato <strong>Azienda</strong>. Inserisci i tuoi dati!</p>
+                                <form method="post" action="#">
+                                    <div class="fields">
+                                        <div class="field">
+                                            <label for="nome">Nome:</label>
+                                            <input type="text" name="nome" id="nome" />
+                                        </div>
+                                        <div class="field">
+                                            <label for="partita_iva">Partita IVA:</label>
+                                            <input type="text" name="partita_iva" id="partita_iva" />
+                                        </div>
+                                        <div class="field">
+                                            <label for="email">Email:</label>
+                                            <input type="email" name="email" id="email" />
+                                        </div>
+                                        <div class="field">
+                                            <label for="password1">Password:</label>
+                                            <input type="password" name="password1" id="password1" />
+                                        </div>
+                                        <div class="field">
+                                            <label for="password2">Conferma password:</label>
+                                            <input type="password" name="password2" id="password2" />
+                                        </div>
+                                    </div>
+                                     <div class="col-6 col-12-small">
+                                        <ul class="actions stacked">
+                                            <li><a onclick="verifica_dati(this)" class="button">Registrati</a></li>
+                                        </ul>
+                                    </div>
+                                </form>`;
+								break;
+							case 'operatore_comunale':
+								contenuto.innerHTML = `<p>Hai selezionato <strong>Operatore comunale</strong>. Inserisci i tuoi dati!</p>
+                                <form method="post" action="#">
+                                    <div class="fields">
+                                        <div class="field">
+                                            <label for="nome">Nome:</label>
+                                            <input type="text" name="nome" id="nome" />
+                                        </div>
+                                        <div class="field">
+                                            <label for="cognome">Cognome:</label>
+                                            <input type="text" name="cognome" id="cognome" />
+                                        </div>
+                                        <div class="field">
+                                            <label for="codice_fiscale">Codice fiscale:</label>
+                                            <input type="text" name="codice_fiscale" id="codice_fiscale" />
+                                        </div>
+                                        <div class="field">
+                                            <label for="email">Email:</label>
+                                            <input type="email" name="email" id="email" />
+                                        </div>
+                                        <div class="field">
+                                            <label for="password1">Password:</label>
+                                            <input type="password" name="password1" id="password1" />
+                                        </div>
+                                        <div class="field">
+                                            <label for="password2">Conferma password:</label>
+                                            <input type="password" name="password2" id="password2" />
+                                        </div>
+                                    </div>
+                                     <div class="col-6 col-12-small">
+                                        <ul class="actions stacked">
+                                            <li><a onclick="verifica_dati(this)" class="button">Registrati</a></li>
+                                        </ul>
+                                    </div>
+                                </form>`; 
+								break;
+							default:
+								contenuto.innerHTML = '<p>Effettua la selezione per visualizzare il contenuto.</p>';
+						}
+                              
+					});
+				</script>
+			</section>
+
+		</div>
+
+		<!-- Copyright -->
+		<div id="copyright">
+			<ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5	
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/browser.min.js"></script>
+			<script src="../assets/js/breakpoints.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>
