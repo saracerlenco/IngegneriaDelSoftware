@@ -8,5 +8,9 @@ module.exports = mongoose.model('Coupon', new Schema({
     sconto_offerto: {
         type: Number,
         default: "0"
+    },
+    punti: {
+        type: Number,
+        default: "0"
     }
 }));
