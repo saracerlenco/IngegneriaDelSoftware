@@ -1417,12 +1417,10 @@ paths:
             schema:
               type: "object"
               properties:
-                approvato:
-                  type: "boolean"
                 punti:
                   type: "integer"
                   description: "Punteggio assegnato al coupon"
-              required: ["approvato", "punti"]
+              required: ["punti"]
       responses:
         "200":
           description: "Il coupon è stato approvato dal comune con successo e gli è stato assegnato un punteggio"

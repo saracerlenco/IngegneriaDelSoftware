@@ -3,7 +3,8 @@ const app      = require('../app/app.js');
 const jwt      = require('jsonwebtoken'); 
 const mongoose = require('mongoose');
 const Cittadino = require('../app/models/cittadino.js');
-require('dotenv').config();
+require('dotenv').config({ path: './../.env' });
+
 
 describe('POST /api/v1/sessions', () => {
     beforeAll( async () => {

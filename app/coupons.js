@@ -65,10 +65,10 @@ router.put('/:id_coupon', tokenChecker, async(req,res) => {
             return res.status(404).json({ error: "Coupon non trovato"});
         }
         
-        if(!req.body.approvato || !req.body.punti){
+        if(!req.body.punti){
             return res.status(400).json({ error: "Richiesta non valida: dati mancanti o non validi"});
         }
-        const { dati } = req.body; // va bene ???
+        const { dati } = req.body;
 
         if( req.loggedUser.ruolo != 'operatore_comunale'){
             return res.status(403).json({ error: "Azione non permessa"});
@@ -76,7 +76,7 @@ router.put('/:id_coupon', tokenChecker, async(req,res) => {
         
         const coupon = await Coupon.findOneAndUpdate(
             { _id: req.params.id_coupon },
-            { $set: {approvato: req.body.approvato, punti: req.body.punti} },
+            { $set: {punti: req.body.punti} },
             { new: true }
             
         );

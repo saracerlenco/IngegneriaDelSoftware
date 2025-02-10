@@ -3,7 +3,7 @@ const app      = require('../app/app.js');
 const jwt      = require('jsonwebtoken'); 
 const mongoose = require('mongoose');
 const Operatore_Comunale = require('../app/models/operatore_comunale.js');
-require('dotenv').config();
+require('dotenv').config({ path: './../.env' });
 
 
 describe('GET /api/v1/operatori_comunali', () => {
