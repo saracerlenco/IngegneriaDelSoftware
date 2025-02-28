@@ -36,7 +36,7 @@ describe('POST /coupons', () => {
       .set('x-access-token', tokenAzienda)
       .send({
             descrizione_coupon: 'Coupon di prova',
-            sconto_offerto: 20.0
+            // sconto_offerto: 20.0
       });
 
     expect(res.status).toBe(201);
@@ -48,7 +48,7 @@ describe('POST /coupons', () => {
     .set('x-access-token', tokenAzienda)
       .send({ 
         descrizione_coupon: '' ,  // Dato mancante
-        sconto_offerto: 20.0
+        // sconto_offerto: 20.0
       });
 
     expect(res.status).toBe(400);
@@ -61,7 +61,7 @@ describe('POST /coupons', () => {
     .set('x-access-token', tokenCittadino)
       .send({ 
         descrizione_coupon: 'Coupon di prova',
-        sconto_offerto: 20.0
+        // sconto_offerto: 20.0
       });
 
     expect(res.status).toBe(403);

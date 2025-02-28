@@ -5,10 +5,6 @@ module.exports = mongoose.model('Coupon', new Schema({
         type: Schema.Types.ObjectId, ref: 'Azienda'
     },
     descrizione_coupon: String,
-    sconto_offerto: {
-        type: Number,
-        default: "0"
-    },
     punti: {
         type: Number,
         default: "0"

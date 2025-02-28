@@ -18,6 +18,6 @@ module.exports = mongoose.model('Evento', new Schema({
         default: "0"
     },
     creatore: {
-        type: Schema.Types.ObjectId, ref: 'Cittadino'
+        type: Schema.Types.ObjectId, ref: 'Cittadino' | 'Operatore_Comunale'
     }
 }));
