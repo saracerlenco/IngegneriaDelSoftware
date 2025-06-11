@@ -1019,7 +1019,7 @@ paths:
               schema:
                 type: "object"
                 properties:
-                  id_partecipazione:
+                  id_sponsorizzazione:
                     type: "string"
                     description: "ID della sponsorizzazione creata"
                     example: "12345"
@@ -1125,6 +1125,62 @@ paths:
 
 
   #gestione feedback 
+  /feedbacks:
+    get:
+      summary: "Recensioni eventi"
+      description: "Restituisce una lista di eventi con la relativa valutazione media"
+      tags: 
+        - "feedback"
+      security:
+        - TokenAutenticazione: []       
+      responses:
+        "200":
+          description: "Recupero con successo"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    id_evento:
+                      type: "string"
+                      description: "ID dell'evento a cui partecipi"
+                      example: "67890"
+                    media_rating:
+                      type: "number"
+                      example: 4.5
+        "403":  
+          description: "Forbidden: la tipologia di utente non permette la visualizzazione della media dei feedback"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Azione non permessa"
+        "404":
+          description: "Evento non trovato"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Evento non trovato"
+        "500":
+          description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Errore del server, riprova più tardi"
+
   /feedbacks/:id_evento:
     parameters:
     - name: "id_evento"
@@ -1221,7 +1277,7 @@ paths:
                     example: "Errore del server, riprova più tardi!"
     get:
       summary: "Recensioni eventi"
-      description: "Restituisce gli eventi con i relativi feedback (rating + eventuale commento)"
+      description: "Restituisce una lista di commenti lasciati dai partecipanti relativi ad un evento passato"
       tags: 
         - "feedback"
       security:
@@ -1234,9 +1290,6 @@ paths:
               schema:
                 type: "object"
                 properties:
-                  media_rating:
-                    type: "number"
-                    example: 4.5
                   comments:
                     type: "array"
                     items:
@@ -1247,11 +1300,8 @@ paths:
                         commento:
                           type: "string"
                           example: "Evento ben organizzato"
-                        rating:
-                          type: "integer"
-                          example: 5
         "403":  
-          description: "Forbidden: la tipologia di utente non permette l'eliminazione di coupon"
+          description: "Forbidden: la tipologia di utente non permette la visualizzazione dei commenti relativi ad un evento"
           content:
             application/json:
               schema:
@@ -1417,12 +1467,10 @@ paths:
             schema:
               type: "object"
               properties:
-                approvato:
-                  type: "boolean"
                 punti:
                   type: "integer"
                   description: "Punteggio assegnato al coupon"
-              required: ["approvato", "punti"]
+              required: ["punti"]
       responses:
         "200":
           description: "Il coupon è stato approvato dal comune con successo e gli è stato assegnato un punteggio"
@@ -1507,12 +1555,12 @@ paths:
                     type: "string"
                     example: "Errore del server, riprova più tardi"
                   
-  /coupon_cittadino:
+  /coupons_cittadino:
     get:
       summary: "Lista dei coupon del cittadino"
       description: "Restituisce la lista dei coupon offerti dalle aziende che il cittadino ha ottenuto convertendo i punti guadagnati"
       tags: 
-        - "coupon_cittadino"
+        - "coupons_cittadino"
       security:
         - TokenAutenticazione: []      
       responses:
@@ -1547,12 +1595,12 @@ paths:
                   error:
                     type: "string"
                     example: "Errore del server, riprova più tardi"
-  /coupon_cittadino/id_coupon:
+  /coupons_cittadino/:id_coupon:
     post:
       summary: "Aggiungi coupon alla lista dei coupon del cittadino"
       description: "Permette ai cittadini di convertire i propri punti in coupon"
       tags: 
-        - "coupon_cittadino"
+        - "coupons_cittadino"
       security:
         - TokenAutenticazione: []       
       requestBody:
