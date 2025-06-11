@@ -4,6 +4,18 @@ const Evento = require('./models/evento.js');
 const { tokenChecker } = require('./tokenChecker.js');
 const { Types } = require('mongoose');
 
+
+// Rotta per ottenere i filtri disponibili per gli eventi, aggiunto da Sara
+router.get('/filtri', async (req, res) => {
+    try {
+        const tipologie = await Evento.distinct("tipologia");
+        const luoghi = await Evento.distinct("luogo");
+        res.json({ tipologie, luoghi });
+    } catch (err) {
+        res.status(500).json({ error: "Errore nel caricamento dei filtri" });
+    }
+});
+
 //  Resituisce un array di eventi in base a un filtro
 router.get('', async (req,res) => {
     try{
@@ -13,15 +25,36 @@ router.get('', async (req,res) => {
         if(req.query.tipologia){
             filtro.tipologia = req.query.tipologia;
         }
-        if(req.query.data){
+        /* if(req.query.data){
             filtro.data = new Date(req.query.data); // converte la data in formato Date
+        } */
+        if(req.query.data){ //cerca tutti gli eventi che si svolgono in un giorno specifico
+            // Controllo se la data è valida
+            if(req.query.data){
+            // Parsing sicuro in UTC
+            const [year, month, day] = req.query.data.split('-').map(Number);
+            const giorno = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
+            if (isNaN(giorno.getTime())) {
+                return res.status(400).json({ error: "Formato data non valido" });
+            }
+            const giornoSuccessivo = new Date(Date.UTC(year, month - 1, day + 1, 0, 0, 0));
+            filtro.data = { $gte: giorno, $lt: giornoSuccessivo };
+            }
+        }else if (req.query.futuri === "true") {
+            // Solo eventi futuri se richiesto
+            const oggi = new Date();
+            oggi.setHours(0,0,0,0);
+            filtro.data = { $gte: oggi };
         }
+        
         if(req.query.luogo){
             filtro.luogo = req.query.luogo;
         }
 
+        console.log("Filtro usato:", filtro);
         // Ricerca degli eventi nel DB in base al filtro
         const eventi = await Evento.find(filtro);
+
 
         // Invio della lista come risposta
         res.status(200).json(eventi.map(evento => ({
@@ -33,7 +66,7 @@ router.get('', async (req,res) => {
             tipologia: evento.tipologia,
             descrizione: evento.descrizione,
             punti: evento.punti,
-            creatore: evento.creatore.username
+            creatore: evento.creatore?.username
         })));
     } catch (err) {
         console.error(err);

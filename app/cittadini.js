@@ -59,7 +59,7 @@ router.post('', async (req,res) => {
 // Visualizzazione area personale del cittadino
 router.get('', tokenChecker, async (req,res) => {
     try {        
-        let cittadino = await Cittadino.findOne({email: req.loggedUser.email });
+        let cittadino = await Cittadino.findOne({_id: req.loggedUser._id });
         res.status(200).json({
             self: '/api/v1/cittadini',
             nome: cittadino.nome,
@@ -78,6 +78,8 @@ router.get('', tokenChecker, async (req,res) => {
 // Modifica area personale cittadino DA RIVEDERE 
 router.put('', tokenChecker, async(req,res) => {
     try{
+        //if(req.loggedUser.)
+        
         const { dati } = req.body;
         if(!dati){ return res.status(400).json({error:"Richiesta non valida"})};
 

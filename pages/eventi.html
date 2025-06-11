@@ -9,7 +9,8 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 		<link rel="shortcut icon" href="../images/logo.ico" />
 		<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
-	
+		<script src="//unpkg.com/jwt-js-decode@1.9.0/dist/jwt-js-decode.pkg.min.js"></script><!--per visualizzare il token-->
+		
 	</head>
 	<body class="is-preload">
 
@@ -28,7 +29,7 @@
                             <li class="active"><a href="eventi.html">Eventi</a></li>
 							<li ><a href="cittadino_area_personale.html">Area personale</a></li>
 						</ul>
-						<a href="login.html">Login </a>
+						<a href="login.html" id="log">Login </a>
 						
 					</nav>
 
@@ -59,6 +60,9 @@
 								<p>
 									<div class="table-wrapper">
 										<table>
+											<thead>
+												<tr><th>Nome</th><th>Data</th><th>Location</th><th>Tipologia</th><th>Descrizione</th><th>Punti</th></tr>
+											</thead>
 											<tbody>
 												<!-- Le righe verranno aggiunte dinamicamente tramite JavaScript -->
 											</tbody>
@@ -66,6 +70,9 @@
 									</div>
 
 									<script>
+										const { decode } = jwtJsDecode;// per decodificare il token JWT
+										const token = localStorage.getItem("token");
+
 										document.addEventListener("DOMContentLoaded", () => {
 											const tipoSelect = document.getElementById("scelta_tipo");
 											const luogoSelect = document.getElementById("scelta_luogo");
@@ -158,6 +165,10 @@
 														tableWrapper.parentNode.insertBefore(p, tableWrapper);
 													} else {
 														tableWrapper.style.display = "";
+														let disabled = true;
+														if(token && decode(token).payload.ruolo != "operatore_comunale"){
+															disabled = false;
+														}
 														eventi.forEach(evento => {
 															const row = document.createElement("tr");
 															row.innerHTML = `
@@ -167,7 +178,7 @@
 																<td>${evento.tipologia}</td>
 																<td>${evento.descrizione}</td>
 																<td>${evento.punti ?? ""}</td>
-																<td><button onclick="partecipaEvento('${evento.id_evento}')">Partecipa</button></td>
+																<td><button ${disabled ? "disabled" : ""} onclick="partecipaEvento('${evento.id_evento}')">Partecipa</button></td>
 															`;
 															tbody.appendChild(row);
 														});
@@ -185,6 +196,18 @@
 											caricaFiltri();
 											
 										});
+										//da mettere ovunque mi raccomando
+										/* const { decode } = jwtJsDecode;// per decodificare il token JWT
+										const token = localStorage.getItem("token"); */
+										if(token && decode(token)){
+											document.getElementById("log").innerText = "Logout";
+											document.getElementById("log").href = "";
+											document.getElementById("log").onclick = ()=>{
+												localStorage.removeItem("token");
+												window.reload();
+												//window.location="pagina_di_destination.html";
+											}
+										}
 										</script>
 										
 

@@ -1,7 +1,9 @@
 const Path = require('path');
-
+const cors = require('cors');
 const express = require('express');
 const app = express();
+
+app.use(cors());
 
 // Rotta di esempio
 app.get('/', (req,res) => {

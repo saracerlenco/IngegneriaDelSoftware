@@ -1,32 +1,37 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 const router = express.Router();
 const Azienda = require('./models/azienda');
 const { tokenChecker } = require('./tokenChecker');
 
 // Registrazione nuova azienda
 router.post('', async (req,res) => {
+    if(!req.body.nome || typeof req.body.nome != 'string') {
+        return res.status(400).json({ error: 'Il campo nome deve essere di tipo string'});
+    } 
+    if (!req.body.partita_IVA || typeof req.body.partita_IVA != 'string') {
+        return res.status(400).json({ error: 'Il campo partita IVA deve essere di tipo string'});
+    } 
+    if (!req.body.email || typeof req.body.email != 'string' || !checkIfEmailInString(req.body.email)) {
+        return res.status(400).json({ error: 'Il campo email deve essere di tipo string di formato email'});
+    } 
     try{
-        let azienda = new Azienda({
-        nome_azienda: req.body.email,
-        partita_IVA: req.body.partita_IVA,
-        email: req.body.email,
-        password: req.body.password,
+         //
+                const password = req.body.password;
+                bcrypt.hash(password, 1, async (err, hashedPassword) => {
+                    if (err) throw err;
+                    // Quando crei l'utente, salva hashedPassword nel database
+                let azienda = new Azienda({
+                    nome_azienda: req.body.nome,
+                    partita_IVA: req.body.partita_IVA,
+                    email: req.body.email,
+                    password: hashedPassword // Salva la password cifrata
         });
-
-        if(!azienda.nome_azienda || typeof azienda.nome_azienda != 'string') {
-            return res.status(400).json({ error: 'Il campo nome deve essere di tipo string'});
-        } 
-        if (!azienda.partita_IVA || typeof azienda.partita_IVA != 'string') {
-            return res.status(400).json({ error: 'Il campo cognome deve essere di tipo string'});
-        } 
-        if (!azienda.email || typeof azienda.email != 'string' || !checkIfEmailInString(azienda.email)) {
-            return res.status(400).json({ error: 'Il campo email deve essere di tipo string di formato email'});
-        } 
-        
         azienda = await azienda.save();
 
         res.location("/api/v1/aziende").status(201).send();
-    } catch (err) {
+    });
+     } catch (err) {
         console.error(err);
         return res.status(500).json({ error: "Errore del server, riprova più tardi"});
     }
@@ -35,7 +40,7 @@ router.post('', async (req,res) => {
 
 // Visualizzazione area personale dell'azienda
 router.get('', tokenChecker, async (req,res) => {    
-    let azienda = await Azienda.findOne({email: req.loggedUser.email });
+    let azienda = await Azienda.findOne({_id: req.loggedUser._id });
     res.status(200).json({
         self: '/api/v1/aziende',
         nome: azienda.nome_azienda,
