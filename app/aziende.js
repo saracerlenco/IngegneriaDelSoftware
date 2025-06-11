@@ -40,7 +40,7 @@ router.post('', async (req,res) => {
 
 // Visualizzazione area personale dell'azienda
 router.get('', tokenChecker, async (req,res) => {    
-    let azienda = await Azienda.findOne({email: req.loggedUser.email });
+    let azienda = await Azienda.findOne({_id: req.loggedUser._id });
     res.status(200).json({
         self: '/api/v1/aziende',
         nome: azienda.nome_azienda,

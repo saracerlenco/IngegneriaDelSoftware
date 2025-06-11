@@ -45,11 +45,14 @@ router.post('', async (req,res) => {
 
 
 // Visualizzazione area personale dell'operatore_comunale
-router.get('', tokenChecker, async (req,res) => {
+router.get('/:id', tokenChecker, async (req,res) => {
     try{        
-        let operatore_comunale = await Operatore_Comunale.findOne({email: req.loggedUser.email });
+        let operatore_comunale = await Operatore_Comunale.findOne({_id: req.loggedUser._id });
+        if (!operatore_comunale) {
+            return res.status(404).json({ error: "Operatore comunale non trovato" });
+        }
         res.status(200).json({
-            self: '/api/v1/operatori_comunali',
+            self: '/api/v1/operatori_comunali/' + operatore_comunale._id,
             nome: operatore_comunale.nome,
             cognome: operatore_comunale.cognome,
             email: operatore_comunale.email,
