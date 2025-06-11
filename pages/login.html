@@ -46,7 +46,7 @@
 								</div>
                                 <div class="col-6 col-12-small">
                                     <ul class="actions stacked">
-                                        <li><a href="#" class="button">Accedi</a></li>
+                                        <li><a href="#" class="button" id="loginBtn">Accedi</a></li>
                                     </ul>
                                 </div>
                                
@@ -60,7 +60,74 @@
 						<ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
 					</div>
 
-			
+					<script>
+						document.getElementById("loginBtn").addEventListener("click", async function() {
+							// Prende i valori dai campi input
+							const email = document.getElementById("email").value;
+							const password = document.getElementById("password").value;
+					
+							// Controlla se i campi sono vuoti
+							if (!email || !password) {
+								alert("Inserisci email e password.");
+								return;
+							}
+					
+							try {
+								// Invia una richiesta al backend per il login
+								const response = await fetch("http://localhost:3000/api/v1/sessions", {
+									method: "POST",
+									headers: { "Content-Type": "application/json" },
+									body: JSON.stringify({ email, password, ruolo: "cittadino" })
+								});
+					
+								const data = await response.json();
+					
+								
+								if(response.ok){
+									// Salva il token JWT nel localStorage
+									localStorage.setItem("token", data.token);
+									window.location.href = "cittadino_area_personale.html"; // Reindirizza alla pagina dell'utente
+								}else{
+									const response = await fetch("http://localhost:3000/api/v1/sessions", {
+										method: "POST",
+										headers: { "Content-Type": "application/json" },
+										body: JSON.stringify({ email, password, ruolo: "azienda" })
+									});
+						
+									const data = await response.json();
+						
+									
+									if(response.ok){
+										// Salva il token JWT nel localStorage
+										localStorage.setItem("token", data.token);
+										window.location.href = "azienda_area_personale.html"; // Reindirizza alla pagina dell'utente
+									}else{
+										const response = await fetch("http://localhost:3000/api/v1/sessions", {
+											method: "POST",
+											headers: { "Content-Type": "application/json" },
+											body: JSON.stringify({ email, password, ruolo: "operatore_comunale" })
+										});
+							
+										const data = await response.json();
+							
+										
+										if(response.ok){
+											// Salva il token JWT nel localStorage
+											localStorage.setItem("token", data.token);
+											window.location.href = "operatore_comunale_area_personale.html"; // Reindirizza alla pagina dell'utente
+										}else{
+											alert("Password e email non corrispondono o l'account non esiste");
+										}
+									}
+								}
+							}
+
+							catch (error) {
+								alert("Errore: " + error.message);
+							}
+						});
+					</script>
+						
 
 		<!-- Scripts -->
 			<script src="../assets/js/jquery.min.js"></script>

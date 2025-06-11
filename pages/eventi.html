@@ -9,6 +9,7 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 		<link rel="shortcut icon" href="../images/logo.ico" />
 		<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+	
 	</head>
 	<body class="is-preload">
 
@@ -25,6 +26,7 @@
 						<ul class="links">
 							<li><a href="../index.html">Mappa</a></li>
                             <li class="active"><a href="eventi.html">Eventi</a></li>
+							<li ><a href="cittadino_area_personale.html">Area personale</a></li>
 						</ul>
 						<a href="login.html">Login </a>
 						
@@ -38,70 +40,154 @@
 								<div class="calendar-container">
 									<p>Di seguito troverai tutti gli eventi programmati in questa data:</p>
 									<input type="text" id="date-picker" class="date-picker" placeholder="Clicca per scegliere una data">
+									<button id="reset-date" type="button">Tutte le date</button>
 								</div>
 								<div class="row gtr-uniform">
 									<div class="col-6 col-12-xsmall">
 										<select id="scelta_tipo" name="scelta_tipo">
-											<option value="" disabled selected>Tutti le tipologie</option>
-											<option value="culturale">Eventi culturali</option>
-											<option value="sportivo">Eventi sportivi</option>
-											<option value="volontariato">Opportunità di volontariato</option>
+											<option value="">Tutte le tipologie</option>
 										</select>
+
+
 									</div>
 									<div class="col-6 col-12-xsmall">
-										<select id="scelta_luogo" name="scelta_luogo">
-											<option value="" disabled selected>Tutte le location</option>
-											<!-- INSERIRE LE LOCATION da db-->
-											<option value="l1">Location 1</option>
-											<option value="l2">Location 2</option>
-										</select>
+										<select id="scelta_luogo" name="scelta_luogo"><option value="">Tutte le location</option></select>
+										
 									</div>
 								</div>
 									
 								<p>
-								<div class="table-wrapper">
-									<table> <!-- INSERIRE GLI EVENTI da db-->
-										<thead>
-											<tr>
-												<th>Evento</th>
-												<th>Inizio</th>
-												<th>Fine</th>
-												<th>Location</th>
-												<th>Descrizione</th>
-												<th>Punti</th>
-												<th> </th>
-											</tr>
-										</thead>
-										<tbody>
-											<tr>
-												<td>Evento 1</td>
-												<td>11.02.25</td>
-												<td>11.02.25</td>
-												<td>...</td>
-												<td>Ante turpis integer aliq cskhfbw evnkv wek.</td>
-												<td>45</td>
-												<td><button onclick="">Partecipa</button></td>
-											</tr>
-											<tr>
-												<td>Evento 2</td>
-												<td>30.08.26</td>
-												<td>11.02.27</td>
-												<td>...</td>
-												<td>Vis ac commodo adipiscing arcu aliquet.</td>
-												<td>90</td>
-												<td><button onclick="">Partecipa</button></td>
-											</tr>
+									<div class="table-wrapper">
+										<table>
+											<tbody>
+												<!-- Le righe verranno aggiunte dinamicamente tramite JavaScript -->
+											</tbody>
+										</table>
+									</div>
+
+									<script>
+										document.addEventListener("DOMContentLoaded", () => {
+											const tipoSelect = document.getElementById("scelta_tipo");
+											const luogoSelect = document.getElementById("scelta_luogo");
+											const dateInput = document.getElementById("date-picker");
+										
+											flatpickr("#date-picker", {
+												dateFormat: "Y-m-d",
+												defaultDate: "today", 
+												onChange: fetchEventiConFiltri
+											});
+											/* setTimeout(() => {
+												dateInput.value = "";
+												if (dateInput._flatpickr) dateInput._flatpickr.clear();
+											}, 0); */
+											const resetDateBtn = document.getElementById("reset-date");
+											resetDateBtn.addEventListener("click", () => {
+												if (dateInput._flatpickr) dateInput._flatpickr.clear();
+												dateInput.value = "";
+												fetchEventiConFiltri();
+											});
+											tipoSelect.addEventListener("change", fetchEventiConFiltri);
+											luogoSelect.addEventListener("change", fetchEventiConFiltri);
+										
+											async function caricaFiltri() {
+												try {
+													const res = await fetch("http://localhost:3000/api/v1/eventi/filtri");
+													const data = await res.json();
+
+													//console.log("Filtri ricevuti:", data); // DEBUG
+
+													if (!res.ok) throw new Error("Errore nel caricamento dei filtri");
+
+													// Popola i select con i dati ricevuti
+													tipoSelect.innerHTML = `<option value="">Tutte le tipologie</option>`;
+													data.tipologie.forEach(t => {
+														tipoSelect.innerHTML += `<option value="${t}">${t}</option>`;
+													});
+										
+													luogoSelect.innerHTML = `<option value="">Tutte le location</option>`;
+													data.luoghi.forEach(l => {
+														luogoSelect.innerHTML += `<option value="${l}">${l}</option>`;
+													});
+													// Chiama fetchEventiConFiltri dopo aver caricato i filtri per evitare che si duplichino le chiamate
+													fetchEventiConFiltri();
+												} catch (err) {
+													console.error("Errore nel caricamento dei filtri:", err);
+												}
+											}
+										
+											async function fetchEventiConFiltri() {
+												try {
+													const tipo = tipoSelect.value;
+													const luogo = luogoSelect.value;
+													const data = dateInput.value;
+
+													//console.log("tipo:", tipo, "luogo:", luogo, "data:", data);// DEBUG
+										
+													const params = new URLSearchParams();
+													// Aggiungi i filtri solo se hanno un valore
+													if (tipo && tipo !== "") params.append("tipologia", tipo);
+													if (luogo && luogo !== "") params.append("luogo", luogo);
+													if (data && data !== "") params.append("data", data);
+													params.append("futuri", "true"); //per assicurarsi di prendere solo eventi futuri
+													
+													//console.log("URL chiamato:", `http://localhost:3000/api/v1/eventi?${params.toString()}`);// DEBUG
+
+													const response = await fetch(`http://localhost:3000/api/v1/eventi?${params.toString()}`);
+													if (!response.ok) throw new Error("Errore nella richiesta eventi");
+										
+													const eventi = await response.json();
+
+													//console.log("Eventi ricevuti:", eventi); // DEBUG
+
+													const tbody = document.querySelector("table tbody");
+													tbody.innerHTML = "";
+													const tableWrapper = document.querySelector(".table-wrapper");
+
+													// Rimuovi eventuale messaggio precedente
+													let msg = document.getElementById("no-eventi-msg");
+													if (msg) msg.remove();
+
+													tbody.innerHTML = "";
+
+													if (eventi.length === 0) {
+														tableWrapper.style.display = "none";
+														// Mostra messaggio
+														const p = document.createElement("p");
+														p.id = "no-eventi-msg";
+														p.textContent = "Nessun evento disponibile";
+														tableWrapper.parentNode.insertBefore(p, tableWrapper);
+													} else {
+														tableWrapper.style.display = "";
+														eventi.forEach(evento => {
+															const row = document.createElement("tr");
+															row.innerHTML = `
+																<td>${evento.nome_evento}</td>
+																<td>${new Date(evento.data).toLocaleDateString()}</td>
+																<td>${evento.luogo}</td>
+																<td>${evento.tipologia}</td>
+																<td>${evento.descrizione}</td>
+																<td>${evento.punti ?? ""}</td>
+																<td><button onclick="partecipaEvento('${evento.id_evento}')">Partecipa</button></td>
+															`;
+															tbody.appendChild(row);
+														});
+								}
+												} catch (error) {
+													//console.error("Errore:", error);//DEBUG
+													alert("Errore nel caricamento degli eventi. Riprova più tardi.");
+												}
+											}
+										
+											window.partecipaEvento = function(idEvento) {
+												alert(`Hai scelto di partecipare all'evento con ID: ${idEvento}`);
+											};
 											
-										</tbody>
-										<tfoot>
-											<tr>
-												<td colspan="2"></td>
-											</tr>
-										</tfoot>
-									</table>
-								</div></p>
-							</section>
-            		</div>
+											caricaFiltri();
+											
+										});
+										</script>
+										
+
 
 				<!-- Copyright -->
 					<div id="copyright">
@@ -118,7 +204,7 @@
 			<script src="../assets/js/breakpoints.min.js"></script>
 			<script src="../assets/js/util.js"></script>
 			<script src="../assets/js/main.js"></script>
-			<script src="../assets/js/calendar.js"></script>
+			<!--<script src="../assets/js/calendar.js"></script>-->
 			<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 	</body>

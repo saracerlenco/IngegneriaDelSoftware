@@ -3,8 +3,7 @@ const app      = require('../app/app.js');
 const jwt      = require('jsonwebtoken'); 
 const mongoose = require('mongoose');
 const Cittadino = require('../app/models/cittadino.js');
-require('dotenv').config({ path: './../.env' });
-
+require('dotenv').config();
 
 describe('POST /api/v1/sessions', () => {
     beforeAll( async () => {
@@ -22,6 +21,8 @@ describe('POST /api/v1/sessions', () => {
         });
 
         expect(res.status).toBe(200);
+        // expect(res.body).toHaveProperty('token');
+        // expect(res.body).toHaveProperty('role', 'cittadino');
     });
 
     test('Autenticazione fallita per credenziali non valide', async () => {
@@ -79,7 +80,7 @@ describe('DELETE /sessions', () => {
       expect(res.body).toHaveProperty('error', 'Token non valido');
     });
 
-    test('Token mancante', async () => {
+    test('Token non valido', async () => {
         const res = await request(app)
           .delete('/api/v1/sessions')
           .set('x-access-token', '');

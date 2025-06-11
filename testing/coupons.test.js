@@ -3,14 +3,14 @@ const app      = require('../app/app');
 const jwt      = require('jsonwebtoken'); 
 const mongoose = require('mongoose');
 const Evento = require('../app/models/evento.js');
-require('dotenv').config({ path: './../.env' });
+require('dotenv').config();
 
 
 let tokenCittadino = jwt.sign( 
-    {email: 'John@mail.com', _id: '677face06f963ce63ccf2689', ruolo: 'cittadino'},
-    process.env.JWT_SECRET, 
-    {expiresIn: 43200} 
-);
+        {email: 'John@mail.com', _id: '67321bf8b78fd1a0bb33c677', ruolo: 'cittadino'},
+        process.env.JWT_SECRET, 
+        {expiresIn: 43200} 
+    );
 let tokenComune = jwt.sign( 
     {email: 'John2@mail.com', _id: '4567321bf8b78fd1a0bb33c6768', ruolo: 'operatore_comunale'},
     process.env.JWT_SECRET, 
@@ -36,7 +36,7 @@ describe('POST /coupons', () => {
       .set('x-access-token', tokenAzienda)
       .send({
             descrizione_coupon: 'Coupon di prova',
-            // sconto_offerto: 20.0
+            sconto_offerto: 20.0
       });
 
     expect(res.status).toBe(201);
@@ -48,7 +48,7 @@ describe('POST /coupons', () => {
     .set('x-access-token', tokenAzienda)
       .send({ 
         descrizione_coupon: '' ,  // Dato mancante
-        // sconto_offerto: 20.0
+        sconto_offerto: 20.0
       });
 
     expect(res.status).toBe(400);
@@ -61,7 +61,7 @@ describe('POST /coupons', () => {
     .set('x-access-token', tokenCittadino)
       .send({ 
         descrizione_coupon: 'Coupon di prova',
-        // sconto_offerto: 20.0
+        sconto_offerto: 20.0
       });
 
     expect(res.status).toBe(403);
@@ -110,16 +110,18 @@ describe('PUT /coupons/:{id_coupon}', () => {
       .put('/api/v1/coupons/'+id_coupon)
       .set('x-access-token', tokenComune)
       .send({
+        approvato: true,
         punti: 100,
       });
     expect(res.status).toBe(200);
   });
 
-  test('Coupon non trovato', async () => {
+  test('Coupon non ritrovato', async () => {
     const res = await request(app)
       .put('/api/v1/coupons/'+'6781868e62905e7412640d06')
       .set('x-access-token', tokenComune)
       .send({
+        approvato: true,
         punti: 100,
       });
 
@@ -133,6 +135,7 @@ describe('PUT /coupons/:{id_coupon}', () => {
       .put('/api/v1/coupons/'+id_coupon)
       .set('x-access-token', tokenComune)
       .send({
+        approvato: true,
       });
 
     expect(res.status).toBe(400);
@@ -145,6 +148,7 @@ describe('PUT /coupons/:{id_coupon}', () => {
     .delete('/api/v1/coupons/'+id_coupon)
     .set('x-access-token', tokenCittadino)
     .send({
+      approvato: true,
       punti: 100,
     });
 

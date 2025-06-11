@@ -3,7 +3,7 @@ const app      = require('../app/app.js');
 const jwt      = require('jsonwebtoken'); 
 const mongoose = require('mongoose');
 const Cittadino = require('../app/models/cittadino.js');
-require('dotenv').config({ path: './../.env' });
+require('dotenv').config();
 
 
 describe('GET /api/v1/cittadini', () => {

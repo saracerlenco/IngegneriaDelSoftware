@@ -3,7 +3,7 @@ const app      = require('../app/app.js');
 const jwt      = require('jsonwebtoken'); 
 const mongoose = require('mongoose');
 const Evento = require('../app/models/evento.js');
-require('dotenv').config({ path: './../.env' });
+require('dotenv').config();
 
 
 let tokenCittadino = jwt.sign( 

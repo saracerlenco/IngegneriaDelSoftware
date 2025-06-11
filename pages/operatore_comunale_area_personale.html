@@ -11,11 +11,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 	<link rel="stylesheet" href="../assets/css/main.css" />
     <link rel="shortcut icon" href="../images/logo.ico" />
-
+    <script src="../assets/js/jwt-decode.js"></script>
 
 	<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
 </head>
 <body class="is-preload">
+    
+    
+   
 
 	<!-- Wrapper -->
 	<div id="wrapper">
@@ -48,24 +51,65 @@
                         <h3>Benvenuta/o nella tua area personale</h3>
                         <form method="post" action="#">
                             <p>I tuoi dati personali:</p> <!--DATI DA INSERIRE DA DB NEL VALUE DELLE LABEL-->
-                            <div class="fields">
-                                <div class="field">
-                                    <label>Nome:</label>
-                                    <input type="text" disabled name="nome" id="nome_operatore_comunale" value="NomeOperatoreComunale"/>
-                                </div>
-                                <div class="field">
-                                    <label>Cognome:</label>
-                                    <input type="text" disabled name="cognome" id="cognome_operatore_comunale" value="CognomeOperatoreComunale"/>
-                                </div>
-                                <div class="field">
-                                    <label>Codice fiscale:</label>
-                                    <input type="text" disabled name="codice_fiscale" id="codice_operatore_comunale" value="CodiceFiscaleOperatoreComunale"/>
-                                </div>
-                                <div class="field">
-                                    <label>Email:</label>
-                                    <input type="email" disabled name="email" id="email_operatore_comunale" value="Email@OperatoreComunale"/>
+                            <div id="updatediv">
+                                <div class="fields">
+                                    <div class="field">
+                                        <label>Nome: </label>
+                                        <input type="text" disabled name="nome" id="nome_operatore_comunale" value="${utente.nome}"/>
+                                    </div>
+                                    <div class="field">
+                                        <label>Cognome:</label>
+                                        <input type="text" disabled name="cognome" id="cognome_operatore_comunale" value="${utente.cognome}"/>
+                                    </div>
+                                    <div class="field">
+                                        <label>Codice fiscale:</label>
+                                        <input type="text" disabled name="codice_fiscale" id="codice_operatore_comunale" value="${utente.codice_fiscale}"/>
+                                    </div>
+                                    <div class="field">
+                                        <label>Email:</label>
+                                        <input type="email" disabled name="email" id="email_operatore_comunale" value="${utente.email}"/>
+                                    </div>
                                 </div>
                             </div>
+                            <script>
+                                const token = localStorage.getItem("token");
+                                var id;
+                                if (isTokenValid(token)) {
+                                    id = JSON.parse(atob(token.split(".")[1]))._id;
+                                    fetch('http://localhost:3000/api/v1/operatori_comunali/' + id, {
+                                        headers: { "Authorization": "Bearer " + token }
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        // Qui data contiene tutti i dati dell'utente
+                                        console.log("Dati utente:", data);
+                                        // Aggiorna il DOM con i dati ricevuti
+                                        document.getElementById('nome').value = data.nome;
+                                        document.getElementById('cognome').value = data.cognome;
+                                        document.getElementById('email').value = data.email;
+                                        document.getElementById('codice_fiscale').value = data.codice_fiscale;
+                                    })
+                                    .catch(error => console.error("Errore:", error));
+                                } else {
+                                    utente = null;
+                                }
+                        
+                                function isTokenValid(token) {
+                                    try {
+                                        const decoded = jwtDecode(token);
+                                        if (!decoded.exp) {
+                                            throw new Error("Il token non ha un campo 'exp'");
+                                        }
+                                        const now = Math.floor(Date.now() / 1000); // Converte la data attuale in timestamp UNIX
+                                        return decoded.exp > now; // Ritorna true se il token è ancora valido
+                                    } catch (error) {
+                                        console.error("Token non valido:", error.message);
+                                        return false;
+                                    }
+                                }
+                            </script>
+
+                            
                             <div class="col-6 col-12-small">
                                 <ul class="actions stacked">
                                     <li><a onclick="AbilitaDisabilita(this)" class="button">Modifica dati</a></li>

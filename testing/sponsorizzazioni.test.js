@@ -2,7 +2,7 @@ const request  = require('supertest');
 const app      = require('../app/app');
 const jwt      = require('jsonwebtoken'); 
 const mongoose = require('mongoose');
-require('dotenv').config({ path: './../.env' });
+require('dotenv').config();
 
 describe('POST /api/v1/sponsorizzazioni/{id_evento}', () => {
 beforeAll( async () => {

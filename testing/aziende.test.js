@@ -3,8 +3,7 @@ const app      = require('../app/app.js');
 const jwt      = require('jsonwebtoken'); 
 const mongoose = require('mongoose');
 const Azienda = require('../app/models/azienda.js');
-require('dotenv').config({ path: './../.env' });
-
+require('dotenv').config();
 
 
 describe('GET /api/v1/aziende', () => {

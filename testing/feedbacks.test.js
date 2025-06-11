@@ -3,7 +3,7 @@ const app      = require('../app/app');
 const jwt      = require('jsonwebtoken'); 
 const mongoose = require('mongoose');
 const Evento = require('../app/models/evento.js');
-require('dotenv').config({ path: './../.env' });
+require('dotenv').config();
 
 let tokenCittadino = jwt.sign( 
     {email: 'John@mail.com', _id: '67321bf8b78fd1a0bb33c677', ruolo: 'cittadino'},
