@@ -11,7 +11,9 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<link rel="shortcut icon" href="images/logo.ico" />
-		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>		
+		<script src="//unpkg.com/jwt-js-decode@1.9.0/dist/jwt-js-decode.pkg.min.js"></script><!--per visualizzare il token-->
+
 	</head>
 	<body class="is-preload">
 
@@ -30,12 +32,12 @@
 
 				<!-- Nav -->
 					<nav id="nav">
-						<ul class="links">
+						<ul class="links" id="nav-links">
 							<li class="active"><a href="index.html">Mappa</a></li>
 							<li><a href="pages/eventi.html">Eventi</a></li>
 						</ul>
 						<ul class="icons">
-							<li><a href="pages/login.html">Login </a></li>
+							<li><a href="pages/login.html" id="log">Login </a></li>
 						</ul>
 					</nav>
 
@@ -75,6 +77,21 @@
 			<div id="copyright">
 				<ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
 			</div>
+			<script>
+			const { decode } = jwtJsDecode;// per decodificare il token JWT
+			const token = localStorage.getItem("token"); 
+			if(token && decode(token)){
+				document.getElementById("log").innerText = "Logout";
+				document.getElementById("log").href = "";
+				document.getElementById("log").onclick = ()=>{
+					localStorage.removeItem("token");
+					alert(`Logout effettuato con successo`);
+					window.reload();
+				}
+				document.getElementById("nav-links").innerHTML += `<li><a href="pages/${decode(token).payload.ruolo}_area_personale.html">Area personale</a></li>`;						
+			}	
+			</script>
+										
 
 		<!-- Scripts -->
 			<script src="assets/js/jquery.min.js"></script>

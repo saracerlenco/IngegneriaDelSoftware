@@ -24,10 +24,9 @@
 
 				<!-- Nav -->
 					<nav id="nav">
-						<ul class="links">
+						<ul class="links" id="nav-links">
 							<li><a href="../index.html">Mappa</a></li>
                             <li class="active"><a href="eventi.html">Eventi</a></li>
-							<li ><a href="cittadino_area_personale.html">Area personale</a></li>
 						</ul>
 						<a href="login.html" id="log">Login </a>
 						
@@ -61,7 +60,7 @@
 									<div class="table-wrapper">
 										<table>
 											<thead>
-												<tr><th>Nome</th><th>Data</th><th>Location</th><th>Tipologia</th><th>Descrizione</th><th>Punti</th></tr>
+												<!-- Le intestazioni verranno aggiunte dinamicamente tramite JavaScript -->
 											</thead>
 											<tbody>
 												<!-- Le righe verranno aggiunte dinamicamente tramite JavaScript -->
@@ -83,10 +82,7 @@
 												defaultDate: "today", 
 												onChange: fetchEventiConFiltri
 											});
-											/* setTimeout(() => {
-												dateInput.value = "";
-												if (dateInput._flatpickr) dateInput._flatpickr.clear();
-											}, 0); */
+											
 											const resetDateBtn = document.getElementById("reset-date");
 											resetDateBtn.addEventListener("click", () => {
 												if (dateInput._flatpickr) dateInput._flatpickr.clear();
@@ -148,6 +144,8 @@
 
 													const tbody = document.querySelector("table tbody");
 													tbody.innerHTML = "";
+													const thead = document.querySelector("table thead");
+													thead.innerHTML = "";
 													const tableWrapper = document.querySelector(".table-wrapper");
 
 													// Rimuovi eventuale messaggio precedente
@@ -169,6 +167,22 @@
 														if(token && decode(token).payload.ruolo != "operatore_comunale"){
 															disabled = false;
 														}
+														// IMPOSTA btn_text IN BASE AL RUOLO
+														let btn_text = "Partecipa";
+														if(token && decode(token).payload.ruolo === "azienda") {
+															btn_text = "Sponsorizza";
+														}
+														const header_tbl = document.createElement("tr");
+															header_tbl.innerHTML = `
+																<th>Nome evento</th>
+																<th>Data</th>
+																<th>Location</th>
+																<th>Tipologia</th>
+																<th>Descrizione</th>
+																<th>Punti</th>
+									
+															`;
+															thead.appendChild(header_tbl)
 														eventi.forEach(evento => {
 															const row = document.createElement("tr");
 															row.innerHTML = `
@@ -178,38 +192,88 @@
 																<td>${evento.tipologia}</td>
 																<td>${evento.descrizione}</td>
 																<td>${evento.punti ?? ""}</td>
-																<td><button ${disabled ? "disabled" : ""} onclick="partecipaEvento('${evento.id_evento}')">Partecipa</button></td>
+																<td><button ${disabled ? "disabled" : ""} onclick="partecipaEvento('${evento.id_evento}','${evento.nome_evento}')" class="partecipa_sponsorizza_btn">${btn_text}</button></td>
 															`;
 															tbody.appendChild(row);
 														});
 								}
 												} catch (error) {
-													//console.error("Errore:", error);//DEBUG
+													console.error("Errore:", error);//DEBUG
 													alert("Errore nel caricamento degli eventi. Riprova più tardi.");
 												}
 											}
 										
-											window.partecipaEvento = function(idEvento) {
-												alert(`Hai scelto di partecipare all'evento con ID: ${idEvento}`);
-											};
-											
+
+											// Funzione per partecipare all'evento
+												window.partecipaEvento = async function(id_evento, nome_evento) {
+													if (!token) {
+														alert("Devi essere loggato per partecipare.");
+														return;
+													}
+													const ruolo = decode(token).payload.ruolo;
+													if (ruolo === "cittadino") {
+														// Partecipazione
+														try {
+															const response = await fetch(`http://localhost:3000/api/v1/partecipazioni/${id_evento}`, {
+																method: "POST",
+																headers: {
+																	"Content-Type": "application/json",
+																	"Authorization":  token
+																}
+															});
+															if (response.status === 201) {
+																alert(`Partecipazione registrata all'evento: ${nome_evento}!`);
+															} else if (response.status === 403) {
+																alert("Solo i cittadini possono partecipare agli eventi.");
+															} else if (response.status === 404) {
+																alert("Evento non trovato.");
+															} else {
+																alert("Errore nella registrazione della partecipazione.");
+															}
+														} catch (err) {
+															alert("Errore di rete.");
+														}
+													} else if (ruolo === "azienda") {
+														// Sponsorizzazione
+														try {
+															const response = await fetch(`http://localhost:3000/api/v1/sponsorizzazioni/${id_evento}`, {
+																method: "POST",
+																headers: {
+																	"Content-Type": "application/json",
+																	"Authorization": token
+																}
+															});
+															if (response.status === 201) {
+																alert(`Sponsorizzazione registrata per l'evento: ${nome_evento}!`);
+															} else if (response.status === 403) {
+																alert("Solo le aziende possono sponsorizzare gli eventi.");
+															} else if (response.status === 404) {
+																alert("Evento non trovato.");
+															} else {
+																alert("Errore nella registrazione della sponsorizzazione.");
+															}
+														} catch (err) {
+															alert("Errore di rete.");
+														}
+													} else {
+														alert("Solo cittadini o aziende possono partecipare o sponsorizzare.");
+													}
+												};
+																							
 											caricaFiltri();
 											
 										});
-										//da mettere ovunque mi raccomando
-										/* const { decode } = jwtJsDecode;// per decodificare il token JWT
-										const token = localStorage.getItem("token"); */
 										if(token && decode(token)){
 											document.getElementById("log").innerText = "Logout";
 											document.getElementById("log").href = "";
 											document.getElementById("log").onclick = ()=>{
 												localStorage.removeItem("token");
-												window.reload();
-												//window.location="pagina_di_destination.html";
+												alert(`Logout effettuato con successo`);
+												window.location="../index.html"; // Reindirizza alla pagina principale
 											}
+											document.getElementById("nav-links").innerHTML += `<li><a href="${decode(token).payload.ruolo}_area_personale.html">Area personale</a></li>`;
 										}
-										</script>
-										
+										</script>						
 
 
 				<!-- Copyright -->

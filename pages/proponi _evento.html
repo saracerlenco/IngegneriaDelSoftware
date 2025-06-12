@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="../assets/css/calendar.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 	<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+    <script src="//unpkg.com/jwt-js-decode@1.9.0/dist/jwt-js-decode.pkg.min.js"></script><!--per visualizzare il token-->
+	
 </head>
 <body class="is-preload">
 
@@ -46,6 +48,29 @@
                                 return; // Stop further execution
                             }
                             else{
+                                try {
+                                    const nome = document.querySelector('#nome').value;
+                                    const data_inizio = document.querySelector('#date-picker').value;
+                                    const data_fine = document.querySelector('#date-picker').value;
+                                    const location = document.querySelector('#location').value;
+                                    const categoria = document.querySelector('#categoria').value;
+                                    const descrizione = document.querySelector('#descrizione').value;
+
+                                    // Crea un oggetto evento
+                                    const evento = {
+                                        nome: nome,
+                                        data_inizio: data_inizio,
+                                        data_fine: data_fine,
+                                        location: location,
+                                        categoria: categoria,
+                                        descrizione: descrizione
+                                    };
+
+                                    // Salva l'evento nel localStorage
+                                    localStorage.setItem('eventoProposto', JSON.stringify(evento));
+                                } catch (error) {
+                                    console.error("Errore durante la proposta dell'evento:", error);
+                                }
                                 alert("Evento proposto con successo");
                                 window.location.href = 'eventi.html';            
                             }                           
@@ -77,6 +102,14 @@
                             <label>Location:</label>
                             <input type="text" name="location" id="location" />
                         </div>
+                        <div class="field">
+                            <label>Categoria:</label>
+                            <input type="text" name="categoria" id="categoria" />
+                        </div>
+                        <div class="field">
+                            <label>Descrizione:</label>
+                            <input type="text" name="descrizione" id="descrizione" />
+                        </div>
                     </div>
                      <div class="col-6 col-12-small">
                         <ul class="actions stacked">
@@ -87,6 +120,20 @@
 			</section>
 
 		</div>
+
+        <script>
+            const { decode } = jwtJsDecode;// per decodificare il token JWT
+            const token = localStorage.getItem("token"); 
+            if(token && decode(token)){
+                document.getElementById("log").innerText = "Logout";
+                document.getElementById("log").href = "javascript:void(0);"; 
+                document.getElementById("log").onclick = ()=>{
+                    localStorage.removeItem("token");
+                    alert(`Logout effettuato con successo`);
+                    window.location.href="../index.html"; // Reindirizza alla pagina principale
+                }
+            }
+        </script>
 
 		<!-- Copyright -->
 		<div id="copyright">
@@ -100,7 +147,7 @@
 			<script src="../assets/js/breakpoints.min.js"></script>
 			<script src="../assets/js/util.js"></script>
 			<script src="../assets/js/main.js"></script>
-            <script src="../assets/js/calendar.js"></script>
+           <!--  <script src="../assets/js/calendar.js"></script> -->
 			<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
             
 

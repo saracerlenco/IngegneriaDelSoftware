@@ -6,9 +6,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 	<link rel="stylesheet" href="../assets/css/main.css" />
     <link rel="shortcut icon" href="../images/logo.ico" />
-
-
 	<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+    <script src="//unpkg.com/jwt-js-decode@1.9.0/dist/jwt-js-decode.pkg.min.js"></script><!--per visualizzare il token-->
+		
 </head>
 <body class="is-preload">
 
@@ -22,13 +22,13 @@
 
 		<!-- Nav -->
 		<nav id="nav">
-			<ul class="links">
+			<ul class="links" id="nav-links">
 				<li><a href="../index.html">Mappa</a></li>
 				<li><a href="eventi.html">Eventi</a></li>
 				<li class="active"><a href="cittadino_area_personale.html">Area personale</a></li>
 			</ul>
             <ul class="icons">
-                <li><a href="pages/login.html">Logout </a></li>
+                <li><a href="pages/login.html" id="log">Logout </a></li>
             </ul>
 		</nav>
 
@@ -87,10 +87,6 @@
                         <form method="post" action="#">
                             <table>
                                 <tr>
-                                    <td><label>Punti evento totali:</label></td>
-                                    <td><label>1000</label></td> <!--DA DB-->
-                                </tr>
-                                <tr>
                                     <td><a href="#" class="button fit">Crea coupon</a></td>
                                     <td><a href="#" class="button fit">Visualizza coupon proposti</a></td>
                                 </tr>
@@ -104,6 +100,19 @@
                 </div>
             </div>
         </div>
+        <script>
+            const { decode } = jwtJsDecode;// per decodificare il token JWT
+            const token = localStorage.getItem("token"); 
+            if(token && decode(token)){
+                document.getElementById("log").innerText = "Logout";
+                document.getElementById("log").href = "javascript:void(0);"; 
+                document.getElementById("log").onclick = ()=>{
+                    localStorage.removeItem("token");
+                    alert(`Logout effettuato con successo`);
+                    window.location.href="../index.html"; // Reindirizza alla pagina principale
+                }
+            }
+        </script>
 		<!-- Copyright -->
 		<div id="copyright">
 			<ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5	

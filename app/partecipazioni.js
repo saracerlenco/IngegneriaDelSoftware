@@ -4,7 +4,7 @@ const Partecipazione = require('./models/partecipazione.js');
 const Evento = require('./models/evento.js');
 const { tokenChecker } = require('./tokenChecker.js');
 
-router.post('/:id_evento', async (req,res) => {
+router.post('/:id_evento', tokenChecker, async (req,res) => { // Sara: aggiunta tokenChecker
     try{
         if(req.loggedUser.ruolo != 'cittadino'){
             return res.status(403).json({ error: "Azione non permessa: la tipologia di utente non permette la proposta di un evento"});
