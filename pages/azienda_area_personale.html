@@ -63,19 +63,65 @@
                                 </ul>
                             </div>
                             <script>
-                                function AbilitaDisabilita(button)
-                                {
-                                    const inputs = document.querySelectorAll('input');
-                                    const isDisabled = inputs[0].hasAttribute('disabled');
+                               function AbilitaDisabilita(button) {
+                                const inputs = document.querySelectorAll('input');
+                                const isDisabled = inputs[0].hasAttribute('disabled');
 
-                                    if (isDisabled) {
-                                        inputs.forEach(input => input.removeAttribute('disabled'));
-                                        button.innerText = "Salva dati";
-                                    } else {
-                                        inputs.forEach(input => input.setAttribute('disabled', 'disabled'))
+                                if (isDisabled) {
+                                    inputs.forEach(input => input.removeAttribute('disabled'));
+                                    button.innerText = "Salva dati";
+                                } else {
+                                    // Raccolta dati aggiornati
+                                    const nome = document.getElementById("nome_azienda").value;
+                                    const partita_IVA = document.getElementById("partita_iva_azienda").value;
+                                    const email = document.getElementById("email_azienda").value;
+                                    const token = localStorage.getItem("token");
+
+                                    fetch("http://localhost:3000/api/v1/aziende", {
+                                        method: "PUT",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                            "Authorization": "Bearer "+token
+                                        },
+                                        body: JSON.stringify({ nome_azienda: nome, partita_IVA, email })
+                                    })
+                                    .then(res => {
+                                        if (!res.ok) throw new Error("Errore nell'aggiornamento dei dati");
+                                        return;
+                                    })
+                                    .then(() => {
+                                        alert("Dati aggiornati con successo!");
+                                        inputs.forEach(input => input.setAttribute('disabled', 'disabled'));
                                         button.innerText = "Modifica dati";
-                                    } 
+                                    })
+                                    .catch(err => {
+                                        alert("Errore nell'aggiornamento dei dati");
+                                    });
                                 }
+                            }
+                            </script>
+                            <script>
+                            document.addEventListener("DOMContentLoaded", async () => {
+                                const token = localStorage.getItem("token");
+                                if (!token) return;
+
+                                try {
+                                    const response = await fetch("http://localhost:3000/api/v1/aziende", {
+                                        method: "GET",
+                                        headers: {
+                                            "Authorization": "Bearer " + token
+                                        }
+                                    });
+                                    if (!response.ok) throw new Error("Errore nel recupero dati azienda");
+                                    const data = await response.json();
+
+                                    document.getElementById("nome_azienda").value = data.nome || "";
+                                    document.getElementById("partita_iva_azienda").value = data.partita_IVA || "";
+                                    document.getElementById("email_azienda").value = data.email || "";
+                                } catch (err) {
+                                    alert("Errore nel caricamento dei dati azienda");
+                                }
+                            });
                             </script>
                         </form>				
                     </section>

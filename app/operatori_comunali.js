@@ -45,7 +45,7 @@ router.post('', async (req,res) => {
 
 
 // Visualizzazione area personale dell'operatore_comunale
-router.get('/:id', tokenChecker, async (req,res) => {
+router.get('', tokenChecker, async (req,res) => {
     try{        
         let operatore_comunale = await Operatore_Comunale.findOne({_id: req.loggedUser._id });
         if (!operatore_comunale) {
@@ -65,23 +65,33 @@ router.get('/:id', tokenChecker, async (req,res) => {
 })
 
 // Modifica area personale operatore_comunale DA RIVEDERE 
+// Sara: sistemata
 router.put('', tokenChecker, async(req,res) => {
     try{
-        const { dati } = req.body;
-        if(!dati){ return res.status(400).json({error:"Richiesta non valida"})};
+        const { nome_operatore_comunale, cognome_operatore_comunale, codice_fiscale, email } = req.body;
+        const update = {};
+        if (nome_operatore_comunale) update.nome = nome_operatore_comunale;
+        if (cognome_operatore_comunale) update.cognome = cognome_operatore_comunale;
+        if (codice_fiscale) update.codice_fiscale = codice_fiscale;
+        if (email) update.email = email;
+
+        if(Object.keys(update).length === 0){
+            return res.status(400).json({error:"Nessun dato da aggiornare"});
+        }
 
         const operatore_comunale = await Operatore_Comunale.findOneAndUpdate(
-            { email: req.loggedUser.email },
-            { $set: dati },
+            { _id: req.loggedUser._id }, 
+            { $set: update },
             { new: true }
         );
+        if(!operatore_comunale) return res.status(404).json({error:"Operatore non trovato"});
         res.status(200).send();
 
     } catch(err) {
         console.error(err);
         return res.status(500).json({ error: "Errore del server, riprova più tardi"});
     }
-})
+});
 
 function checkIfEmailInString(text) {
     // eslint-disable-next-line

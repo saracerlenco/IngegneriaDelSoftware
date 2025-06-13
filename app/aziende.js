@@ -50,23 +50,32 @@ router.get('', tokenChecker, async (req,res) => {
 })
 
 // Modifica area personale azienda DA RIVEDERE 
+//Sara: sistemata 
 router.put('', tokenChecker, async(req,res) => {
     try{
-        const { dati } = req.body;
-        if(!dati){ return res.status(400).json({error:"Richiesta non valida"})};
+        const { nome_azienda, partita_IVA, email } = req.body;
+        const update = {};
+        if (nome_azienda) update.nome_azienda = nome_azienda;
+        if (partita_IVA) update.partita_IVA = partita_IVA;
+        if (email) update.email = email;
+
+        if(Object.keys(update).length === 0){
+            return res.status(400).json({error:"Nessun dato da aggiornare"});
+        }
 
         const azienda = await Azienda.findOneAndUpdate(
-            { email: req.loggedUser.email },
-            { $set: dati },
+            { _id: req.loggedUser._id }, 
+            { $set: update },
             { new: true }
         );
+        if(!azienda) return res.status(404).json({error:"Azienda non trovata"});
         res.status(200).send();
 
     } catch(err) {
         console.error(err);
         return res.status(500).json({ error: "Errore del server, riprova più tardi"});
     }
-})
+});
 
 function checkIfEmailInString(text) {
     // eslint-disable-next-line

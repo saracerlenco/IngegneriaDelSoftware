@@ -76,25 +76,34 @@ router.get('', tokenChecker, async (req,res) => {
 })
 
 // Modifica area personale cittadino DA RIVEDERE 
+//Sara: sistemata
 router.put('', tokenChecker, async(req,res) => {
     try{
-        //if(req.loggedUser.)
-        
-        const { dati } = req.body;
-        if(!dati){ return res.status(400).json({error:"Richiesta non valida"})};
+        const { nome_cittadino, cognome_cittadino, codice_fiscale, username, email } = req.body;
+        const update = {};
+        if (nome_cittadino) update.nome = nome_cittadino;
+        if (cognome_cittadino) update.cognome = cognome_cittadino;
+        if (codice_fiscale) update.codice_fiscale = codice_fiscale;
+        if (username) update.username = username;
+        if (email) update.email = email;
+
+        if(Object.keys(update).length === 0){
+            return res.status(400).json({error:"Nessun dato da aggiornare"});
+        }
 
         const cittadino = await Cittadino.findOneAndUpdate(
-            { email: req.loggedUser.email },
-            { $set: dati },
+            { _id: req.loggedUser._id }, 
+            { $set: update },
             { new: true }
         );
-        res.status(200).json({ message: "Dati modificati con successo" });
+        if(!cittadino) return res.status(404).json({error:"Cittadino non trovata"});
+        res.status(200).send();
 
     } catch(err) {
         console.error(err);
         return res.status(500).json({ error: "Errore del server, riprova più tardi"});
     }
-})
+});
 
 function checkIfEmailInString(text) {
     // eslint-disable-next-line
