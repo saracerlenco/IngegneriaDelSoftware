@@ -103,7 +103,26 @@
                             <script>
                             document.addEventListener("DOMContentLoaded", async () => {
                                 const token = localStorage.getItem("token");
-                                if (!token) return;
+                                
+                                let ruolo = null;
+                                let errore = false;
+
+                                if (!token) {
+                                    errore = true;
+                                } else {
+                                    try {
+                                        const decoded = jwtDecode(token);
+                                        ruolo = decoded.payload ? decoded.payload.ruolo : decoded.ruolo;
+                                        if (ruolo !== "azienda") errore = true;
+                                    } catch (e) {
+                                        errore = true;
+                                    }
+                                }
+
+                                if (errore) {
+                                    document.getElementById("main").innerHTML = "<h3>Accesso non autorizzato.<br>Solo le aziende possono accedere a questa pagina.</h3>";
+                                    return;
+                                }
 
                                 try {
                                     const response = await fetch("http://localhost:3000/api/v1/aziende", {
