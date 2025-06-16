@@ -41,6 +41,7 @@ router.get('', tokenChecker, async (req,res) => {
         res.status(200).json( sponsorizzazioni.map(sponsorizzazione => ({
             self: `/api/v1/sponsorizzazioni/${sponsorizzazione.id_evento}`,
             id_sponsorizzazione: sponsorizzazione._id,
+            id_evento: sponsorizzazione.id_evento, //Sara: aggiunto mancava
             id_azienda: req.loggedUser._id
         })));
     } catch (err) { 

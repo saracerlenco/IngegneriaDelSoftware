@@ -39,48 +39,93 @@
 			<section class="post">
 				<h2>Riempi i campi e proponi il tuo evento!</h2>
                 <script>
-                    function verifica_dati(button)
-                    {
-                            const inputs = document.querySelectorAll('input');
-                            const all_filled = Array.from(inputs).every(input => input.value.trim() !== '');
-                            if (!all_filled) {
-                                alert("Tutti i campi sono obbligatori");
-                                return; // Stop further execution
+                    function verifica_dati(button) {
+                        const { decode } = jwtJsDecode;// per decodificare il token JWT
+                        const token = localStorage.getItem("token");
+                        if (!token) {
+                            alert("Devi essere autenticato per proporre un evento.");
+                            return;
+                        }
+                        // Verifica il ruolo dell'utente
+                        let ruolo = null;
+                        let errore = false;
+
+                        if (!token) {
+                            errore = true;
+                        } else {
+                            try {
+                                const decoded = decode(token);
+                                ruolo = decoded.payload ? decoded.payload.ruolo : decoded.ruolo;
+                                if (ruolo !== "operatore_comunale" && ruolo !== "cittadino") errore = true;
+                            } catch (e) {
+                                errore = true;
                             }
-                            else{
-                                try {
-                                    const nome = document.querySelector('#nome').value;
-                                    const data_inizio = document.querySelector('#date-picker').value;
-                                    const data_fine = document.querySelector('#date-picker').value;
-                                    const location = document.querySelector('#location').value;
-                                    const categoria = document.querySelector('#categoria').value;
-                                    const descrizione = document.querySelector('#descrizione').value;
+                        }        
+                        if (errore) {
+                            document.getElementById("main").innerHTML = "<h3>Accesso non autorizzato.<br>Solo gli operatori comunali e i cittadini possono accedere a questa pagina.</h3>";
+                            return;
+                        }
 
-                                    // Crea un oggetto evento
-                                    const evento = {
-                                        nome: nome,
-                                        data_inizio: data_inizio,
-                                        data_fine: data_fine,
-                                        location: location,
-                                        categoria: categoria,
-                                        descrizione: descrizione
-                                    };
+                        const nome = document.querySelector('#nome').value;
+                        const data_inizio = document.querySelector('#date_start').value;
+                        const data_fine = document.querySelector('#date_end').value;
+                        const location = document.querySelector('#location').value;
+                        const categoria = document.querySelector('#categoria').value;
+                        const descrizione = document.querySelector('#descrizione').value;
 
-                                    // Salva l'evento nel localStorage
-                                    localStorage.setItem('eventoProposto', JSON.stringify(evento));
-                                } catch (error) {
-                                    console.error("Errore durante la proposta dell'evento:", error);
+                        if (!nome || !data_inizio || !data_fine || !location || !categoria || !descrizione) {
+                            alert("Tutti i campi sono obbligatori");
+                            return;
+                        }
+                        if (new Date(data_fine) < new Date(data_inizio)) {
+                            alert("La data di fine non può essere precedente a quella di inizio.");
+                            return;
+                        }
+
+                        // Ciclo per ogni giorno tra data_inizio e data_fine (inclusi)
+                        let current = new Date(data_inizio);
+                        const end = new Date(data_fine);
+                        current.setHours(0,0,0,0);
+                        end.setHours(0,0,0,0);
+
+                        const promises = [];
+                        while (current <= end) {
+                            const evento = {
+                                nome_evento: nome,
+                                data: current.toISOString().slice(0,10), // formato YYYY-MM-DD
+                                luogo: location,
+                                tipologia: categoria,
+                                descrizione: descrizione
+                            };
+                            promises.push(
+                                fetch("http://localhost:3000/api/v1/eventi", {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                        "Authorization": "Bearer " + token
+                                    },
+                                    body: JSON.stringify(evento)
+                                })
+                            );
+                            current.setDate(current.getDate() + 1);
+                        }
+
+                        Promise.all(promises)
+                            .then(responses => {
+                                if (responses.every(res => res.ok)) {
+                                    alert("Evento proposto con successo");
+                                    window.location.href = 'eventi.html';
+                                } else {
+                                    alert("Errore nella proposta di uno o più eventi");
                                 }
-                                alert("Evento proposto con successo");
-                                window.location.href = 'eventi.html';            
-                            }                           
-                        }                        
+                            })
+                            .catch(error => {
+                                console.error("Errore durante la proposta dell'evento:", error);
+                                alert("Errore durante la proposta dell'evento");
+                            });
+                    }          
                         
-                    const now = new Date();
-                    // Formatta la data in modo compatibile con datetime-local
-                    const formattedNow = now.toISOString().slice(0, 16);
-                    // Imposta il valore minimo dell'input
-                    document.querySelector('#datetime').setAttribute('min', formattedNow);
+                    
                 </script>
                 <form method="post" action="#">
                     <div class="fields">
@@ -92,10 +137,10 @@
                             <div class="col-6 col-12-small">
                                 <label>Inizio evento:</label>
                                 <!--<input type="text" id="data_inizio" class="date-picker" placeholder="Clicca per scegliere una data">-->
-                                <input type="text" id="date-picker" name="data_inizio" class="date-picker" placeholder="Clicca per scegliere una data"> 
+                                <input type="text" id="date_start" name="data_inizio" class="date-picker" placeholder="Clicca per scegliere una data"> 
                                 <label>Data fine:</label>
                                 <!--<input type="text" id="data_fine" name="data_fine" class="date-picker" placeholder="Clicca per scegliere una data">-->
-                                <input type="text" id="date-picker" name="data_fine" class="date-picker" placeholder="Clicca per scegliere una data">
+                                <input type="text" id="date_end" name="data_fine" class="date-picker" placeholder="Clicca per scegliere una data">
                             </div>
                         </div>
                         <div class="field">
@@ -118,10 +163,21 @@
                     </div>
                 </form>
 			</section>
-
 		</div>
+			<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
         <script>
+            flatpickr("#date_start", {
+                dateFormat: "Y-m-d",
+                defaultDate: "today",
+                minDate: new Date()
+            });
+            flatpickr("#date_end", {
+                dateFormat: "Y-m-d",
+                defaultDate: "today",
+                minDate: new Date()
+            });
+
             const { decode } = jwtJsDecode;// per decodificare il token JWT
             const token = localStorage.getItem("token"); 
             if(token && decode(token)){
@@ -148,8 +204,6 @@
 			<script src="../assets/js/util.js"></script>
 			<script src="../assets/js/main.js"></script>
            <!--  <script src="../assets/js/calendar.js"></script> -->
-			<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-            
 
 	</body>
 </html>

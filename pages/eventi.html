@@ -79,7 +79,8 @@
 										
 											flatpickr("#date-picker", {
 												dateFormat: "Y-m-d",
-												defaultDate: "today", 
+												defaultDate: "today",
+												minDate: new Date(), 
 												onChange: fetchEventiConFiltri
 											});
 											
@@ -141,6 +142,33 @@
 													const eventi = await response.json();
 
 													//console.log("Eventi ricevuti:", eventi); // DEBUG
+													
+													// Controlla se l'utente è loggato come cittadino e recupera le partecipazioni
+													let partecipazioni = [];
+													if (token && decode(token).payload.ruolo === "cittadino") {
+														// Recupera le partecipazioni dell'utente
+														const resp = await fetch("http://localhost:3000/api/v1/partecipazioni", {
+															headers: { "Authorization": token }
+														});
+														if (resp.ok) {
+															partecipazioni = await resp.json();
+														}
+													}
+													// Crea una lista di id_evento a cui l'utente partecipa
+       												const partecipati = partecipazioni.map(p => p.id_evento);
+													
+													// Controlla se l'utente è loggato come azienda e recupera le sponsorizzazioni
+													let sponsorizzazioni = [];
+													if (token && decode(token).payload.ruolo === "azienda") {
+														const resp = await fetch("http://localhost:3000/api/v1/sponsorizzazioni", {
+															headers: { "Authorization": token }
+														});
+														if (resp.ok) {
+															sponsorizzazioni = await resp.json();
+														}
+													}
+													// Crea una lista di id_evento sponsorizzati dall'azienda
+													const sponsorizzati = sponsorizzazioni.map(s => s.id_evento);
 
 													const tbody = document.querySelector("table tbody");
 													tbody.innerHTML = "";
@@ -184,18 +212,27 @@
 															`;
 															thead.appendChild(header_tbl)
 														eventi.forEach(evento => {
-															const row = document.createElement("tr");
-															row.innerHTML = `
-																<td>${evento.nome_evento}</td>
-																<td>${new Date(evento.data).toLocaleDateString()}</td>
-																<td>${evento.luogo}</td>
-																<td>${evento.tipologia}</td>
-																<td>${evento.descrizione}</td>
-																<td>${evento.punti ?? ""}</td>
-																<td><button ${disabled ? "disabled" : ""} onclick="partecipaEvento('${evento.id_evento}','${evento.nome_evento}')" class="partecipa_sponsorizza_btn">${btn_text}</button></td>
-															`;
-															tbody.appendChild(row);
-														});
+														const alreadyJoined = partecipati.includes(evento.id_evento);
+														const alreadySponsored = sponsorizzati.includes(evento.id_evento);
+														const row = document.createElement("tr");
+														row.innerHTML = `
+															<td>${evento.nome_evento}</td>
+															<td>${new Date(evento.data).toLocaleDateString()}</td>
+															<td>${evento.luogo}</td>
+															<td>${evento.tipologia}</td>
+															<td>${evento.descrizione}</td>
+															<td>${evento.punti ?? ""}</td>
+															<td>
+																<button 
+																	${disabled || alreadyJoined || alreadySponsored? "disabled" : ""} 
+																	onclick="partecipaEvento('${evento.id_evento}','${evento.nome_evento}')"
+																	class="partecipa_sponsorizza_btn">
+																	${alreadyJoined ? "Già partecipi" : alreadySponsored ? "Già sponsorizzi" : btn_text}
+																</button>
+															</td>
+														`;
+														tbody.appendChild(row);
+													});
 								}
 												} catch (error) {
 													console.error("Errore:", error);//DEBUG

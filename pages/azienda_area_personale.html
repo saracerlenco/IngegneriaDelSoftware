@@ -101,6 +101,7 @@
                             }
                             </script>
                             <script>
+                            const { decode } = jwtJsDecode;// per decodificare il token JWT
                             document.addEventListener("DOMContentLoaded", async () => {
                                 const token = localStorage.getItem("token");
                                 
@@ -111,7 +112,7 @@
                                     errore = true;
                                 } else {
                                     try {
-                                        const decoded = jwtDecode(token);
+                                        const decoded = decode(token);
                                         ruolo = decoded.payload ? decoded.payload.ruolo : decoded.ruolo;
                                         if (ruolo !== "azienda") errore = true;
                                     } catch (e) {
@@ -166,7 +167,6 @@
             </div>
         </div>
         <script>
-            const { decode } = jwtJsDecode;// per decodificare il token JWT
             const token = localStorage.getItem("token"); 
             if(token && decode(token)){
                 document.getElementById("log").innerText = "Logout";

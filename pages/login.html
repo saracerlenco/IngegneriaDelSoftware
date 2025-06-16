@@ -7,6 +7,7 @@
 		<link rel="stylesheet" href="../assets/css/main.css" />
         <link rel="shortcut icon" href="../images/logo.ico" />
 		<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+		 <script src="//unpkg.com/jwt-js-decode@1.9.0/dist/jwt-js-decode.pkg.min.js"></script><!--per visualizzare il token-->
 	</head>
 	<body class="is-preload">
 
@@ -61,7 +62,71 @@
 					</div>
 
 					<script>
-						document.getElementById("loginBtn").addEventListener("click", async function() {
+            const { decode } = jwtJsDecode;// per decodificare il token JWT
+
+						document.getElementById("loginBtn").addEventListener("click", async function(event) {
+    event.preventDefault();
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    if (!email || !password) {
+        alert("Inserisci email e password.");
+        return;
+    }
+
+    try {
+        // Prova login come cittadino
+        let response = await fetch("http://localhost:3000/api/v1/sessions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password, ruolo: "cittadino" })
+        });
+        let data = await response.json();
+
+        if(!response.ok){
+            // Prova login come azienda
+            response = await fetch("http://localhost:3000/api/v1/sessions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password, ruolo: "azienda" })
+            });
+            data = await response.json();
+        }
+
+        if(!response.ok){
+            // Prova login come operatore comunale
+            response = await fetch("http://localhost:3000/api/v1/sessions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password, ruolo: "operatore_comunale" })
+            });
+            data = await response.json();
+        }
+
+        if(response.ok){
+            localStorage.setItem("token", data.token);
+            const decoded = decode(data.token);
+            console.log("Token decodificato:", decoded);
+            const ruolo = decoded.ruolo || (decoded.payload && decoded.payload.ruolo);
+
+            if (ruolo === "cittadino") {
+                window.location.href = "cittadino_area_personale.html";
+            } else if (ruolo === "azienda") {
+                window.location.href = "azienda_area_personale.html";
+            } else if (ruolo === "operatore_comunale") {
+                window.location.href = "operatore_comunale_area_personale.html";
+            } else {
+                alert("Ruolo non riconosciuto.");
+                localStorage.removeItem("token");
+            }
+        } else {
+            alert("Email o password errate.");
+        }
+    } catch (error) {
+        alert("Errore: " + error.message);
+    }
+});
+						/* document.getElementById("loginBtn").addEventListener("click", async function() {
 							// Prende i valori dai campi input
 							const email = document.getElementById("email").value;
 							const password = document.getElementById("password").value;
@@ -117,8 +182,6 @@
 											window.location.href = "operatore_comunale_area_personale.html"; // Reindirizza alla pagina dell'utente
 										}else{
 											alert("Password e email non corrispondono o l'account non esiste");
-											/* document.getElementById("email").value = ""; */
-											document.getElementById("password").value = "";
 										}
 									}
 								}
@@ -127,7 +190,7 @@
 							catch (error) {
 								alert("Errore: " + error.message);
 							}
-						});
+						});  */
 					</script>
 						
 

@@ -66,6 +66,7 @@ router.get('', tokenChecker, async (req,res) => {
         res.status(200).json( partecipazioni.map(partecipazione => ({
             self: `/api/v1/partecipazioni`,
             id_partecipazione: partecipazione._id,
+            id_evento: partecipazione.id_evento, //Sara: aggiunto, mancava
             id_cittadino: req.loggedUser._id
         })));
     } catch (err) { 

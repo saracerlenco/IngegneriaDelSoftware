@@ -110,6 +110,7 @@
                             }
                             </script>
                             <script>
+                            const { decode } = jwtJsDecode;// per decodificare il token JWT
                             document.addEventListener("DOMContentLoaded", async () => {
                                 const token = localStorage.getItem("token");
                                 
@@ -120,8 +121,8 @@
                                     errore = true;
                                 } else {
                                     try {
-                                        const decoded = jwtDecode(token);
-                                        ruolo = decoded.payload ? decoded.payload.ruolo : decoded.ruolo;
+                                        const decoded = decode(token);
+                                        ruolo = decoded.ruolo || (decoded.payload && decoded.payload.ruolo);
                                         if (ruolo !== "cittadino") errore = true;
                                     } catch (e) {
                                         errore = true;
@@ -167,7 +168,7 @@
                                     <td><label>1000</label></td> <!--DA DB-->
                                 </tr>
                                 <tr>
-                                    <td><a href="#" class="button fit">Proponi evento</a></td>
+                                    <td><a href="proponi _evento.html" class="button fit">Proponi evento</a></td>
                                     <td><a href="#" class="button fit">Eventi prenotati</a></td>
                                 </tr>
                                 
@@ -189,7 +190,6 @@
 			<ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5	
 
         <script>
-            const { decode } = jwtJsDecode;// per decodificare il token JWT
             const token = localStorage.getItem("token"); 
             if(token && decode(token)){
                 document.getElementById("log").innerText = "Logout";
