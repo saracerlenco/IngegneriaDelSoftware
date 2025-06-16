@@ -24,12 +24,15 @@
 
 		<!-- Nav -->
 		<nav id="nav">
-			<ul class="links">
+			<ul class="links" id="nav-links">
 				<li><a href="../index.html">Mappa</a></li>
 				<li><a href="eventi.html">Eventi</a></li>
-				<li><a href="operatore_comunale_area_personale.html">Area personale</a></li>
+                <li><a id="_area_personale">Area personale</a></li>
                 <li class="active"><a href="proponi _evento.html">proponi evento</a></li>
 			</ul>
+            <ul class="icons">
+                <li><a id="log">Logout </a></li>
+            </ul>
 		</nav>
 
 		<!-- Main -->
@@ -182,12 +185,13 @@
             const token = localStorage.getItem("token"); 
             if(token && decode(token)){
                 document.getElementById("log").innerText = "Logout";
-                document.getElementById("log").href = "javascript:void(0);"; 
+                document.getElementById("log").href = "javascript:void(0);"; // Impedisce il reindirizzamento
                 document.getElementById("log").onclick = ()=>{
                     localStorage.removeItem("token");
                     alert(`Logout effettuato con successo`);
                     window.location.href="../index.html"; // Reindirizza alla pagina principale
                 }
+                document.getElementById("_area_personale").href=`${decode(token).payload.ruolo}_area_personale.html`;
             }
         </script>
 
