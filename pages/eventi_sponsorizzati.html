@@ -1,0 +1,196 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>DiscoverTrento - Eventi Sponsorizzati</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <link rel="shortcut icon" href="../images/logo.ico" />
+    <noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+    <script src="//unpkg.com/jwt-js-decode@1.9.0/dist/jwt-js-decode.pkg.min.js"></script>
+</head>
+<body class="is-preload">
+
+    <div id="wrapper">
+        <header id="header">
+            <h1>Discover-Trento</h1>
+        </header>
+
+        <nav id="nav">
+            <ul class="links" id="nav-links">
+                <li><a href="../index.html">Mappa</a></li>
+                <li><a href="eventi.html">Eventi</a></li>
+                <li><a id="_area_personale">Area personale</a></li>
+                <li class="active"><a href="eventi_sponsorizzati.html">Eventi sponsorizzati</a></li>
+            </ul>
+            <ul class="icons">
+                <li><a id="log">Logout</a></li>
+            </ul>
+        </nav>
+
+        <div id="main">
+            <section class="post">
+                <h2>I tuoi eventi sponsorizzati futuri</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome evento</th>
+                                <th>Data</th>
+                                <th>Luogo</th>
+                                <th>Tipologia</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="eventi-tbody">
+                            <!-- Gli eventi sponsorizzati verranno inseriti qui -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const { decode } = jwtJsDecode;
+            const token = localStorage.getItem("token");
+            let errore = false;
+            let ruolo = null;
+            let id_azienda = null;
+
+            if (!token) {
+                errore = true;
+            } else {
+                try {
+                    const decoded = decode(token);
+                    ruolo = decoded.payload ? decoded.payload.ruolo : decoded.ruolo;
+                    id_azienda = decoded.payload ? decoded.payload._id : decoded._id;
+                    if (ruolo !== "azienda") errore = true;
+                } catch (e) {
+                    errore = true;
+                }
+            }
+
+            if (errore) {
+                document.getElementById("main").innerHTML = "<h3>Accesso non autorizzato.<br>Solo le aziende possono vedere i propri eventi sponsorizzati.</h3>";
+                return;
+            }
+
+            // Logout e area personale
+            document.getElementById("log").innerText = "Logout";
+            document.getElementById("log").href = "javascript:void(0);";
+            document.getElementById("log").onclick = () => {
+                localStorage.removeItem("token");
+                alert("Logout effettuato con successo");
+                window.location.href = "../index.html";
+            };
+            if(document.getElementById("_area_personale"))
+                document.getElementById("_area_personale").href = "azienda_area_personale.html";
+
+            let sponsorizzazioni = [];
+            try {
+                const resp = await fetch("http://localhost:3000/api/v1/sponsorizzazioni", {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+                if (resp.ok) {
+                    sponsorizzazioni = await resp.json();
+                }
+            } catch (err) {
+                document.getElementById("main").innerHTML = "<h3>Errore nel caricamento delle sponsorizzazioni.</h3>";
+                return;
+            }
+            // Ottieni solo gli id_evento sponsorizzati da questa azienda
+            const eventiSponsorizzatiIds = sponsorizzazioni.map(s => String(s.id_evento));
+
+            // Recupera tutti gli eventi
+            let eventi = [];
+            try {
+                const resp = await fetch("http://localhost:3000/api/v1/eventi");
+                if (resp.ok) {
+                    eventi = await resp.json();
+                }
+            } catch (err) {
+                document.getElementById("main").innerHTML = "<h3>Errore nel caricamento degli eventi.</h3>";
+                return;
+            }
+
+            // Filtra solo gli eventi futuri sponsorizzati da questa azienda
+            const oggi = new Date();
+            oggi.setHours(0,0,0,0);
+            const mieiEventi = eventi.filter(ev => 
+                eventiSponsorizzatiIds.includes(String(ev.id_evento)) &&
+                new Date(ev.data) >= oggi
+            );
+
+            const tbody = document.getElementById("eventi-tbody");
+            tbody.innerHTML = "";
+
+            if (mieiEventi.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5">Nessun evento sponsorizzato futuro.</td></tr>`;
+            } else {
+                mieiEventi.forEach(evento => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${evento.nome_evento}</td>
+                            <td>${new Date(evento.data).toLocaleDateString()}</td>
+                            <td>${evento.luogo}</td>
+                            <td>${evento.tipologia}</td>
+                            <td>
+                                <button onclick="eliminaSponsorizzazione('${evento.id_evento}')" class="button small">Elimina sponsorizzazione</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        });
+
+        // Funzione per eliminare la sponsorizzazione
+        async function eliminaSponsorizzazione(id_evento) {
+            if (!confirm("Sei sicuro di voler eliminare la sponsorizzazione per questo evento?")) return;
+            const token = localStorage.getItem("token");
+            try {
+                const resp = await fetch(`http://localhost:3000/api/v1/sponsorizzazioni/${id_evento}`, {
+                    method: "delete",
+                    headers: { "Authorization": "Bearer " + token }
+                });
+                if (resp.ok) {
+                    alert("Sponsorizzazione eliminata con successo.");
+                    document.querySelector(`button[onclick="eliminaSponsorizzazione('${id_evento}')"]`).closest('tr').remove();
+                } else {
+                    alert("Errore nell'eliminazione della sponsorizzazione.");
+                }
+            } catch (err) {
+                alert("Errore di rete.");
+            }
+        }
+        </script>
+        <script>
+            // Gestione logout e area personale
+            const { decode } = jwtJsDecode;
+            const token = localStorage.getItem("token"); 
+            if(token && decode(token)){
+                document.getElementById("log").innerText = "Logout";
+                document.getElementById("log").href = "javascript:void(0);";
+                document.getElementById("log").onclick = ()=>{
+                    localStorage.removeItem("token");
+                    alert(`Logout effettuato con successo`);
+                    window.location.href="../index.html";
+                }
+                document.getElementById("_area_personale").href="azienda_area_personale.html";
+            }
+        </script>
+
+        <div id="copyright">
+            <ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+        </div>
+    </div>
+
+    <script src="../assets/js/jquery.min.js"></script>
+    <script src="../assets/js/jquery.scrollex.min.js"></script>
+    <script src="../assets/js/jquery.scrolly.min.js"></script>
+    <script src="../assets/js/browser.min.js"></script>
+    <script src="../assets/js/breakpoints.min.js"></script>
+    <script src="../assets/js/util.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

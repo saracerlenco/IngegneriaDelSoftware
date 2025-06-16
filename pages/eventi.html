@@ -227,7 +227,7 @@
 																	${disabled || alreadyJoined || alreadySponsored? "disabled" : ""} 
 																	onclick="partecipaEvento('${evento.id_evento}','${evento.nome_evento}')"
 																	class="partecipa_sponsorizza_btn">
-																	${alreadyJoined ? "Già partecipi" : alreadySponsored ? "Già sponsorizzi" : btn_text}
+																	${alreadyJoined ? "Partecipi" : alreadySponsored ? "Sponsorizzi" : btn_text}
 																</button>
 															</td>
 														`;
@@ -235,7 +235,7 @@
 													});
 								}
 												} catch (error) {
-													console.error("Errore:", error);//DEBUG
+													//console.error("Errore:", error);//DEBUG
 													alert("Errore nel caricamento degli eventi. Riprova più tardi.");
 												}
 											}
@@ -260,6 +260,7 @@
 															});
 															if (response.status === 201) {
 																alert(`Partecipazione registrata all'evento: ${nome_evento}!`);
+																fetchEventiConFiltri();
 															} else if (response.status === 403) {
 																alert("Solo i cittadini possono partecipare agli eventi.");
 															} else if (response.status === 404) {
@@ -282,6 +283,7 @@
 															});
 															if (response.status === 201) {
 																alert(`Sponsorizzazione registrata per l'evento: ${nome_evento}!`);
+																fetchEventiConFiltri();
 															} else if (response.status === 403) {
 																alert("Solo le aziende possono sponsorizzare gli eventi.");
 															} else if (response.status === 404) {
