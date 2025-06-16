@@ -149,6 +149,7 @@
                                     document.getElementById("codice_fiscale_cittadino").value = data.codice_fiscale || "";
                                     document.getElementById("username_cittadino").value = data.username || "";
                                     document.getElementById("email_cittadino").value = data.email || "";
+                                    document.getElementById("punti_cittadino").innerText = data.punti_evento_totali || "0";
                                 } catch (err) {
                                     alert("Errore nel caricamento dei dati cittadino");
                                 }
@@ -165,11 +166,11 @@
                             <table>
                                 <tr>
                                     <td><label>Punti evento totali:</label></td>
-                                    <td><label>1000</label></td> <!--DA DB-->
+                                    <td><label id="punti_cittadino"></label></td>
                                 </tr>
                                 <tr>
                                     <td><a href="proponi_evento.html" class="button fit">Proponi evento</a></td>
-                                    <td><a href="#" class="button fit">Eventi prenotati</a></td>
+                                    <td><a href="eventi_prenotati.html" class="button fit">Eventi prenotati</a></td>
                                 </tr>
                                 
                                 <tr>

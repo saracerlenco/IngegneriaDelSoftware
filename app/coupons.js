@@ -39,14 +39,14 @@ router.post('', async (req,res) => {
             return res.status(403).json({ error: "Azione non permessa: la tipologia di utente non permette la proposta di un coupon"});
         }
         
-        if(!req.body.descrizione_coupon || !req.body.sconto_offerto){
+        if(!req.body.descrizione_coupon){ //Sara ha rimosso|| !req.body.sconto_offerto){
             return res.status(400).json({ error: "Dati mancanti o non validi"});
         }
 
         let coupon = new Coupon({
             id_azienda: req.loggedUser._id,
             descrizione_coupon: req.body.descrizione_coupon,
-            sconto_offerto: req.body.sconto_offerto
+            //Sara ha rimosso -> sconto_offerto: req.body.sconto_offerto
         })
         coupon = await coupon.save();
 
@@ -77,7 +77,7 @@ router.put('/:id_coupon', tokenChecker, async(req,res) => {
         
         const coupon = await Coupon.findOneAndUpdate(
             { _id: req.params.id_coupon },
-            { $set: {punti: req.body.punti} },
+            { $set: {punti: req.body.punti} }, 
             { new: true }
             
         );

@@ -1,0 +1,186 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>DiscoverTrento</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+        <link rel="stylesheet" href="../assets/css/main.css" />
+        <link rel="stylesheet" href="../assets/css/calendar.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <link rel="shortcut icon" href="../images/logo.ico" />
+        <noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+        <script src="//unpkg.com/jwt-js-decode@1.9.0/dist/jwt-js-decode.pkg.min.js"></script>
+    </head>
+    <body class="is-preload">
+
+        <div id="wrapper">
+            <header id="header">
+                <h1>Discover-Trento</h1>
+            </header>
+
+            <nav id="nav">
+                <ul class="links" id="nav-links">
+                    <li><a href="../index.html">Mappa</a></li>
+                    <li><a href="eventi.html">Eventi</a></li>
+                    <li><a id="_area_personale">Area personale</a></li>
+                    <li class="active"><a href="associa_punti_coupon.html">Associa punti coupon</a></li>
+                </ul>
+                <a href="login.html" id="log">Login </a>
+            </nav>
+
+            <div id="main">
+                <section class="post">
+                    <h2>Coupon da approvare</h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Descrizione</th>
+                                    <th>Punti</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="coupon-tbody">
+                                <!-- Le righe verranno aggiunte dinamicamente tramite JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <script>
+            document.addEventListener("DOMContentLoaded", async () => {
+                const { decode } = jwtJsDecode;
+                const token = localStorage.getItem("token");
+                let errore = false;
+                let ruolo = null;
+
+                if (!token) {
+                    errore = true;
+                } else {
+                    try {
+                        const decoded = decode(token);
+                        ruolo = decoded.payload ? decoded.payload.ruolo : decoded.ruolo;
+                        if (ruolo !== "operatore_comunale") errore = true;
+                    } catch (e) {
+                        errore = true;
+                    }
+                }
+
+                if (errore) {
+                    document.getElementById("main").innerHTML = "<h3>Accesso non autorizzato.<br>Solo gli operatori comunali possono associare punti ai coupon.</h3>";
+                    return;
+                }
+
+                document.getElementById("log").innerText = "Logout";
+                document.getElementById("log").href = "javascript:void(0);";
+                document.getElementById("log").onclick = () => {
+                    localStorage.removeItem("token");
+                    alert("Logout effettuato con successo");
+                    window.location.href = "../index.html";
+                };
+
+                // Carica coupon non ancora approvati
+                try {
+                    const response = await fetch("http://localhost:3000/api/v1/coupons", {
+                        headers: { "Authorization": "Bearer " + token }
+                    });
+                    if (!response.ok) throw new Error("Errore nella richiesta coupon");
+                    const coupons = await response.json();
+
+                    const daApprovare = coupons.filter(c => !c.punti || c.punti <= 0);
+
+                    const tbody = document.getElementById("coupon-tbody");
+                    tbody.innerHTML = "";
+
+                    if (daApprovare.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="4">Nessun coupon da approvare.</td></tr>`;
+                    } else {
+                        daApprovare.forEach(coupon => {
+                            const row = document.createElement("tr");
+                            row.innerHTML = `
+                                <td>${coupon.descrizione_coupon}</td>
+                                <td>
+                                    <input type="number" min="1" max="10000" value="" id="punti_${coupon.id_coupon}" style="width:60px;" disabled>
+                                </td>
+                                <td>
+                                    <button id="btn_${coupon.id_coupon}" onclick="aggiungiPunti('${coupon.id_coupon}')" class="button small">Aggiungi punteggio</button>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+                } catch (err) {
+                    document.getElementById("main").innerHTML = "<h3>Errore nel caricamento dei coupon.</h3>";
+                }
+            });
+
+            // Funzione per abilitare input e cambiare bottone in "Salva"
+            window.aggiungiPunti = function(id_coupon) {
+                const input = document.getElementById(`punti_${id_coupon}`);
+                const btn = document.getElementById(`btn_${id_coupon}`);
+                input.disabled = false;
+                btn.innerText = "Salva";
+                btn.onclick = function() { salvaPunti(id_coupon); };
+            };
+
+            // Funzione per salvare i punti e approvare il coupon
+            window.salvaPunti = async function(id_coupon) {
+                const input = document.getElementById(`punti_${id_coupon}`);
+                const punti = parseInt(input.value, 10);
+                if (isNaN(punti) || punti < 1 || punti > 10000) {
+                    alert("Inserisci un punteggio valido (1-10000)");
+                    return;
+                }
+                const token = localStorage.getItem("token");
+                try {
+                    const response = await fetch(`http://localhost:3000/api/v1/coupons/${id_coupon}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + token
+                        },
+                        body: JSON.stringify({ punti, approvato: true })
+                    });
+                    if (response.ok) {
+                        alert("Punteggio assegnato e coupon approvato con successo!");
+                        location.reload();
+                    } else {
+                        alert("Errore nell'assegnazione del punteggio.");
+                    }
+                } catch (err) {
+                    alert("Errore di rete.");
+                }
+            };
+            </script>
+            <script>
+                // Gestione logout e area personale
+                const { decode } = jwtJsDecode;
+                const token = localStorage.getItem("token"); 
+                if(token && decode(token)){
+                    document.getElementById("log").innerText = "Logout";
+                    document.getElementById("log").href = "javascript:void(0);";
+                    document.getElementById("log").onclick = ()=>{
+                        localStorage.removeItem("token");
+                        alert(`Logout effettuato con successo`);
+                        window.location.href="../index.html";
+                    }
+                    document.getElementById("_area_personale").href="operatore_comunale_area_personale.html";
+                }
+            </script>
+
+            <div id="copyright">
+                <ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+            </div>
+        </div>
+
+        <script src="../assets/js/jquery.min.js"></script>
+        <script src="../assets/js/jquery.scrollex.min.js"></script>
+        <script src="../assets/js/jquery.scrolly.min.js"></script>
+        <script src="../assets/js/browser.min.js"></script>
+        <script src="../assets/js/breakpoints.min.js"></script>
+        <script src="../assets/js/util.js"></script>
+        <script src="../assets/js/main.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    </body>
+</html>

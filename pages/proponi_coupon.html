@@ -69,10 +69,9 @@
                         }
 
                         const descrizione_coupon = document.querySelector('#descrizione_coupon').value;
-                        const sconto_offerto = document.querySelector('#sconto_offerto').value;
 
-                        if (!descrizione_coupon || !sconto_offerto) {
-                            alert("Tutti i campi sono obbligatori");
+                        if (!descrizione_coupon) {
+                            alert("Il campo 'Descrizione' è obbligatorio.");
                             return;
                         }
 
@@ -82,7 +81,7 @@
                                 "Content-Type": "application/json",
                                 "Authorization": "Bearer " + token
                             },
-                            body: JSON.stringify({ descrizione_coupon, sconto_offerto })
+                            body: JSON.stringify({ descrizione_coupon })
                         })
                         .then(res => {
                             if (!res.ok) throw new Error("Errore nella proposta del coupon");
@@ -103,10 +102,6 @@
                         <div class="field">
                             <label>Descrizione:</label>
                             <input type="text" name="descrizione_coupon" id="descrizione_coupon" />
-                        </div>
-                        <div class="field">
-                            <label>Sconto offerto (%):</label>
-                            <input type="number" name="sconto_offerto" id="sconto_offerto" min="1" max="100" />
                         </div>
                     </div>
                      <div class="col-6 col-12-small">

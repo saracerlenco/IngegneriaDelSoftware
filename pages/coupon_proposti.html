@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>DiscoverTrento - Coupon Proposti</title>
+    <title>DiscoverTrento</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="../assets/css/main.css" />
@@ -36,7 +36,6 @@
                         <thead>
                             <tr>
                                 <th>Descrizione</th>
-                                <th>Sconto (%)</th>
                                 <th>Approvato</th>
                                 <th>Punti</th>
                             </tr>
@@ -111,8 +110,7 @@
                         tbody.innerHTML += `
                             <tr>
                                 <td>${coupon.descrizione_coupon}</td>
-                                <td>${coupon.sconto_offerto}</td>
-                                <td>${coupon.approvato ? "Sì" : "No"}</td>
+                                <td>${coupon.punti > 0 ? "Sì" : "No"}</td>
                                 <td>${coupon.punti ?? ""}</td>
                             </tr>
                         `;

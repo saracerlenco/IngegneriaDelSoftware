@@ -7,4 +7,8 @@ module.exports = mongoose.model('Cittadino', new Schema({
     codice_fiscale: String,
     username: String,
     password: String,
+    punti: {
+        type: Number,
+        default: "0"
+    }
 }));
