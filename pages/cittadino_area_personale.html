@@ -149,7 +149,7 @@
                                     document.getElementById("codice_fiscale_cittadino").value = data.codice_fiscale || "";
                                     document.getElementById("username_cittadino").value = data.username || "";
                                     document.getElementById("email_cittadino").value = data.email || "";
-                                    document.getElementById("punti_cittadino").innerText = data.punti_evento_totali || "0";
+                                    document.getElementById("punti_cittadino").innerText = data.punti || "0";
                                 } catch (err) {
                                     alert("Errore nel caricamento dei dati cittadino");
                                 }
@@ -174,8 +174,8 @@
                                 </tr>
                                 
                                 <tr>
-                                    <td><a href="coupon_cittadino.html" class="button fit">Shop Coupon</a></td>
-                                    <td><a href="#" class="button fit">I tuoi coupon</a></td>
+                                    <td><a href="cittadino_shop.html" class="button fit">Shop Coupon</a></td>
+                                    <td><a href="coupon_ottenuti.html" class="button fit">I tuoi coupon</a></td>
                                 </tr>
                                 <tr>
                                     <td><a href="#" class="button fit">Lascia feedback</a></td>     

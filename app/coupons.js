@@ -9,7 +9,7 @@ const evento = require('./models/evento.js');
 //  Resituisce una lista di coupon
 router.get('', tokenChecker, async (req,res) => {
     try{        
-        if(req.loggedUser.ruolo != 'operatore_comunale' && req.loggedUser.ruolo != 'azienda'){ //Sara:aggiunto azienda
+        if(!req.loggedUser){ //Sara:a permetto a tutti di visualizzare i coupon, prima solo operatori
             return res.status(403).json({ error: "Azione non permessa" });
         }
         

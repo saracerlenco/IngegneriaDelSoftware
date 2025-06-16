@@ -68,6 +68,7 @@ router.get('', tokenChecker, async (req,res) => {
             codice_fiscale: cittadino.codice_fiscale,
             username: cittadino.username,
             password: cittadino.password,
+            punti: cittadino.punti //Sara: aggiunto per visualizzare i punti
         })
     } catch (err) {
         console.error(err);
@@ -76,16 +77,17 @@ router.get('', tokenChecker, async (req,res) => {
 })
 
 // Modifica area personale cittadino DA RIVEDERE 
-//Sara: sistemata
+//Sara: sistemata e aggiunti i punti
 router.put('', tokenChecker, async(req,res) => {
     try{
-        const { nome_cittadino, cognome_cittadino, codice_fiscale, username, email } = req.body;
+        const { nome_cittadino, cognome_cittadino, codice_fiscale, username, email, punti } = req.body;
         const update = {};
         if (nome_cittadino) update.nome = nome_cittadino;
         if (cognome_cittadino) update.cognome = cognome_cittadino;
         if (codice_fiscale) update.codice_fiscale = codice_fiscale;
         if (username) update.username = username;
         if (email) update.email = email;
+        if (typeof punti !== "undefined") update.punti = punti;
 
         if(Object.keys(update).length === 0){
             return res.status(400).json({error:"Nessun dato da aggiornare"});

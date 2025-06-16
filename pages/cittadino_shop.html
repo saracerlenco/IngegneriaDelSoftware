@@ -1,101 +1,228 @@
 <!DOCTYPE HTML>
 <html>
-	<head>
-		<title>DiscoverTrento</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="../assets/css/main.css" />
-		<link rel="stylesheet" href="../assets/css/calendar.css" />
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-		<link rel="shortcut icon" href="../images/logo.ico" />
-		<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
-	</head>
-	<body class="is-preload">
+<head>
+    <title>DiscoverTrento</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <link rel="shortcut icon" href="../images/logo.ico" />
+    <noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+    <script src="//unpkg.com/jwt-js-decode@1.9.0/dist/jwt-js-decode.pkg.min.js"></script>
+</head>
+<body class="is-preload">
 
-		<!-- Wrapper -->
-			<div id="wrapper">
+    <div id="wrapper">
+        <header id="header">
+            <h1>Discover-Trento</h1>
+        </header>
 
-				<!-- Header -->
-					<header id="header">
-						<h1>Discover-Trento</h1>
-					</header>
+        <nav id="nav">
+            <ul class="links" id="nav-links">
+                <li><a href="../index.html">Mappa</a></li>
+                <li><a href="eventi.html">Eventi</a></li>
+                <li><a id="_area_personale">Area personale</a></li>
+                <li class="active"><a href="cittadino_shop.html">Shop Coupon</a></li>
+            </ul>
+            <ul class="icons">
+                <li><a id="log">Logout</a></li>
+            </ul>
+        </nav>
 
-				<!-- Nav -->
-					<nav id="nav">
-						<ul class="links">
-							<li><a href="../index.html">Mappa</a></li>
-                            <li class="active"><a href="cittadino_shop.html">Eventi</a></li>
-						</ul>
-						<a href="login.html">Login </a>
-						
-					</nav>
+        <div id="main">
+            <section class="post">
+                <h2>Shop Coupon</h2>
+                <div id="punti-container" style="margin-bottom: 20px;">
+                    <strong>Punti disponibili: <span id="punti_cittadino">...</span></strong>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Descrizione</th>
+                                <th>Punti necessari</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="coupon-tbody">
+                            <!-- I coupon verranno inseriti qui -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
 
-				<!-- Main -->
-					<div id="main">
+        <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const { decode } = jwtJsDecode;
+            const token = localStorage.getItem("token");
+            let errore = false;
+            let ruolo = null;
+            let id_cittadino = null;
+            let puntiDisponibili = 0;
 
-						<!-- Post -->
-							<section class="post">
-								<div class="calendar-container">
-                                    <label>I tuoi punti:</label>
-                                    <label for="punti utente" id="punti">...</label>
-                                    <p>Di seguito troverai tutti i coupon disponibili:</p>
-								</div>
-									
-								<p>
-								<div class="table-wrapper">
-									<table> <!-- INSERIRE GLI EVENTI da db-->
-										<thead>
-											<tr>
+            if (!token) {
+                errore = true;
+            } else {
+                try {
+                    const decoded = decode(token);
+                    ruolo = decoded.payload ? decoded.payload.ruolo : decoded.ruolo;
+                    id_cittadino = decoded.payload ? decoded.payload._id : decoded._id;
+                    if (ruolo !== "cittadino") errore = true;
+                } catch (e) {
+                    errore = true;
+                }
+            }
 
-												<th>Sconto</th>
-												<th>Descrizione</th>
-												<th>Punti</th>
-												<th> </th>
-											</tr>
-										</thead>
-										<tbody>
-											<tr>
-												<td>...</td>
-												<td>Ante turpis integer aliq cskhfbw evnkv wek.</td>
-												<td>45</td>
-												<td><button>Acquista</button></td>
-											</tr>
-											<tr>
-												<td>...</td>
-												<td>Vis ac commodo adipiscing arcu aliquet.</td>
-												<td>90</td>
-												<td><button>Acquista</button></td>
-											</tr>
-											
-										</tbody>
-										<tfoot>
-											<tr>
-												<td colspan="2"></td>
+            if (errore) {
+                document.getElementById("main").innerHTML = "<h3>Accesso non autorizzato.<br>Solo i cittadini possono accedere allo shop coupon.</h3>";
+                return;
+            }
 
-											</tr>
-										</tfoot>
-									</table>
-								</div></p>
-							</section>
-            		</div>
+            // Recupera i punti disponibili del cittadino
+            try {
+                const resp = await fetch("http://localhost:3000/api/v1/cittadini", {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    puntiDisponibili = data.punti || 0;
+                    document.getElementById("punti_cittadino").innerText = puntiDisponibili;
+                } else {
+                    document.getElementById("punti_cittadino").innerText = "Errore";
+                }
+            } catch (err) {
+                document.getElementById("punti_cittadino").innerText = "Errore";
+            }
 
-				<!-- Copyright -->
-					<div id="copyright">
-						<ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
-					</div>
-			</div>
-			
+			// Recupera tutti i coupon approvati (punti > 0)
+			let coupons = [];
+			let couponsAcquistati = [];
+			try {
+				// Recupera tutti i coupon
+				const resp = await fetch("http://localhost:3000/api/v1/coupons", {
+					headers: { "Authorization": "Bearer " + token }
+				});
+				if (resp.ok) {
+					coupons = await resp.json();
+				}
+				// Recupera i coupon già acquistati dal cittadino
+				const respAcq = await fetch("http://localhost:3000/api/v1/coupons_cittadino", {
+					headers: { "Authorization": "Bearer " + token }
+				});
+				if (respAcq.ok) {
+					couponsAcquistati = await respAcq.json();
+				}
+			} catch (err) {
+				document.getElementById("main").innerHTML = "<h3>Errore nel caricamento dei coupon.</h3>";
+				return;
+			}
 
-		<!-- Scripts -->
-			<script src="../assets/js/jquery.min.js"></script>
-			<script src="../assets/js/jquery.scrollex.min.js"></script>
-			<script src="../assets/js/jquery.scrolly.min.js"></script>
-			<script src="../assets/js/browser.min.js"></script>
-			<script src="../assets/js/breakpoints.min.js"></script>
-			<script src="../assets/js/util.js"></script>
-			<script src="../assets/js/main.js"></script>
-			<script src="../assets/js/calendar.js"></script>
-			<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+			// Ottieni la lista degli id_coupon già acquistati
+			const idCouponAcquistati = couponsAcquistati.map(c => String(c.id_coupon));
 
-	</body>
+			// Mostra solo i coupon approvati (punti > 0)
+			const couponDisponibili = coupons.filter(c => c.punti && c.punti > 0);
+
+			const tbody = document.getElementById("coupon-tbody");
+			tbody.innerHTML = "";
+
+			if (couponDisponibili.length === 0) {
+				tbody.innerHTML = `<tr><td colspan="3">Nessun coupon disponibile.</td></tr>`;
+			} else {
+				couponDisponibili.forEach(coupon => {
+					const giaAcquistato = idCouponAcquistati.includes(String(coupon.id_coupon));
+					tbody.innerHTML += `
+						<tr>
+							<td>${coupon.descrizione_coupon}</td>
+							<td>${coupon.punti}</td>
+							<td>
+								<button onclick="acquistaCoupon('${coupon.id_coupon}', ${coupon.punti})" class="button small" ${giaAcquistato ? "disabled" : ""}>
+									${giaAcquistato ? "Acquistato" : "Acquista"}
+								</button>
+							</td>
+						</tr>
+					`;
+				});
+			}
+            // Funzione per acquistare un coupon
+            window.acquistaCoupon = async function(id_coupon, puntiCoupon) {
+                // Ricarica i punti attuali (per sicurezza)
+                let puntiAttuali = puntiDisponibili;
+                try {
+                    const resp = await fetch("http://localhost:3000/api/v1/cittadini", {
+                        headers: { "Authorization": "Bearer " + token }
+                    });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        puntiAttuali = data.punti || 0;
+                    }
+                } catch (err) {
+                    alert("Errore nel controllo dei punti.");
+                    return;
+                }
+
+                if (puntiAttuali < puntiCoupon) {
+                    alert("Non hai abbastanza punti per acquistare questo coupon.");
+                    return;
+                }
+
+                // Salva la relazione nel db (coupons_cittadino)
+                try {
+                    const resp = await fetch(`http://localhost:3000/api/v1/coupons_cittadino/${id_coupon}`, {
+                        method: "POST",
+                        headers: { "Authorization": "Bearer " + token }
+                    });
+                    if (resp.ok) {
+                        const nuovoSaldo = puntiAttuali - puntiCoupon;
+                        await fetch("http://localhost:3000/api/v1/cittadini", {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": "Bearer " + token
+                            },
+                            body: JSON.stringify({ punti: nuovoSaldo })
+                        });
+                        document.getElementById("punti_cittadino").innerText = nuovoSaldo;
+                        puntiDisponibili = nuovoSaldo;
+                        alert("Coupon acquistato con successo!");
+                    } else if (resp.status === 409) {
+                        alert("Hai già acquistato questo coupon.");
+                    } else {
+                        alert("Errore nell'acquisto del coupon.");
+                    }
+                } catch (err) {
+                    alert("Errore di rete.");
+                }
+            };
+        });
+        </script>
+		<script>
+            // Gestione logout e area personale
+            const { decode } = jwtJsDecode;
+            const token = localStorage.getItem("token"); 
+            if(token && decode(token)){
+                document.getElementById("log").innerText = "Logout";
+                document.getElementById("log").href = "javascript:void(0);";
+                document.getElementById("log").onclick = ()=>{
+                    localStorage.removeItem("token");
+                    alert(`Logout effettuato con successo`);
+                    window.location.href="../index.html";
+                }
+                document.getElementById("_area_personale").href="cittadino_area_personale.html";
+            }
+        </script>
+
+        <div id="copyright">
+            <ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+        </div>
+    </div>
+
+    <script src="../assets/js/jquery.min.js"></script>
+    <script src="../assets/js/jquery.scrollex.min.js"></script>
+    <script src="../assets/js/jquery.scrolly.min.js"></script>
+    <script src="../assets/js/browser.min.js"></script>
+    <script src="../assets/js/breakpoints.min.js"></script>
+    <script src="../assets/js/util.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
 </html>
