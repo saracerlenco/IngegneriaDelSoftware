@@ -20,6 +20,7 @@
             <ul class="links" id="nav-links">
                 <li><a href="../index.html">Mappa</a></li>
                 <li><a href="eventi.html">Eventi</a></li>
+				<li><a id="_area_personale">Area personale</a></li>
                 <li class="active"><a href="coupon_proposti.html">Coupon proposti</a></li>
             </ul>
             <ul class="icons">
@@ -121,6 +122,21 @@
                 document.getElementById("main").innerHTML = "<h3>Errore nel caricamento dei coupon.</h3>";
             }
         });
+        </script>
+		<script>
+            // Gestione logout e area personale
+            const { decode } = jwtJsDecode;
+            const token = localStorage.getItem("token"); 
+            if(token && decode(token)){
+                document.getElementById("log").innerText = "Logout";
+                document.getElementById("log").href = "javascript:void(0);";
+                document.getElementById("log").onclick = ()=>{
+                    localStorage.removeItem("token");
+                    alert(`Logout effettuato con successo`);
+                    window.location.href="../index.html";
+                }
+                document.getElementById("_area_personale").href="azienda_area_personale.html";
+            }
         </script>
 
         <div id="copyright">
