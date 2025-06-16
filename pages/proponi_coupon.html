@@ -1,0 +1,151 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>DiscoverTrento</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <link rel="shortcut icon" href="../images/logo.ico" />
+    <link rel="stylesheet" href="../assets/css/calendar.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+    <script src="//unpkg.com/jwt-js-decode@1.9.0/dist/jwt-js-decode.pkg.min.js"></script>
+</head>
+<body class="is-preload">
+
+    <!-- Wrapper -->
+    <div id="wrapper">
+
+        <!-- Header -->
+        <header id="header">
+            <h1>Discover-Trento</h1>
+        </header>
+
+        <!-- Nav -->
+        <nav id="nav">
+            <ul class="links" id="nav-links">
+                <li><a href="../index.html">Mappa</a></li>
+                <li><a href="eventi.html">Eventi</a></li>
+                <li><a id="_area_personale">Area personale</a></li>
+                <li class="active"><a href="proponi_coupon.html">Proponi coupon</a></li>
+            </ul>
+            <ul class="icons">
+                <li><a id="log">Logout </a></li>
+            </ul>
+        </nav>
+
+        <!-- Main -->
+        <div id="main">
+
+            <!-- Sezione coupon -->
+            <section class="post">
+                <h2>Riempi i campi e proponi il tuo coupon!</h2>
+                <script>
+                    function verifica_dati(button) {
+                        const { decode } = jwtJsDecode;
+                        const token = localStorage.getItem("token");
+                        if (!token) {
+                            alert("Devi essere autenticato per proporre un coupon.");
+                            return;
+                        }
+                        // Verifica il ruolo dell'utente
+                        let ruolo = null;
+                        let errore = false;
+
+                        if (!token) {
+                            errore = true;
+                        } else {
+                            try {
+                                const decoded = decode(token);
+                                ruolo = decoded.payload ? decoded.payload.ruolo : decoded.ruolo;
+                                if (ruolo !== "azienda") errore = true;
+                            } catch (e) {
+                                errore = true;
+                            }
+                        }        
+                        if (errore) {
+                            document.getElementById("main").innerHTML = "<h3>Accesso non autorizzato.<br>Solo le aziende possono proporre coupon.</h3>";
+                            return;
+                        }
+
+                        const descrizione_coupon = document.querySelector('#descrizione_coupon').value;
+                        const sconto_offerto = document.querySelector('#sconto_offerto').value;
+
+                        if (!descrizione_coupon || !sconto_offerto) {
+                            alert("Tutti i campi sono obbligatori");
+                            return;
+                        }
+
+                        fetch("http://localhost:3000/api/v1/coupons", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": "Bearer " + token
+                            },
+                            body: JSON.stringify({ descrizione_coupon, sconto_offerto })
+                        })
+                        .then(res => {
+                            if (!res.ok) throw new Error("Errore nella proposta del coupon");
+                            return;
+                        })
+                        .then(() => {
+                            alert("Coupon proposto con successo!");
+                            window.location.href = 'azienda_area_personale.html';
+                        })
+                        .catch(error => {
+                            console.error("Errore durante la proposta del coupon:", error);
+                            alert("Errore durante la proposta del coupon");
+                        });
+                    }
+                </script>
+                <form method="post" action="#">
+                    <div class="fields">
+                        <div class="field">
+                            <label>Descrizione:</label>
+                            <input type="text" name="descrizione_coupon" id="descrizione_coupon" />
+                        </div>
+                        <div class="field">
+                            <label>Sconto offerto (%):</label>
+                            <input type="number" name="sconto_offerto" id="sconto_offerto" min="1" max="100" />
+                        </div>
+                    </div>
+                     <div class="col-6 col-12-small">
+                        <ul class="actions stacked">
+                            <li><a onclick="verifica_dati(this)" class="button">Proponi coupon</a></li>
+                        </ul>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <script>
+            // Gestione logout e area personale
+            const { decode } = jwtJsDecode;
+            const token = localStorage.getItem("token"); 
+            if(token && decode(token)){
+                document.getElementById("log").innerText = "Logout";
+                document.getElementById("log").href = "javascript:void(0);";
+                document.getElementById("log").onclick = ()=>{
+                    localStorage.removeItem("token");
+                    alert(`Logout effettuato con successo`);
+                    window.location.href="../index.html";
+                }
+                document.getElementById("_area_personale").href="azienda_area_personale.html";
+            }
+        </script>
+
+        <!-- Copyright -->
+        <div id="copyright">
+            <ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+        </div>
+
+        <!-- Scripts -->
+        <script src="../assets/js/jquery.min.js"></script>
+        <script src="../assets/js/jquery.scrollex.min.js"></script>
+        <script src="../assets/js/jquery.scrolly.min.js"></script>
+        <script src="../assets/js/browser.min.js"></script>
+        <script src="../assets/js/breakpoints.min.js"></script>
+        <script src="../assets/js/util.js"></script>
+        <script src="../assets/js/main.js"></script>
+    </body>
+</html>

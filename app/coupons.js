@@ -9,7 +9,7 @@ const evento = require('./models/evento.js');
 //  Resituisce una lista di coupon
 router.get('', tokenChecker, async (req,res) => {
     try{        
-        if(req.loggedUser.ruolo != 'operatore_comunale'){
+        if(req.loggedUser.ruolo != 'operatore_comunale' && req.loggedUser.ruolo != 'azienda'){ //Sara:aggiunto azienda
             return res.status(403).json({ error: "Azione non permessa" });
         }
         
@@ -19,6 +19,7 @@ router.get('', tokenChecker, async (req,res) => {
         res.status(200).json(coupons.map(coupon => ({
             self: '/api/v1/coupons',
             id_coupon: coupon._id,
+            id_azienda: coupon.id_azienda, // Sara: aggiunto id_azienda
             descrizione_coupon: coupon.descrizione_coupon,
             sconto_offerto: coupon.sconto_offerto,
             approvato: coupon.approvato,
