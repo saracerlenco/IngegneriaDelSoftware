@@ -21,6 +21,9 @@ router.post('', async (req,res) => {
     if (!req.body.password || typeof req.body.password != 'string') {
         return res.status(400).json({ error: 'Richiesta non valida: il campo codice_fiscale deve essere di tipo string'});
     }
+    if (!req.body.username || typeof req.body.username != 'string') {
+        return res.status(400).json({ error: 'Richiesta non valida: il campo username deve essere di tipo string'});
+    }
     try{
         //
         const password = req.body.password;
@@ -39,15 +42,6 @@ router.post('', async (req,res) => {
     
             res.location("/api/v1/cittadini").status(201).send();
         });
-        //
-        // let cittadino = new Cittadino({
-        // nome: req.body.nome,
-        // cognome: req.body.cognome,
-        // email: req.body.email,
-        // codice_fiscale: req.body.codice_fiscale,
-        // username: req.body.username,
-        // password: req.body.password,
-        // });
 
     } catch (err) {
         console.error(err);
@@ -67,8 +61,7 @@ router.get('', tokenChecker, async (req,res) => {
             email: cittadino.email,
             codice_fiscale: cittadino.codice_fiscale,
             username: cittadino.username,
-            password: cittadino.password,
-            punti: cittadino.punti //Sara: aggiunto per visualizzare i punti
+            punti: cittadino.punti
         })
     } catch (err) {
         console.error(err);
@@ -76,7 +69,7 @@ router.get('', tokenChecker, async (req,res) => {
     }
 })
 
-//Sara, rotta aggiunta per vedere gli username
+// Rotta aggiunta per vedere gli username
 router.get('/all', tokenChecker, async (req,res) => {
     try {        
         let cittadini = await Cittadino.find();
@@ -93,8 +86,7 @@ router.get('/all', tokenChecker, async (req,res) => {
     }
 })
 
-// Modifica area personale cittadino DA RIVEDERE 
-//Sara: sistemata e aggiunti i punti
+// Modifica area personale cittadino
 router.put('', tokenChecker, async(req,res) => {
     try{
         const { nome_cittadino, cognome_cittadino, codice_fiscale, username, email, punti } = req.body;
@@ -115,7 +107,7 @@ router.put('', tokenChecker, async(req,res) => {
             { $set: update },
             { new: true }
         );
-        if(!cittadino) return res.status(404).json({error:"Cittadino non trovata"});
+        if(!cittadino) return res.status(404).json({error:"Cittadino non trovato"});
         res.status(200).send();
 
     } catch(err) {

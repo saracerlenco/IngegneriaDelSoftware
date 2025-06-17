@@ -10,16 +10,10 @@ describe('GET /api/v1/aziende', () => {
   beforeAll( async () => {
     jest.setTimeout(8000);
     app.locals.db = await  mongoose.connect(process.env.DB_URL); 
-
-    await Azienda.create({
-        nome_azienda: 'Azienda',
-        partita_IVA: '12345678911',
-        email: 'azienda@mail.com',
-    });
   });
 
   let tokenAzienda = jwt.sign( 
-    {email: 'azienda@mail.com', _id: '67321bf8b78fd1a0bb33c977', ruolo: 'azienda'},
+    {email: 'aziendaProva@mail.com', _id: '68517b59fc361ebb81cab8f8', ruolo: 'azienda'},
     process.env.JWT_SECRET, 
     {expiresIn: 43200} 
   );
@@ -40,7 +34,7 @@ describe('POST /api/v1/aziende', () => {
     });
 
     let tokenAzienda = jwt.sign( 
-        {email: 'azienda@mail.com', _id: '67321bf8b78fd1a0bb33c677', ruolo: 'azienda'},
+        {email: 'azienda@mail.com', _id: '68517b59fc361ebb81cab8f8', ruolo: 'azienda'},
         process.env.JWT_SECRET, 
         {expiresIn: 43200} 
     );
@@ -62,9 +56,10 @@ describe('POST /api/v1/aziende', () => {
         .post('/api/v1/aziende')
         .set('x-access-token', tokenAzienda)
         .send({
-            nome_azienda: 'Azienda',
+            nome: 'Azienda',
             partita_IVA: '12345678911',
             email: 'azienda@mail.com',
+            password: 'password123',
         });
         expect(res.status).toBe(201);
         expect(res.headers.location).toBe('/api/v1/aziende');
@@ -82,7 +77,7 @@ describe('PUT /api/v1/aziende', () => {
   });
 
   let tokenAzienda = jwt.sign( 
-      {email: 'azienda@mail.com', _id: '67321bf8b78fd1a0bb33c777', ruolo: 'azienda'},
+      {email: 'azienda@mail.com', _id: '68517b59fc361ebb81cab8f8', ruolo: 'azienda'},
       process.env.JWT_SECRET, 
       {expiresIn: 43200} 
   );
@@ -92,9 +87,7 @@ describe('PUT /api/v1/aziende', () => {
       .put('/api/v1/aziende')
       .set('x-access-token', tokenAzienda)
       .send({
-          dati: {
-            nome_azienda: 'nuovoNome',
-          },
+          nome_azienda: 'nuovoNome',
       });
 
     expect(res.status).toBe(200);
@@ -110,7 +103,7 @@ describe('PUT /api/v1/aziende', () => {
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual({
-      error: 'Richiesta non valida',
+      error: 'Nessun dato da aggiornare',
     });
   });
 

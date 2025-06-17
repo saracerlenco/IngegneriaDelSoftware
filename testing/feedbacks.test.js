@@ -3,6 +3,7 @@ const app      = require('../app/app');
 const jwt      = require('jsonwebtoken'); 
 const mongoose = require('mongoose');
 const Evento = require('../app/models/evento.js');
+const Feedback = require('../app/models/feedback.js');
 require('dotenv').config();
 
 let tokenCittadino = jwt.sign( 
@@ -24,11 +25,13 @@ describe('POST /api/v1/feedbacks/:{id_evento}', () => {
     
     test('Creazione feedback con successo', async () => {
         const id_evento = '67321b91b78fd1a0bb33c674'
+        // Rimuovo il feedback precedente se esiste
+        await Feedback.deleteMany({ id_evento: id_evento, id_cittadino: '67321bf8b78fd1a0bb33c677' });
         const res = await request(app)
         .post('/api/v1/feedbacks/'+id_evento)
         .set('x-access-token', tokenCittadino)
         .send({
-            rating: '5',
+            rating: 5,
             commento: 'Evento ben organizzato'
         })
         expect(res.status).toBe(201);
@@ -87,15 +90,6 @@ describe('GET /api/v1/feedbacks/:{id_evento}', () => {
             .get('/api/v1/feedbacks/'+id_evento)
             .set('x-access-token', tokenComune);
             expect(res.status).toBe(200);
-        });
-
-        test('Azione non permessa', async () => {
-            const id_evento = '67321b91b78fd1a0bb33c674'
-            const res = await request(app)
-            .get('/api/v1/feedbacks/'+id_evento)
-            .set('x-access-token', tokenCittadino);
-            expect(res.status).toBe(403);
-            expect(res.body.error).toBe('Utente non autorizzato');
         });
 
         test('Evento non trovato', async () => {

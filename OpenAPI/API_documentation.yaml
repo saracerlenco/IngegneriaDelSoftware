@@ -54,14 +54,24 @@ paths:
               schema:
                 type: "object"
                 properties:
+                  message:
+                    type: "string"
+                    example: "Token creato con successo"
                   token:
                     type: "string"
                     description: "Token JWT da utilizzare per autenticare richieste future"
                     example: "kjcn3u94eniuqxnie9denind"
-                  role:
+                  email:
                     type: "string"
-                    description: "Ruolo dell'utente, serve per il reindirizzamento alla dashboard"
-                    example: "cittadino"
+                    example: "pippo@gmail.com"
+                  id:
+                    type: "string"
+                    description: "ID dell'utente autenticato"
+                    example: "60d0fe4f5311236168a109ca"
+                  self:
+                    type: "string"
+                    description: "Endpoint risorsa utente"
+                    example: "/api/v1/cittadinos"
         "401":
           description: "Credenziali non valide"
           content:
@@ -79,6 +89,9 @@ paths:
               schema:
                 type: "object"
                 properties:
+                  success:
+                    type: "boolean"
+                    example: false
                   error:
                     type: "string"
                     example: "Utente non trovato"
@@ -101,9 +114,9 @@ paths:
         - TokenAutenticazione: []  
       responses:
         "204":
-          description: "Il logout è avvenuto con successo"
+          description: "Logout effettuato con successo"
         "400":
-          description: "Errore: token non valido o mancante"
+          description: "Token mancante"
           content:
             application/json:
               schema:
@@ -159,23 +172,13 @@ paths:
                   type: "string"
                 password:
                   type: "string"
+                punti:
+                  type: "integer"
+                  default: 0
               required: ["nome", "cognome", "email", "codice_fiscale", "username", "password"]
       responses:
         "201":
           description: "Registrazione dell'utente cittadino avvenuta con successo"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  id_user:
-                    type: "string"
-                    description: "ID dell'account appena creato'"
-                    example: "12345"
-                  messaggio:
-                    type: "string"
-                    description: "Messaggio di conferma"
-                    example: "L'account è stato creato con successo."
         "400":
           description: "Richiesta non valida: dati mancanti o non validi"
           content:
@@ -211,8 +214,22 @@ paths:
               schema:
                 type: "object"
                 properties:
-                  dati:
-                    type: "object"
+                  self:
+                    type: string
+                    example: "/api/v1/cittadini"
+                  nome:
+                    type: "string"
+                  cognome:
+                    type: "string"
+                  email:
+                    type: "string"
+                  codice_fiscale:
+                    type: "string"
+                  username:
+                    type: "string"
+                  punti:
+                    type: "integer"
+
         "500":
           description: "Errore del server"
           content:
@@ -237,8 +254,18 @@ paths:
             schema:
               type: "object"
               properties:
-                dati:
-                  type: "object"
+                nome:
+                  type: string
+                cognome:
+                  type: string
+                codice_fiscale:
+                  type: string
+                username:
+                  type: string
+                email:
+                  type: string
+                punti:
+                  type: integer
       responses:
         "200":
           description: "Dati modificati con successo"
@@ -252,6 +279,16 @@ paths:
                   error:
                     type: "string"
                     example: "Richiesta non valida"
+        "404":
+          description: "Cittadino non trovato"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Cittadino non trovato"
         "500":
           description: "Errore del server"
           content:
@@ -262,6 +299,46 @@ paths:
                   error:
                     type: "string"
                     example: "Errore del server, riprova più tardi"
+  /cittadini/all:
+    get:
+      summary: "Lista di tutti i cittadini"
+      description: "Restituisce l'elenco di tutti gli utenti registrati come cittadini"
+      tags:
+        - "cittadino"
+      security:
+        - TokenAutenticazione: []
+      responses:
+        "200":
+          description: "Lista di cittadini recuperata con successo"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    self:
+                      type: string
+                      example: "/api/v1/cittadini/all"
+                    _id:
+                      type: string
+                      description: "ID univoco del cittadino"
+                      example: "664dc792abf1e2043e90b0f1"
+                    username:
+                      type: string
+                      description: "Username del cittadino"
+                      example: "mario_rossi"
+        "500":
+          description: "Errore interno del server"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Errore del server, riprova più tardi"
+
 
   /operatori_comunali: 
     post:
@@ -292,19 +369,6 @@ paths:
       responses:
         "201":
           description: "Registrazione dell'utente operatore comunale avvenuta con successo"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  id_user:
-                    type: "string"
-                    description: "ID dell'account appena creato'"
-                    example: "12345"
-                  messaggio:
-                    type: "string"
-                    description: "Messaggio di conferma"
-                    example: "L'account è stato creato con successo."
         "400":
           description: "Richiesta non valida: dati mancanti o non validi"
           content:
@@ -340,8 +404,21 @@ paths:
               schema:
                 type: "object"
                 properties:
-                  dati:
-                    type: "object"
+                  self:
+                    type: string
+                    example: "/api/v1/operatori_comunali"
+                  nome:
+                    type: string
+                    example: "Luca"
+                  cognome:
+                    type: string
+                    example: "Verdi"
+                  email:
+                    type: string
+                    example: "luca.verdi@gmail.it"
+                  codice_fiscale:
+                    type: string
+                    example: "VRDLUC80A01H501X"
         "500":
           description: "Errore del server"
           content:
@@ -364,10 +441,16 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               properties:
-                dati:
-                  type: "object"
+                nome_operatore_comunale:
+                  type: string
+                cognome_operatore_comunale:
+                  type: string
+                codice_fiscale:
+                  type: string
+                email:
+                  type: string
       responses:
         "200":
           description: "Dati modificati con successo"
@@ -381,6 +464,16 @@ paths:
                   error:
                     type: "string"
                     example: "Richiesta non valida"
+        "404":
+          description: "Operatore non trovato"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Operatore non trovato"
         "500":
           description: "Errore del server"
           content:
@@ -407,7 +500,7 @@ paths:
               title: "azienda"
               description: "Parametri per l'utente azienda"
               properties:
-                nome_azienda:
+                nome:
                   type: "string"
                 partita_IVA:
                   type: "string"
@@ -415,23 +508,10 @@ paths:
                   type: "string"
                 password:
                   type: "string"
-              required: ["nome_azienda", "partita_IVA", "email", "password"]
+              required: ["nome", "partita_IVA", "email", "password"]
       responses:
         "201":
           description: "Registrazione dell'utente azienda avvenuta con successo"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  id_user:
-                    type: "string"
-                    description: "ID dell'account appena creato'"
-                    example: "12345"
-                  messaggio:
-                    type: "string"
-                    description: "Messaggio di conferma"
-                    example: "L'account è stato creato con successo."
         "400":
           description: "Richiesta non valida: dati mancanti o non validi"
           content:
@@ -461,14 +541,24 @@ paths:
         - TokenAutenticazione: []       
       responses:
         "200":
-          description: "Dati personali dell'utente operatore comunale"
+          description: "Dati personali dell'utente azienda"
           content:
             application/json:
               schema:
                 type: "object"
                 properties:
-                  dati:
-                    type: "object"
+                  self:
+                    type: string
+                    example: "/api/v1/aziende"
+                  nome:
+                    type: string
+                    example: "Azienda Trento"
+                  partita_IVA:
+                    type: string
+                    example: "01234567890"
+                  email:
+                    type: string
+                    example: "azienda@trento.it"
         "500":
           description: "Errore del server"
           content:
@@ -493,8 +583,12 @@ paths:
             schema:
               type: "object"
               properties:
-                dati:
-                  type: "object"
+                nome:
+                  type: "string"
+                partita_IVA:
+                  type: "string"
+                email:
+                  type: "string"
       responses:
         "200":
           description: "Dati modificati con successo"
@@ -546,6 +640,12 @@ paths:
             type: "string"
           description: "Luogo dell'evento"
           example: "Piazza Duomo"
+        - name: "futuri"
+          in: "query"
+          schema:
+            type: "string"
+            enum: ["true"]
+          description: "Se impostato a true, restituisce solo eventi futuri"
       responses:
         "200":
           description: "Lista degli eventi"
@@ -556,6 +656,9 @@ paths:
                 items:
                   type: "object"
                   properties:
+                    self:
+                      type: string
+                      example: "/api/v1/eventi"
                     id_evento:
                       type: "string"
                     nome_evento:
@@ -571,9 +674,6 @@ paths:
                       type: "string"
                     punti:
                       type: "integer"
-                    creatore:
-                      type: "string"
-                      description: "id del cittadino o dell'operatore comunale che ha creato l'evento"
         "500":
           description: "Errore del server"
           content:
@@ -616,19 +716,6 @@ paths:
       responses:
         "201":
           description: "La creazione dell'evento è avvenuta con successo"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  id_evento:
-                    type: "string"
-                    description: "ID dell'evento creato"
-                    example: "12345"
-                  messaggio:
-                    type: "string"
-                    description: "Messaggio di conferma"
-                    example: "L'evento è stato creato con successo."
         "400":
           description: "Richiesta non valida: dati mancanti o non validi"
           content:
@@ -659,6 +746,38 @@ paths:
                   error:
                     type: "string"
                     example: "Errore del server, riprova più tardi"
+
+  /eventi/filtri:
+    get:
+      summary: "Filtri disponibili per gli eventi"
+      description: "Restituisce le tipologie e i luoghi disponibili per filtrare gli eventi"
+      tags:
+        - "evento"
+      responses:
+        "200":
+          description: "Filtri disponibili"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  tipologie:
+                    type: "array"
+                    items:
+                      type: "string"
+                  luoghi:
+                    type: "array"
+                    items:
+                      type: "string"
+        "500":
+          description: "Errore del server"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
 
   /eventi/:id_evento:
     put: 
@@ -742,24 +861,15 @@ paths:
                 items:
                   type: "object"
                   properties:
+                    self:
+                      type: string
+                      example: "/api/v1/partecipazioni"
+                    id_partecipazione:
+                      type: "string"
                     id_evento:
                       type: "string"
-                    nome_evento:
+                    id_cittadino:
                       type: "string"
-                    data:
-                      type: "string"
-                      format: "date"
-                    luogo:
-                      type: "string"
-                    tipologia:
-                      enum: ["sportivo", "culturale", "volontariato"]
-                    descrizione:
-                      type: "string"
-                    punti:
-                      type: "integer"
-                    creatore:
-                      type: "string"
-                      description: "id del cittadino o dell'operatore comunale che ha creato l'evento"
         "403":  
           description: "Forbidden: la tipologia di utente non permette la visualizzazione della partecipazione agli eventi"
           content:
@@ -782,13 +892,13 @@ paths:
                     example: "Errore del server, riprova più tardi"
 
   
-  /partecipazioni/:id_evento:
+  /partecipazioni/{id_evento}:
     parameters:
-      - name: "id_evento"
-        in: "path"
-        schema:
-          type: "string"
+      - name: id_evento
+        in: path
         required: true
+        schema:
+          type: string
     post:
       summary: "Partecipazione ad un evento"
       description: "Permette all'utente cittadino che ha effettuato il login di segnare la propria partecipazione ad un evento, visualizzandolo poi aggiunto alla propria to-attend-list"
@@ -799,23 +909,6 @@ paths:
       responses:
         "201":
           description: "Partecipazione all'evento segnata con successo"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  id_partecipazione:
-                    type: "string"
-                    description: "ID della partecipazione creata"
-                    example: "12345"
-                  messaggio:
-                    type: "string"
-                    description: "Messaggio di conferma"
-                    example: "La partecipazione è stata registrata con successo."
-                  id_evento:
-                    type: "string"
-                    description: "ID dell'evento a cui partecipi"
-                    example: "67890"
         "403":  
           description: "Forbidden: la tipologia di utente non permette la partecipazione agli eventi"
           content:
@@ -846,57 +939,6 @@ paths:
                   error:
                     type: "string"
                     example: "Errore del server, riprova più tardi"
-    # get:
-    #   summary: "Lista partecipazioni"
-    #   description: "Restituisce una lista di partecipazione dei cittadini agli eventi"
-    #   tags: 
-    #     - "partecipazione"
-    #   security:
-    #     - TokenAutenticazione: []       
-    #   responses:
-    #     "200":
-    #       description: "Lista partecipazioni dei cittadini agli eventi"
-    #       content:
-    #         application/json:
-    #           schema:
-    #             type: "array"
-    #             items:
-    #               type: "object"
-    #               properties:
-    #                 id_evento:
-    #                   type: "string"
-    #                 id_cittadino:
-    #                   type: "string"
-    #     "403":  
-    #       description: "Forbidden: la tipologia di utente non permette la visualizzazione delle partecipazioni agli eventi"
-    #       content:
-    #         application/json:
-    #           schema:
-    #             type: "object"
-    #             properties:
-    #               error:
-    #                 type: "string"
-    #                 example: "Azione non permessa"
-    #     "404":
-    #       description: "Evento non trovato"
-    #       content:
-    #         application/json:
-    #           schema:
-    #             type: "object"
-    #             properties:
-    #               error:
-    #                 type: "string"
-    #                 example: "Evento non trovato"
-    #     "500":
-    #       description: "Errore del server"
-    #       content:
-    #         application/json:
-    #           schema:
-    #             type: "object"
-    #             properties:
-    #               error:
-    #                 type: "string"
-    #                 example: "Errore del server, riprova più tardi"
     delete:
       summary: "Cancellazione partecipazione"
       description: "Permette di annullare la partecipazione di un cittadino ad un evento"
@@ -919,7 +961,7 @@ paths:
                     example: "Token mancante"
         
         "404":
-          description: "Evento inesistente"
+          description: "Evento o partecipazione inesistente"
           content:
             application/json:
               schema:
@@ -927,7 +969,15 @@ paths:
                 properties:
                   error:
                     type: "string"
-                    example: "Evento inesistente"
+              examples:
+                evento_inesistente:
+                  summary: "Evento inesistente"
+                  value:
+                    error: "Evento inesistente"
+                partecipazione_inesistente:
+                  summary: "Partecipazione inesistente"
+                  value:
+                    error: "Errore: partecipazione inesistente"
         "500":
           description: "Errore del server"
           content:
@@ -957,24 +1007,15 @@ paths:
                 items:
                   type: "object"
                   properties:
+                    self:
+                      type : "string"
+                      example: "/api/v1/sponsorizzazioni/123"
+                    id_sponsorizzazione:
+                      type: "string"
                     id_evento:
                       type: "string"
-                    nome_evento:
+                    id_azienda:
                       type: "string"
-                    data:
-                      type: "string"
-                      format: "date"
-                    luogo:
-                      type: "string"
-                    tipologia:
-                      enum: ["sportivo", "culturale", "volontariato"]
-                    descrizione:
-                      type: "string"
-                    punti:
-                      type: "integer"
-                    creatore:
-                      type: "string"
-                      description: "id del cittadino o dell'operatore comunale che ha creato l'evento"
         "403":  
           description: "Forbidden: la tipologia di utente non permette la visualizzazione delle sponsorizzazioni degli eventi"
           content:
@@ -1014,23 +1055,6 @@ paths:
       responses:
         "201":
           description: "Sponsorizzazione dell'evento assegnata con successo"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  id_sponsorizzazione:
-                    type: "string"
-                    description: "ID della sponsorizzazione creata"
-                    example: "12345"
-                  messaggio:
-                    type: "string"
-                    description: "Messaggio di conferma"
-                    example: "La sponsorizzazione è stata registrata con successo."
-                  id_evento:
-                    type: "string"
-                    description: "ID dell'evento sponsorizzato"
-                    example: "67890"
         "403":  
           description: "Forbidden: la tipologia di utente non permette la sponsorizzazione di eventi"
           content:
@@ -1061,37 +1085,6 @@ paths:
                   error:
                     type: "string"
                     example: "Errore del server, riprova più tardi"
-    # get:
-    #   summary: "Lista sponsorizzazioni"
-    #   description: "Restituisce una lista di eventi sponsorizzati dalle aziende"
-    #   tags: 
-    #     - "sponsorizzazione"
-    #   security:
-    #     - TokenAutenticazione: []       
-    #   responses:
-    #     "200":
-    #       description: "Lista eventi sponsorizzati dalle aziende"
-    #       content:
-    #         application/json:
-    #           schema:
-    #             type: "array"
-    #             items:
-    #               type: "object"
-    #               properties:
-    #                 id_evento:
-    #                   type: "string"
-    #                 id_azienda:
-    #                   type: "string"
-    #     "500":
-    #       description: "Errore del server"
-    #       content:
-    #         application/json:
-    #           schema:
-    #             type: "object"
-    #             properties:
-    #               error:
-    #                 type: "string"
-    #                 example: "Errore del server, riprova più tardi"
     delete:
       summary: "Cancellazione sponsorizzazione"
       description: "Permette all'azienda di annullare la sponsorizzazione di un evento"
@@ -1111,7 +1104,15 @@ paths:
                 properties:
                   error:
                     type: "string"
-                    example: "Sponsorizzazione inesistente"
+              examples:
+                evento_inesistente:
+                  summary: "Evento inesistente"
+                  value:
+                    error: "Evento inesistente"
+                sponsorizzazione_inesistente:
+                  summary: "Sponsorizzazione inesistente"
+                  value:
+                    error: "Errore: sponsorizzazione inesistente"
         "500":
           description: "Errore del server"
           content:
@@ -1127,8 +1128,8 @@ paths:
   #gestione feedback 
   /feedbacks:
     get:
-      summary: "Recensioni eventi"
-      description: "Restituisce una lista di eventi con la relativa valutazione media"
+      summary: "Lista completa dei feedback"
+      description: "Restituisce la lista completa dei feedback individuali registrati dagli utenti"
       tags: 
         - "feedback"
       security:
@@ -1143,13 +1144,18 @@ paths:
                 items:
                   type: "object"
                   properties:
-                    id_evento:
-                      type: "string"
-                      description: "ID dell'evento a cui partecipi"
-                      example: "67890"
-                    media_rating:
-                      type: "number"
-                      example: 4.5
+                    self:
+                      type: string
+                      example: "/api/v1/feedbacks/67890"
+                    id_cittadino:
+                      type: string
+                      example: "abc123"
+                    rating:
+                      type: integer
+                      example: 5
+                    commento:
+                      type: string
+                      example: "Evento ben organizzato"
         "403":  
           description: "Forbidden: la tipologia di utente non permette la visualizzazione della media dei feedback"
           content:
@@ -1219,22 +1225,6 @@ paths:
       responses:
         "201":
           description: "Feedback registrato"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  id_feedback: 
-                    type: "string"
-                    description: "ID del feedback appena creato"
-                    example: "12345"
-                  message:
-                    type: "string"
-                    example: "Feedback registrato"
-                  id_evento:
-                    type: "string"
-                    description: "ID dell'evento a cui è relativo il feedback"
-                    example: "67890"
         "400":
           description: "Richiesta non valida: dati mancanti o non validi"
           content:
@@ -1246,7 +1236,7 @@ paths:
                     type: "string"
                     example: "Richiesta non valida"
         "403":  
-          description: "Forbidden: la tipologia di utente non permette l'eliminazione di coupon"
+          description: "Utente non autorizzato"
           content:
             application/json:
               schema:
@@ -1265,6 +1255,16 @@ paths:
                   error:
                     type: "string"
                     example: "Evento non trovato"
+        "409":
+          description: "Feedback già lasciato per questo evento"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Hai già lasciato un feedback per questo evento."
         "500":
           description: "Errore del server"
           content:
@@ -1288,18 +1288,22 @@ paths:
           content:
             application/json:
               schema:
-                type: "object"
-                properties:
-                  comments:
-                    type: "array"
-                    items:
-                      type: "object"
-                      properties:
-                        username:
-                          type: "string"
-                        commento:
-                          type: "string"
-                          example: "Evento ben organizzato"
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    self:
+                      type: "string"
+                      example: "/api/v1/feedbacks/67890"
+                    id_cittadino:
+                      type: "string"
+                    rating:
+                      type: integer
+                      description: "Valutazione da 1 a 5 assegnata all'evento"
+                      example: 4
+                    commento:
+                      type: "string"
+                      example: "Evento ben organizzato"
         "403":  
           description: "Forbidden: la tipologia di utente non permette la visualizzazione dei commenti relativi ad un evento"
           content:
@@ -1349,25 +1353,10 @@ paths:
               properties:
                 descrizione_coupon:
                   type: "string"
-                sconto_offerto:
-                  type: "number"
-                  format: "float"
-              required: ["descrizione_coupon", "sconto_offerto"]
+              required: ["descrizione_coupon"]
       responses:
         "201":
           description: "Proposta di coupon al comune avvenuta con successo"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  id_proposta_coupon: 
-                    type: "string"
-                    description: "ID della proposta coupon appena creata"
-                    example: "12345"
-                  message:
-                    type: "string"
-                    example: "Proposta registrata"
         "400":
           description: "Richiesta non valida: dati mancanti o non validi"
           content:
@@ -1415,18 +1404,19 @@ paths:
                 items:
                   type: "object"
                   properties:
+                    self:
+                      type: "string"
+                      example: "api/v1/coupons"
+                    id_coupon:
+                      type: "string"
                     id_azienda:
                       type: "string"
                     descrizione_coupon:
                       type: "string"
-                    sconto_offerto:
-                      type: "number"
-                    approvato:
-                      type: "boolean"
                     punti:
                       type: "integer"
         "403":  
-          description: "Forbidden: la tipologia di utente non permette la proposta di coupon"  # deve essere il comune
+          description: "Forbidden: l'utente deve essere registrato per poter vedere i coupon disponibili'"  
           content:
             application/json:
               schema:
@@ -1469,8 +1459,6 @@ paths:
               properties:
                 punti:
                   type: "integer"
-                  description: "Punteggio assegnato al coupon"
-              required: ["punti"]
       responses:
         "200":
           description: "Il coupon è stato approvato dal comune con successo e gli è stato assegnato un punteggio"
@@ -1535,7 +1523,7 @@ paths:
                     type: "string"
                     example: "Azione non permessa"
         "404":
-          description: "Errore: coupon non trovato"
+          description: "Coupon non trovato"
           content:
             application/json:
               schema:
@@ -1543,7 +1531,7 @@ paths:
                 properties:
                   error:
                     type: "string"
-                    example: "Coupon inesistente"
+                    example: "Coupon non trovato"
         "500":
           description: "Errore del server"
           content:
@@ -1569,12 +1557,19 @@ paths:
           content:
             application/json:
               schema:
-                type: "array"
+                type: array
                 items:
-                  type: "object"
+                  type: object
                   properties:
+                    self:
+                      type: string
+                      example: "/api/v1/coupons_cittadino/67890"
+                    id_cittadino:
+                      type: string
+                      example: "abc123"
                     id_coupon:
-                      type: "string"
+                      type: string
+                      example: "xyz789"
         "403":  
           description: "Forbidden: la tipologia di utente non permette la proposta di coupon"
           content:
@@ -1616,15 +1611,6 @@ paths:
       responses:
         "201":
           description: "Coupon aggiunto alla lista dei coupon del cittadino"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  id_coupon: 
-                    type: "string"
-                    description: "ID del coupon appena aggiunto alla lista dei coupon del cittadino"
-                    example: "12345"
         "403":  
           description: "Forbidden: la tipologia di utente non permette la proposta di coupon"
           content:
@@ -1644,7 +1630,7 @@ paths:
                 properties:
                   error:
                     type: "string"
-                    example: "Coupon inesistente"
+                    example: "Coupon non trovato"
         "500":
           description: "Errore del server"
           content:

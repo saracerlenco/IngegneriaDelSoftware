@@ -5,7 +5,7 @@ const { tokenChecker } = require('./tokenChecker.js');
 const { Types } = require('mongoose');
 
 
-// Rotta per ottenere i filtri disponibili per gli eventi, aggiunto da Sara
+// Rotta per ottenere i filtri disponibili per gli eventi, aggiunto in seguito
 router.get('/filtri', async (req, res) => {
     try {
         const tipologie = await Evento.distinct("tipologia");
@@ -25,9 +25,7 @@ router.get('', async (req,res) => {
         if(req.query.tipologia){
             filtro.tipologia = req.query.tipologia;
         }
-        /* if(req.query.data){
-            filtro.data = new Date(req.query.data); // converte la data in formato Date
-        } */
+
         if(req.query.data){ //cerca tutti gli eventi che si svolgono in un giorno specifico
             // Controllo se la data è valida
             if(req.query.data){
@@ -66,7 +64,6 @@ router.get('', async (req,res) => {
             tipologia: evento.tipologia,
             descrizione: evento.descrizione,
             punti: evento.punti,
-            creatore: evento.creatore?.username
         })));
     } catch (err) {
         console.error(err);
@@ -78,7 +75,7 @@ router.get('', async (req,res) => {
 router.post('', tokenChecker, async (req,res) => {
     try{
         if(req.loggedUser.ruolo=='azienda'){
-            return res.status(401).json({ error: "Azione non permessa: la tipologia di utente non permette la proposta di eventi"});
+            return res.status(403).json({ error: "Azione non permessa: la tipologia di utente non permette la proposta di eventi"});
         }
         
         if(!req.body.nome_evento || !req.body.data || !req.body.luogo || !req.body.tipologia || !req.body.descrizione) {
@@ -101,7 +98,6 @@ router.post('', tokenChecker, async (req,res) => {
     }
 });
 
-// DA CONTROLLARE SU POSTMAN
 router.put('/:id_evento', tokenChecker, async (req,res) => {
     try{
         if(req.loggedUser.ruolo != 'operatore_comunale'){

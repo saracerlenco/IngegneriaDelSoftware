@@ -10,14 +10,11 @@ describe('GET /api/v1/eventi', () => {
   beforeAll( async () => {
     jest.setTimeout(8000);
     app.locals.db = await  mongoose.connect(process.env.DB_URL); });
-    //afterAll( () => { mongoose.connection.close(true); });
 
     // Lista eventi senza filtri
-  test('GET /api/v1/eventi senza filtri', () => {
+    test('GET /api/v1/eventi senza filtri', () => {
     return request(app).get('/api/v1/eventi')
-    expect(200);
-    // verifica che la risposta sia un array
-    expect(res.body).toBeInstanceOf(Array);
+    .expect(200);
   });
 
     // Lista eventi con filtri - tipologia = Culturale
@@ -122,7 +119,7 @@ describe('POST /api/v1/eventi', () => {
             tipologia: 'Culturale',
             descrizione: 'Un evento test'
         });
-        expect(res.status).toBe(401);
+        expect(res.status).toBe(403);
         expect(res.body.error).toBe(
             'Azione non permessa: la tipologia di utente non permette la proposta di eventi'
         );
@@ -155,11 +152,6 @@ describe('POST /api/v1/eventi', () => {
             descrizione: 'Festival dello sport'
         });
         expect(res.status).toBe(201);
-        // expect(res.headers.location).toBe('/api/v1/eventi');
-        // // verifica che il nuovo evento sia stato salvato nel DB
-        // const evento = await Evento.findOne({nome_evento: 'Festival dello sport'});
-        // expect(evento).toBeDefined();
-        // expect(evento.luogo).toBe('Piazza Duomo');
     });
 });
 

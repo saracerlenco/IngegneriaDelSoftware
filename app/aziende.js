@@ -9,23 +9,22 @@ router.post('', async (req,res) => {
     if(!req.body.nome || typeof req.body.nome != 'string') {
         return res.status(400).json({ error: 'Il campo nome deve essere di tipo string'});
     } 
-    if (!req.body.partita_IVA || typeof req.body.partita_IVA != 'string') {
+    if (!req.body.partita_IVA || typeof req.body.partita_IVA != 'string' || req.body.partita_IVA.trim() === '') {
         return res.status(400).json({ error: 'Il campo partita IVA deve essere di tipo string'});
     } 
     if (!req.body.email || typeof req.body.email != 'string' || !checkIfEmailInString(req.body.email)) {
         return res.status(400).json({ error: 'Il campo email deve essere di tipo string di formato email'});
     } 
     try{
-         //
-                const password = req.body.password;
-                bcrypt.hash(password, 1, async (err, hashedPassword) => {
-                    if (err) throw err;
-                    // Quando crei l'utente, salva hashedPassword nel database
-                let azienda = new Azienda({
-                    nome_azienda: req.body.nome,
-                    partita_IVA: req.body.partita_IVA,
-                    email: req.body.email,
-                    password: hashedPassword // Salva la password cifrata
+        const password = req.body.password;
+        bcrypt.hash(password, 1, async (err, hashedPassword) => {
+        if (err) throw err;
+        // Quando crei l'utente, salva hashedPassword nel database
+        let azienda = new Azienda({
+            nome_azienda: req.body.nome,
+            partita_IVA: req.body.partita_IVA,
+            email: req.body.email,
+            password: hashedPassword // Salva la password cifrata
         });
         azienda = await azienda.save();
 
@@ -49,8 +48,7 @@ router.get('', tokenChecker, async (req,res) => {
     })
 })
 
-// Modifica area personale azienda DA RIVEDERE 
-//Sara: sistemata 
+// Modifica area personale azienda
 router.put('', tokenChecker, async(req,res) => {
     try{
         const { nome_azienda, partita_IVA, email } = req.body;

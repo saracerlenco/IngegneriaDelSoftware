@@ -4,7 +4,7 @@ const Feedback = require('./models/feedback.js');
 const Evento = require('./models/evento.js');
 const { tokenChecker } = require('./tokenChecker.js');
 
-//Sara: aggiunta funzione
+
 router.get('/', tokenChecker, async (req,res) => {
     try{
         if(req.loggedUser.ruolo != 'operatore_comunale' && req.loggedUser.ruolo != 'cittadino'){
@@ -30,7 +30,7 @@ router.get('/', tokenChecker, async (req,res) => {
 //  Resituisce un array di feedback associati ad un evento
 router.get('/:id_evento', tokenChecker, async (req,res) => {
     try{
-        if(req.loggedUser.ruolo != 'operatore_comunale' && req.loggedUser.ruolo != 'cittadino'){//Sara aggiunto cittadino
+        if(req.loggedUser.ruolo != 'operatore_comunale' && req.loggedUser.ruolo != 'cittadino'){
             return res.status(403).json({ error: 'Utente non autorizzato' });
         }
         
@@ -47,7 +47,7 @@ router.get('/:id_evento', tokenChecker, async (req,res) => {
         let feedbacks = await Feedback.find(filtro);
         res.status(200).json(feedbacks.map( feedback => ({
             self: `/api/v1/feedbacks/${req.params.id_evento}`,
-            username: feedback.id_cittadino,
+            id_cittadino: feedback.id_cittadino,
             rating: feedback.rating,
             commento: feedback.commento
         })));
@@ -75,7 +75,7 @@ router.post('/:id_evento', tokenChecker, async (req,res) => {
         const id_evento = req.params.id_evento;
         const id_cittadino = req.loggedUser._id;
 
-        // Sara aggiunto CONTROLLA SE ESISTE GIÀ UN FEEDBACK PER QUESTO EVENTO E QUESTO CITTADINO
+        // Controlla se esiste già un feedback per questo evento e questo cittadino
         const Feedback = require('./models/feedback');
         const already = await Feedback.findOne({ id_evento, id_cittadino });
         if (already) {
