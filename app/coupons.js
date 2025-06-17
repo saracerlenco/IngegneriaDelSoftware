@@ -21,8 +21,6 @@ router.get('', tokenChecker, async (req,res) => {
             id_coupon: coupon._id,
             id_azienda: coupon.id_azienda,
             descrizione_coupon: coupon.descrizione_coupon,
-            // sconto_offerto: coupon.sconto_offerto,
-            // approvato: coupon.approvato,
             punti: coupon.punti
         })));
 

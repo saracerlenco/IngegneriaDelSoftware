@@ -64,7 +64,6 @@ router.get('', async (req,res) => {
             tipologia: evento.tipologia,
             descrizione: evento.descrizione,
             punti: evento.punti,
-            // creatore: evento.creatore?.username
         })));
     } catch (err) {
         console.error(err);
@@ -76,7 +75,7 @@ router.get('', async (req,res) => {
 router.post('', tokenChecker, async (req,res) => {
     try{
         if(req.loggedUser.ruolo=='azienda'){
-            return res.status(401).json({ error: "Azione non permessa: la tipologia di utente non permette la proposta di eventi"});
+            return res.status(403).json({ error: "Azione non permessa: la tipologia di utente non permette la proposta di eventi"});
         }
         
         if(!req.body.nome_evento || !req.body.data || !req.body.luogo || !req.body.tipologia || !req.body.descrizione) {
@@ -99,7 +98,6 @@ router.post('', tokenChecker, async (req,res) => {
     }
 });
 
-// DA CONTROLLARE SU POSTMAN
 router.put('/:id_evento', tokenChecker, async (req,res) => {
     try{
         if(req.loggedUser.ruolo != 'operatore_comunale'){

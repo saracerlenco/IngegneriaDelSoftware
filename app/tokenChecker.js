@@ -4,8 +4,6 @@ const ObjectId = require('mongoose').Types.ObjectId
 const tokenBlackList = new Set();
 
 const tokenChecker = function (req, res, next) {
-    
-    // const token = req.body.token || req.query.token || req.headers['authorization'] || req.headers['x-access-token'];
     const token = req.body.token || req.query.token || req.headers['authorization']?.split(" ").pop() || req.headers['x-access-token']; 
 
     if(!token) return res.status(400).json({

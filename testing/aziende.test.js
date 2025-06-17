@@ -10,12 +10,6 @@ describe('GET /api/v1/aziende', () => {
   beforeAll( async () => {
     jest.setTimeout(8000);
     app.locals.db = await  mongoose.connect(process.env.DB_URL); 
-
-    // await Azienda.create({
-    //     nome_azienda: 'AziendaProva',
-    //     partita_IVA: '12345678911',
-    //     email: 'aziendaProva@mail.com',
-    // });
   });
 
   let tokenAzienda = jwt.sign( 

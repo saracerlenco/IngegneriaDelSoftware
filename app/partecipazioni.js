@@ -52,9 +52,6 @@ router.delete('/:id_evento', tokenChecker, async (req,res) => {
     try{
         const id_evento = req.params.id_evento;
         const evento = await Evento.findById(id_evento);
-        // if(!id_evento) {
-        //     return res.status(400).json({ error: "Evento mancante" });
-        // }
         if(req.loggedUser.ruolo != 'cittadino'){
             return res.status(403).json({ error: "Utente non autorizzato" });
         }
