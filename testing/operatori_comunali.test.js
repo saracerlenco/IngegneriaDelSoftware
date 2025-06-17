@@ -19,7 +19,7 @@ describe('GET /api/v1/operatori_comunali', () => {
   });
 
   let tokenComune = jwt.sign( 
-    {email: 'mario.rossi@mail.com', _id: '67321bf8b78fd1a0bb33c778', ruolo: 'operatore_comunale'},
+    {email: 'mario.rossi@mail.com', _id: '6851882409b10b11f13ea4f5', ruolo: 'operatore_comunale'},
     process.env.JWT_SECRET, 
     {expiresIn: 43200} 
   );
@@ -69,6 +69,7 @@ describe('POST /api/v1/operatori_comunali', () => {
             email: 'mario.rossi@mail.com',
             codice_fiscale: 'MRRS53JHDB7636T',
             username: 'mario_rossi',
+            password: 'password123',
         });
         expect(res.status).toBe(201);
         expect(res.headers.location).toBe('/api/v1/operatori_comunali');
@@ -86,7 +87,7 @@ describe('PUT /api/v1/operatori_comunali', () => {
   });
 
   let tokenComune = jwt.sign( 
-      {email: 'mario.rossi@mail.com', _id: '67321bf8b78fd1a0bb33c777', ruolo: 'cittadino'},
+      {email: 'mario.rossi@mail.com', _id: '6851882409b10b11f13ea4f5', ruolo: 'cittadino'},
       process.env.JWT_SECRET, 
       {expiresIn: 43200} 
   );
@@ -96,11 +97,9 @@ describe('PUT /api/v1/operatori_comunali', () => {
       .put('/api/v1/operatori_comunali')
       .set('x-access-token', tokenComune)
       .send({
-          dati: {
-            cognome: 'nuovoCognome',
-          },
+          cognome_operatore_comunale: 'nuovoCognome',
       });
-
+      console.log(res.body);
     expect(res.status).toBe(200);
   });
 
@@ -114,7 +113,7 @@ describe('PUT /api/v1/operatori_comunali', () => {
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual({
-      error: 'Richiesta non valida',
+      error: 'Nessun dato da aggiornare',
     });
   });
 

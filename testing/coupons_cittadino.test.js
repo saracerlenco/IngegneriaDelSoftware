@@ -49,7 +49,7 @@ describe('POST /coupons', () => {
   });
 
   test('Aggiunta coupon alla lista dei coupon del cittadino', async () => {
-    const id_coupon = '6781768e62905e7412640d06';
+    const id_coupon = '685023d911e59d57f73961f4';
     const res = await request(app)
     .post('/api/v1/coupons_cittadino/'+id_coupon)
     .set('x-access-token', tokenCittadino);
@@ -58,7 +58,7 @@ describe('POST /coupons', () => {
   });
 
   test('Utente non autorizzato', async () => {
-    const id_coupon = '6781768e62905e7412640d06';
+    const id_coupon = '685023d911e59d57f73961f4';
     const res = await request(app)
     .post('/api/v1/coupons_cittadino/'+id_coupon)
     .set('x-access-token', tokenComune);

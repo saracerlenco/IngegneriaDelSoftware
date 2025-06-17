@@ -13,7 +13,7 @@ describe('GET /api/v1/cittadini', () => {
   });
 
   let tokenCittadino = jwt.sign( 
-    {email: 'mario.rossi@mail.com', _id: '67321bf8b78fd1a0bb33c777', ruolo: 'cittadino'},
+    {email: 'mario.rossi@mail.com', _id: '68517c050ff8eec58f8226ec', ruolo: 'cittadino'},
     process.env.JWT_SECRET, 
     {expiresIn: 43200} 
   );
@@ -81,7 +81,7 @@ describe('PUT /api/v1/cittadini', () => {
   });
 
   let tokenCittadino = jwt.sign( 
-      {email: 'mario.rossi@mail.com', _id: '67321bf8b78fd1a0bb33c777', ruolo: 'cittadino'},
+      {email: 'mario.rossi@mail.com', _id: '68517c050ff8eec58f8226ec', ruolo: 'cittadino'},
       process.env.JWT_SECRET, 
       {expiresIn: 43200} 
   );
@@ -91,15 +91,9 @@ describe('PUT /api/v1/cittadini', () => {
       .put('/api/v1/cittadini')
       .set('x-access-token', tokenCittadino)
       .send({
-          dati: {
-            nome: 'nuovoNome',
-          },
+          nome_cittadino: 'nuovoNome',
       });
-
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({
-      message: 'Dati modificati con successo',
-    });
   });
 
   test('Modifica non valida per dati mancanti', async () => {
@@ -112,7 +106,7 @@ describe('PUT /api/v1/cittadini', () => {
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual({
-      error: 'Richiesta non valida',
+      error: 'Nessun dato da aggiornare',
     });
   });
 

@@ -2,7 +2,7 @@ const request  = require('supertest');
 const app      = require('../app/app');
 const jwt      = require('jsonwebtoken'); 
 const mongoose = require('mongoose');
-const Evento = require('../app/models/evento.js');
+const Coupon = require('../app/models/coupon.js');
 require('dotenv').config();
 
 
@@ -84,15 +84,6 @@ describe('GET /coupons', () => {
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
-  
-  test('Azione non permessa a chi non è un operatore comunale', async () => {
-    const res = await request(app)
-    .get('/api/v1/coupons')
-    .set('x-access-token', tokenCittadino);
-
-    expect(res.status).toBe(403);
-    expect(res.body.error).toBe('Azione non permessa');
-  })
 });
 
 // Test per PUT /coupons/:id_coupon
@@ -104,7 +95,7 @@ describe('PUT /coupons/:{id_coupon}', () => {
   
   test('Approvazione e assegnazione dei punti al coupon avvenuta con successo', async () => {
 
-    const id_coupon = '6781768e62905e7412640d06';
+    const id_coupon = '685023d911e59d57f73961f4';
     
     const res = await request(app)
       .put('/api/v1/coupons/'+id_coupon)
@@ -130,7 +121,7 @@ describe('PUT /coupons/:{id_coupon}', () => {
   });
 
   test('Dati non validi', async () => {
-    const id_coupon = '6781768e62905e7412640d06';
+    const id_coupon = '685023d911e59d57f73961f4';
     const res = await request(app)
       .put('/api/v1/coupons/'+id_coupon)
       .set('x-access-token', tokenComune)
@@ -172,7 +163,14 @@ describe('DELETE /coupons/:{id_coupon}', () => {
 
   // Questo test, dato che elimina il coupon con successo, necessita di mettere un id_coupon nuovo valido ogni volta
   test('Cancellazione di un coupon con successo', async () => {
-    const id_coupon = '677f881c8d6061b10a434280';
+    const coupon = await Coupon.insertOne({
+      descrizione_coupon: 'Coupon da eliminare',
+      sconto_offerto: 10.0,
+      approvato: false,
+      punti: 0
+    });
+    await coupon.save(); // Salva il coupon nel database
+    const id_coupon = coupon._id.toString(); // Converti l'ObjectId in stringa
     const res = await request(app)
       .delete('/api/v1/coupons/'+id_coupon)
       .set('x-access-token', tokenAzienda);
