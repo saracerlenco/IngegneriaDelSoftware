@@ -29,27 +29,7 @@ router.post('/:id_evento', tokenChecker, async (req,res) => {
     }
 });
 
-/* router.get('', tokenChecker, async (req,res) => {
-    try{
-        let filtro = {};
-        filtro.id_evento = req.params.id_evento;
-        if(req.loggedUser.ruolo != 'azienda'){
-            return res.status(403).json({ error: "Azione non permessa: la tipologia di utente non permette la proposta di un coupon"});
-        }
 
-        let sponsorizzazioni= await Sponsorizzazione.find(filtro);
-        res.status(200).json( sponsorizzazioni.map(sponsorizzazione => ({
-            self: `/api/v1/sponsorizzazioni/${sponsorizzazione.id_evento}`,
-            id_sponsorizzazione: sponsorizzazione._id,
-            id_evento: sponsorizzazione.id_evento, //Sara: aggiunto mancava
-            id_azienda: req.loggedUser._id
-        })));
-    } catch (err) { 
-        console.error(err);
-        return res.status(500).json({ error: "Errore del server, riprova più tardi"});
-    }
-}); */
-//Sara: funzione aggiornata
 router.get('', tokenChecker, async (req,res) => {
     try{
         if(req.loggedUser.ruolo != 'azienda'){
@@ -87,9 +67,7 @@ router.delete('/:id_evento', tokenChecker, async (req,res) => {
             id_evento
         });
         if(sponsorizzazione){
-            return res.status(204).json({
-            message: "Sponsorizzazione eliminata con successo"
-            });
+            return res.status(204).send();
         }
         res.status(404).json({ error: "Errore: sponsorizzazione inesistente" });
     } catch (err) {

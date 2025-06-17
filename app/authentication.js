@@ -53,11 +53,11 @@ router.delete('', tokenChecker, async (req,res) => {
     try{
         const token = req.header("x-access-token")
         if(!token){
-            return res.status(403).json({ error: "Token non valido"})
+            return res.status(400).json({ error: "Token non valido"})
         }
         revoke(token);
         
-        res.status(204).json({ message: "Logout effettuato con successo"});
+        res.status(204).send();
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Errore del server, riprova più tardi"});

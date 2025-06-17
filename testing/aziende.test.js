@@ -11,15 +11,15 @@ describe('GET /api/v1/aziende', () => {
     jest.setTimeout(8000);
     app.locals.db = await  mongoose.connect(process.env.DB_URL); 
 
-    await Azienda.create({
-        nome_azienda: 'Azienda',
-        partita_IVA: '12345678911',
-        email: 'azienda@mail.com',
-    });
+    // await Azienda.create({
+    //     nome_azienda: 'AziendaProva',
+    //     partita_IVA: '12345678911',
+    //     email: 'aziendaProva@mail.com',
+    // });
   });
 
   let tokenAzienda = jwt.sign( 
-    {email: 'azienda@mail.com', _id: '67321bf8b78fd1a0bb33c977', ruolo: 'azienda'},
+    {email: 'aziendaProva@mail.com', _id: '68517b59fc361ebb81cab8f8', ruolo: 'azienda'},
     process.env.JWT_SECRET, 
     {expiresIn: 43200} 
   );

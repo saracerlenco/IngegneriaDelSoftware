@@ -25,7 +25,7 @@ router.post('', async (req,res) => {
         if (err) throw err;
         // Quando crei l'utente, salva hashedPassword nel database
         let operatore_comunale = new Operatore_Comunale({
-            nome: req.body.email,
+            nome: req.body.nome,
             cognome: req.body.cognome,
             email: req.body.email,
             codice_fiscale: req.body.codice_fiscale,
@@ -64,8 +64,7 @@ router.get('', tokenChecker, async (req,res) => {
     }
 })
 
-// Modifica area personale operatore_comunale DA RIVEDERE 
-// Sara: sistemata
+// Modifica area personale operatore_comunale
 router.put('', tokenChecker, async(req,res) => {
     try{
         const { nome_operatore_comunale, cognome_operatore_comunale, codice_fiscale, email } = req.body;

@@ -15,8 +15,8 @@ describe('POST /api/v1/sessions', () => {
         const res = await request(app)
         .post('/api/v1/sessions')
         .send({
-            email: 'mario.rossi@mail.com',
-            password: 'PasswordDiMario123F',
+            email: 'cittadino1@gmail.com',
+            password: 'c1',
             ruolo: 'cittadino',
         });
 
@@ -29,7 +29,7 @@ describe('POST /api/v1/sessions', () => {
         const res = await request(app)
         .post('/api/v1/sessions')
         .send({
-            email: 'mario.rossi@mail.com',
+            email: 'cittadino1@gmail.com',
             password: 'password_sbagliata', // password sbagliata
             ruolo: 'cittadino',
         });
@@ -58,7 +58,7 @@ describe('DELETE /sessions', () => {
         app.locals.db = await  mongoose.connect(process.env.DB_URL); 
     });
     let tokenCittadino = jwt.sign( 
-        {email: 'mario.rossi@mail.com', _id: '67321bf8b78fd1a0bb33c677', ruolo: 'cittadino'},
+        {email: 'cittadino1@gmail.com', _id: '67a4b1299e2a096416badee9', ruolo: 'cittadino'},
         process.env.JWT_SECRET, 
         {expiresIn: 43200} 
     );
@@ -74,7 +74,7 @@ describe('DELETE /sessions', () => {
     test('Token non valido', async () => {
       const res = await request(app)
         .delete('/api/v1/sessions')
-        .set('x-access-token', '948y5irubci73y4bocr8wcbq');
+        .set('x-access-token', '67a4b1299e2a096426badee9');
 
       expect(res.status).toBe(401);
       expect(res.body).toHaveProperty('error', 'Token non valido');

@@ -9,7 +9,7 @@ const evento = require('./models/evento.js');
 //  Resituisce una lista di coupon
 router.get('', tokenChecker, async (req,res) => {
     try{        
-        if(!req.loggedUser){ //Sara:a permetto a tutti di visualizzare i coupon, prima solo operatori
+        if(!req.loggedUser){ 
             return res.status(403).json({ error: "Azione non permessa" });
         }
         
@@ -19,10 +19,10 @@ router.get('', tokenChecker, async (req,res) => {
         res.status(200).json(coupons.map(coupon => ({
             self: '/api/v1/coupons',
             id_coupon: coupon._id,
-            id_azienda: coupon.id_azienda, // Sara: aggiunto id_azienda
+            id_azienda: coupon.id_azienda,
             descrizione_coupon: coupon.descrizione_coupon,
-            sconto_offerto: coupon.sconto_offerto,
-            approvato: coupon.approvato,
+            // sconto_offerto: coupon.sconto_offerto,
+            // approvato: coupon.approvato,
             punti: coupon.punti
         })));
 
@@ -39,14 +39,13 @@ router.post('', async (req,res) => {
             return res.status(403).json({ error: "Azione non permessa: la tipologia di utente non permette la proposta di un coupon"});
         }
         
-        if(!req.body.descrizione_coupon){ //Sara ha rimosso|| !req.body.sconto_offerto){
+        if(!req.body.descrizione_coupon){ 
             return res.status(400).json({ error: "Dati mancanti o non validi"});
         }
 
         let coupon = new Coupon({
             id_azienda: req.loggedUser._id,
             descrizione_coupon: req.body.descrizione_coupon,
-            //Sara ha rimosso -> sconto_offerto: req.body.sconto_offerto
         })
         coupon = await coupon.save();
 
@@ -81,7 +80,6 @@ router.put('/:id_coupon', tokenChecker, async(req,res) => {
             { new: true }
             
         );
-        coupon.save();
         res.status(200).send();
 
     } catch (err) {
@@ -102,9 +100,7 @@ router.delete('/:id_coupon', tokenChecker, async (req,res) => {
         if(!coupon) {
             return res.status(404).json({ error: "Coupon non trovato" });
         }
-        res.status(204).json({
-            message: "Coupon eliminato con successo"
-        })
+        res.status(204).send();
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Errore del server, riprova più tardi"});
