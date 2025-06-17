@@ -76,6 +76,23 @@ router.get('', tokenChecker, async (req,res) => {
     }
 })
 
+//Sara, rotta aggiunta per vedere gli username
+router.get('/all', tokenChecker, async (req,res) => {
+    try {        
+        let cittadini = await Cittadino.find();
+        res.status(200).json(cittadini.map(cittadino => {
+            return {
+            self: '/api/v1/cittadini/all',
+            _id: cittadino._id,
+            username: cittadino.username
+            }
+        }));
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Errore del server, riprova più tardi"});
+    }
+})
+
 // Modifica area personale cittadino DA RIVEDERE 
 //Sara: sistemata e aggiunti i punti
 router.put('', tokenChecker, async(req,res) => {
