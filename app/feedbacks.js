@@ -49,6 +49,16 @@ router.post('/:id_evento', tokenChecker, async (req,res) => {
             return res.status(400).json({ error: "Dati mancanti o non validi"});
         }
 
+        const id_evento = req.params.id_evento;
+        const id_cittadino = req.loggedUser._id;
+
+        // Sara aggiunto CONTROLLA SE ESISTE GIÀ UN FEEDBACK PER QUESTO EVENTO E QUESTO CITTADINO
+        const Feedback = require('./models/feedback');
+        const already = await Feedback.findOne({ id_evento, id_cittadino });
+        if (already) {
+            return res.status(409).json({ error: "Hai già lasciato un feedback per questo evento." });
+        }
+
         let evento = await Evento.findById(req.params.id_evento);
         if (!evento) {
             return res.status(404).json({ error: "Evento non trovato"});
