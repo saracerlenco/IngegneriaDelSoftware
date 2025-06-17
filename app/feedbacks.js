@@ -4,10 +4,33 @@ const Feedback = require('./models/feedback.js');
 const Evento = require('./models/evento.js');
 const { tokenChecker } = require('./tokenChecker.js');
 
+//Sara: aggiunta funzione
+router.get('/', tokenChecker, async (req,res) => {
+    try{
+        if(req.loggedUser.ruolo != 'operatore_comunale' && req.loggedUser.ruolo != 'cittadino'){
+            return res.status(403).json({ error: 'Utente non autorizzato' });
+        }
+
+        // Ricerca dei feedback nel DB in base al filtro
+        let feedbacks = await Feedback.find();
+        res.status(200).json(feedbacks.map( feedback => ({
+            self: `/api/v1/feedbacks/${feedback.id_evento}`,
+            id_cittadino: feedback.id_cittadino,
+            rating: feedback.rating,
+            commento: feedback.commento
+        })));
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Errore del server, riprova più tardi"});
+    }
+});
+
+
 //  Resituisce un array di feedback associati ad un evento
 router.get('/:id_evento', tokenChecker, async (req,res) => {
     try{
-        if(req.loggedUser.ruolo != 'operatore_comunale'){
+        if(req.loggedUser.ruolo != 'operatore_comunale' && req.loggedUser.ruolo != 'cittadino'){//Sara aggiunto cittadino
             return res.status(403).json({ error: 'Utente non autorizzato' });
         }
         
