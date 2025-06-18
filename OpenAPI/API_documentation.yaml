@@ -6,7 +6,7 @@ info:
 
 #IMPORTANTE! DOBBIAMO SOSTITUIRE I SERVER CON I NOSTRI
 servers:
-  - url: http://localhost:3000/api/v1
+  - url: /api/v1
     description: Localhost
 
 components:

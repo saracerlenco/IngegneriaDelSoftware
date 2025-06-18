@@ -6,14 +6,11 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 	<link rel="stylesheet" href="../assets/css/main.css" />
     <link rel="shortcut icon" href="../images/logo.ico" />
-    <script src="../assets/js/jwt-decode.js"></script>
 	<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
     <script src="//unpkg.com/jwt-js-decode@1.9.0/dist/jwt-js-decode.pkg.min.js"></script><!--per visualizzare il token-->
+		
 </head>
 <body class="is-preload">
-    
-    
-   
 
 	<!-- Wrapper -->
 	<div id="wrapper">
@@ -28,7 +25,7 @@
 			<ul class="links" id="nav-links">
 				<li><a href="../index.html">Mappa</a></li>
 				<li><a href="eventi.html">Eventi</a></li>
-				<li class="active"><a href="operatore_comunale_area_personale.html">Area personale</a></li>
+				<li class="active"><a href="cittadino_area_personale.html">Area personale</a></li>
 			</ul>
             <ul class="icons">
                 <li><a id="log">Logout </a></li>
@@ -46,65 +43,20 @@
                         <h3>Benvenuta/o nella tua area personale</h3>
                         <form method="post" action="#">
                             <p>I tuoi dati personali:</p> <!--DATI DA INSERIRE DA DB NEL VALUE DELLE LABEL-->
-                            <div id="updatediv">
-                                <div class="fields">
-                                    <div class="field">
-                                        <label>Nome: </label>
-                                        <input type="text" disabled name="nome" id="nome_operatore_comunale" value="${utente.nome}"/>
-                                    </div>
-                                    <div class="field">
-                                        <label>Cognome:</label>
-                                        <input type="text" disabled name="cognome" id="cognome_operatore_comunale" value="${utente.cognome}"/>
-                                    </div>
-                                    <div class="field">
-                                        <label>Codice fiscale:</label>
-                                        <input type="text" disabled name="codice_fiscale" id="codice_fiscale_operatore_comunale" value="${utente.codice_fiscale}"/>
-                                    </div>
-                                    <div class="field">
-                                        <label>Email:</label>
-                                        <input type="email" disabled name="email" id="email_operatore_comunale" value="${utente.email}"/>
-                                    </div>
+                            <div class="fields">
+                                <div class="field">
+                                    <label>Nome:</label>
+                                    <input type="text" disabled name="nome" id="nome_azienda" value="NomeAzienda"/>
+                                </div>
+                                <div class="field">
+                                    <label>partita IVA:</label>
+                                    <input type="text" disabled name="partita_iva" id="partita_iva_azienda" value="PartitaIVAAzienda"/>
+                                </div>
+                                <div class="field">
+                                    <label>Email:</label>
+                                    <input type="email" disabled name="email" id="email_azienda" value="Email@Azienda"/>
                                 </div>
                             </div>
-                            <script>
-                                const token = localStorage.getItem("token");
-                                var id;
-                                if (isTokenValid(token)) {
-                                    id = JSON.parse(atob(token.split(".")[1]))._id;
-                                    fetch('http://localhost:3000/api/v1/operatori_comunali' + id, {
-                                        headers: { "Authorization": "Bearer " + token }
-                                    })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        // Qui data contiene tutti i dati dell'utente
-                                        console.log("Dati utente:", data);
-                                        // Aggiorna il DOM con i dati ricevuti
-                                        document.getElementById('nome_operatore_comunale').value = data.nome;
-                                        document.getElementById('cognome_operatore_comunale').value = data.cognome;
-                                        document.getElementById('email_operatore_comunale').value = data.email;
-                                        document.getElementById('codice_fiscale_operatore_comunale').value = data.codice_fiscale;
-                                    })
-                                    .catch(error => console.error("Errore:", error));
-                                } else {
-                                    utente = null;
-                                }
-                        
-                                function isTokenValid(token) {
-                                    try {
-                                        const decoded = jwtDecode(token);
-                                        if (!decoded.exp) {
-                                            throw new Error("Il token non ha un campo 'exp'");
-                                        }
-                                        const now = Math.floor(Date.now() / 1000); // Converte la data attuale in timestamp UNIX
-                                        return decoded.exp > now; // Ritorna true se il token è ancora valido
-                                    } catch (error) {
-                                        console.error("Token non valido:", error.message);
-                                        return false;
-                                    }
-                                }
-                            </script>
-
-                            
                             <div class="col-6 col-12-small">
                                 <ul class="actions stacked">
                                     <li><a onclick="AbilitaDisabilita(this)" class="button">Modifica dati</a></li>
@@ -120,19 +72,18 @@
                                     button.innerText = "Salva dati";
                                 } else {
                                     // Raccolta dati aggiornati
-                                    const nome_operatore_comunale = document.getElementById("nome_operatore_comunale").value;
-                                    const cognome_operatore_comunale = document.getElementById("cognome_operatore_comunale").value;
-                                    const codice_fiscale = document.getElementById("codice_fiscale_operatore_comunale").value;
-                                    const email = document.getElementById("email_operatore_comunale").value;
+                                    const nome = document.getElementById("nome_azienda").value;
+                                    const partita_IVA = document.getElementById("partita_iva_azienda").value;
+                                    const email = document.getElementById("email_azienda").value;
                                     const token = localStorage.getItem("token");
 
-                                    fetch("http://localhost:3000/api/v1/operatori_comunali", {
+                                    fetch("/api/v1/aziende", {
                                         method: "PUT",
                                         headers: {
                                             "Content-Type": "application/json",
                                             "Authorization": "Bearer "+token
                                         },
-                                        body: JSON.stringify({ nome_operatore_comunale, cognome_operatore_comunale, codice_fiscale, email })
+                                        body: JSON.stringify({ nome_azienda: nome, partita_IVA, email })
                                     })
                                     .then(res => {
                                         if (!res.ok) throw new Error("Errore nell'aggiornamento dei dati");
@@ -153,6 +104,7 @@
                             const { decode } = jwtJsDecode;// per decodificare il token JWT
                             document.addEventListener("DOMContentLoaded", async () => {
                                 const token = localStorage.getItem("token");
+                                
                                 let ruolo = null;
                                 let errore = false;
 
@@ -162,33 +114,32 @@
                                     try {
                                         const decoded = decode(token);
                                         ruolo = decoded.payload ? decoded.payload.ruolo : decoded.ruolo;
-                                        if (ruolo !== "operatore_comunale") errore = true;
+                                        if (ruolo !== "azienda") errore = true;
                                     } catch (e) {
                                         errore = true;
                                     }
                                 }
 
                                 if (errore) {
-                                    document.getElementById("main").innerHTML = "<h3>Accesso non autorizzato.<br>Solo gli operatori comunali possono accedere a questa pagina.</h3>";
+                                    document.getElementById("main").innerHTML = "<h3>Accesso non autorizzato.<br>Solo le aziende possono accedere a questa pagina.</h3>";
                                     return;
                                 }
 
                                 try {
-                                    const response = await fetch("http://localhost:3000/api/v1/operatori_comunali", {
+                                    const response = await fetch("/api/v1/aziende", {
                                         method: "GET",
                                         headers: {
                                             "Authorization": "Bearer " + token
                                         }
                                     });
-                                    if (!response.ok) throw new Error("Errore nel recupero dati operatore comunale");
+                                    if (!response.ok) throw new Error("Errore nel recupero dati azienda");
                                     const data = await response.json();
 
-                                    document.getElementById("nome_operatore_comunale").value = data.nome || "";
-                                    document.getElementById("cognome_operatore_comunale").value = data.cognome || "";
-                                    document.getElementById("codice_fiscale_operatore_comunale").value = data.codice_fiscale || "";
-                                    document.getElementById("email_operatore_comunale").value = data.email || "";
+                                    document.getElementById("nome_azienda").value = data.nome || "";
+                                    document.getElementById("partita_iva_azienda").value = data.partita_IVA || "";
+                                    document.getElementById("email_azienda").value = data.email || "";
                                 } catch (err) {
-                                    alert("Errore nel caricamento dei dati operatore comunale");
+                                    alert("Errore nel caricamento dei dati azienda");
                                 }
                             });
                             </script>
@@ -201,15 +152,13 @@
                         <p>Ecco cosa puoi fare:</p>
                         <form method="post" action="#">
                             <table>
-                                
                                 <tr>
-                                    <td><a href="proponi_evento.html" class="button fit">Proponi evento</a></td>
-                                    <td><a href="visualizza_feedbacks.html" class="button fit">Visualizza i feedback</a></td>
+                                    <td><a href="proponi_coupon.html" class="button fit">Crea coupon</a></td>
+                                    <td><a href="coupon_proposti.html" class="button fit">Visualizza coupon proposti</a></td>
                                 </tr>
                                 
                                 <tr>
-                                    <td><a href="associa_punti_eventi.html" class="button fit">Associa punti agli eventi</a></td>
-                                    <td><a href="associa_punti_coupon.html" class="button fit">Associa punti ai coupon</a></td>
+                                    <td><a href="eventi_sponsorizzati.html" class="button fit">Eventi sponsorizzati</a></td>
                                 </tr>
                             </table>
                         </form>				
@@ -217,8 +166,8 @@
                 </div>
             </div>
         </div>
-
         <script>
+            const token = localStorage.getItem("token"); 
             if(token && decode(token)){
                 document.getElementById("log").innerText = "Logout";
                 document.getElementById("log").href = "javascript:void(0);"; 
@@ -229,7 +178,6 @@
                 }
             }
         </script>
-
 		<!-- Copyright -->
 		<div id="copyright">
 			<ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5	

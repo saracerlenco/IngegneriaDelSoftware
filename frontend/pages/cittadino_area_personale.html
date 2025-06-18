@@ -8,7 +8,6 @@
     <link rel="shortcut icon" href="../images/logo.ico" />
 	<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
     <script src="//unpkg.com/jwt-js-decode@1.9.0/dist/jwt-js-decode.pkg.min.js"></script><!--per visualizzare il token-->
-		
 </head>
 <body class="is-preload">
 
@@ -28,7 +27,7 @@
 				<li class="active"><a href="cittadino_area_personale.html">Area personale</a></li>
 			</ul>
             <ul class="icons">
-                <li><a id="log">Logout </a></li>
+                <li><a  id="log">Logout</a></li>
             </ul>
 		</nav>
 
@@ -46,15 +45,23 @@
                             <div class="fields">
                                 <div class="field">
                                     <label>Nome:</label>
-                                    <input type="text" disabled name="nome" id="nome_azienda" value="NomeAzienda"/>
+                                    <input type="text" disabled name="nome" id="nome_cittadino" value="NomeCittadino"/>
                                 </div>
                                 <div class="field">
-                                    <label>partita IVA:</label>
-                                    <input type="text" disabled name="partita_iva" id="partita_iva_azienda" value="PartitaIVAAzienda"/>
+                                    <label>Cognome:</label>
+                                    <input type="text" disabled name="cognome" id="cognome_cittadino" value="CognomeCittadino"/>
+                                </div>
+                                <div class="field">
+                                    <label>Codice fiscale:</label>
+                                    <input type="text" disabled name="codice_fiscale" id="codice_fiscale_cittadino" value="CodiceFiscaleCittadino"/>
+                                </div>
+                                <div class="field">
+                                    <label>Username:</label>
+                                    <input type="text" disabled name="username" id="username_cittadino" value="UsernameCittadino"/>
                                 </div>
                                 <div class="field">
                                     <label>Email:</label>
-                                    <input type="email" disabled name="email" id="email_azienda" value="Email@Azienda"/>
+                                    <input type="email" disabled name="email" id="email_cittadino" value="Email@Cittadino"/>
                                 </div>
                             </div>
                             <div class="col-6 col-12-small">
@@ -72,18 +79,20 @@
                                     button.innerText = "Salva dati";
                                 } else {
                                     // Raccolta dati aggiornati
-                                    const nome = document.getElementById("nome_azienda").value;
-                                    const partita_IVA = document.getElementById("partita_iva_azienda").value;
-                                    const email = document.getElementById("email_azienda").value;
+                                    const nome_cittadino = document.getElementById("nome_cittadino").value;
+                                    const cognome_cittadino= document.getElementById("cognome_cittadino").value;
+                                    const codice_fiscale = document.getElementById("codice_fiscale_cittadino").value;
+                                    const username = document.getElementById("username_cittadino").value;
+                                    const email = document.getElementById("email_cittadino").value;
                                     const token = localStorage.getItem("token");
 
-                                    fetch("http://localhost:3000/api/v1/aziende", {
+                                    fetch("/api/v1/cittadini", {
                                         method: "PUT",
                                         headers: {
                                             "Content-Type": "application/json",
                                             "Authorization": "Bearer "+token
                                         },
-                                        body: JSON.stringify({ nome_azienda: nome, partita_IVA, email })
+                                        body: JSON.stringify({nome_cittadino, cognome_cittadino, codice_fiscale, username, email})
                                     })
                                     .then(res => {
                                         if (!res.ok) throw new Error("Errore nell'aggiornamento dei dati");
@@ -113,33 +122,36 @@
                                 } else {
                                     try {
                                         const decoded = decode(token);
-                                        ruolo = decoded.payload ? decoded.payload.ruolo : decoded.ruolo;
-                                        if (ruolo !== "azienda") errore = true;
+                                        ruolo = decoded.ruolo || (decoded.payload && decoded.payload.ruolo);
+                                        if (ruolo !== "cittadino") errore = true;
                                     } catch (e) {
                                         errore = true;
                                     }
                                 }
 
                                 if (errore) {
-                                    document.getElementById("main").innerHTML = "<h3>Accesso non autorizzato.<br>Solo le aziende possono accedere a questa pagina.</h3>";
+                                    document.getElementById("main").innerHTML = "<h3>Accesso non autorizzato.<br>Solo i cittadini possono accedere a questa pagina.</h3>";
                                     return;
                                 }
 
                                 try {
-                                    const response = await fetch("http://localhost:3000/api/v1/aziende", {
+                                    const response = await fetch("/api/v1/cittadini", {
                                         method: "GET",
                                         headers: {
                                             "Authorization": "Bearer " + token
                                         }
                                     });
-                                    if (!response.ok) throw new Error("Errore nel recupero dati azienda");
+                                    if (!response.ok) throw new Error("Errore nel recupero dati cittadino");
                                     const data = await response.json();
 
-                                    document.getElementById("nome_azienda").value = data.nome || "";
-                                    document.getElementById("partita_iva_azienda").value = data.partita_IVA || "";
-                                    document.getElementById("email_azienda").value = data.email || "";
+                                    document.getElementById("nome_cittadino").value = data.nome || "";
+                                    document.getElementById("cognome_cittadino").value = data.cognome || "";
+                                    document.getElementById("codice_fiscale_cittadino").value = data.codice_fiscale || "";
+                                    document.getElementById("username_cittadino").value = data.username || "";
+                                    document.getElementById("email_cittadino").value = data.email || "";
+                                    document.getElementById("punti_cittadino").innerText = data.punti || "0";
                                 } catch (err) {
-                                    alert("Errore nel caricamento dei dati azienda");
+                                    alert("Errore nel caricamento dei dati cittadino");
                                 }
                             });
                             </script>
@@ -153,12 +165,20 @@
                         <form method="post" action="#">
                             <table>
                                 <tr>
-                                    <td><a href="proponi_coupon.html" class="button fit">Crea coupon</a></td>
-                                    <td><a href="coupon_proposti.html" class="button fit">Visualizza coupon proposti</a></td>
+                                    <td><label>Punti evento totali:</label></td>
+                                    <td><label id="punti_cittadino"></label></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="proponi_evento.html" class="button fit">Proponi evento</a></td>
+                                    <td><a href="eventi_prenotati.html" class="button fit">Eventi prenotati</a></td>
                                 </tr>
                                 
                                 <tr>
-                                    <td><a href="eventi_sponsorizzati.html" class="button fit">Eventi sponsorizzati</a></td>
+                                    <td><a href="cittadino_shop.html" class="button fit">Shop Coupon</a></td>
+                                    <td><a href="coupon_ottenuti.html" class="button fit">I tuoi coupon</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="lascia_feedback.html" class="button fit">Lascia feedback</a></td>     
                                 </tr>
                             </table>
                         </form>				
@@ -166,6 +186,10 @@
                 </div>
             </div>
         </div>
+		<!-- Copyright -->
+		<div id="copyright">
+			<ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5	
+
         <script>
             const token = localStorage.getItem("token"); 
             if(token && decode(token)){
@@ -178,9 +202,6 @@
                 }
             }
         </script>
-		<!-- Copyright -->
-		<div id="copyright">
-			<ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5	
 
 		<!-- Scripts -->
 			<script src="../assets/js/jquery.min.js"></script>

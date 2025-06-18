@@ -80,7 +80,7 @@
 
             // Recupera i punti disponibili del cittadino
             try {
-                const resp = await fetch("http://localhost:3000/api/v1/cittadini", {
+                const resp = await fetch("/api/v1/cittadini", {
                     headers: { "Authorization": "Bearer " + token }
                 });
                 if (resp.ok) {
@@ -99,14 +99,14 @@
 			let couponsAcquistati = [];
 			try {
 				// Recupera tutti i coupon
-				const resp = await fetch("http://localhost:3000/api/v1/coupons", {
+				const resp = await fetch("/api/v1/coupons", {
 					headers: { "Authorization": "Bearer " + token }
 				});
 				if (resp.ok) {
 					coupons = await resp.json();
 				}
 				// Recupera i coupon già acquistati dal cittadino
-				const respAcq = await fetch("http://localhost:3000/api/v1/coupons_cittadino", {
+				const respAcq = await fetch("/api/v1/coupons_cittadino", {
 					headers: { "Authorization": "Bearer " + token }
 				});
 				if (respAcq.ok) {
@@ -149,7 +149,7 @@
                 // Ricarica i punti attuali (per sicurezza)
                 let puntiAttuali = puntiDisponibili;
                 try {
-                    const resp = await fetch("http://localhost:3000/api/v1/cittadini", {
+                    const resp = await fetch("/api/v1/cittadini", {
                         headers: { "Authorization": "Bearer " + token }
                     });
                     if (resp.ok) {
@@ -168,13 +168,13 @@
 
                 // Salva la relazione nel db (coupons_cittadino)
                 try {
-                    const resp = await fetch(`http://localhost:3000/api/v1/coupons_cittadino/${id_coupon}`, {
+                    const resp = await fetch(`/api/v1/coupons_cittadino/${id_coupon}`, {
                         method: "POST",
                         headers: { "Authorization": "Bearer " + token }
                     });
                     if (resp.ok) {
                         const nuovoSaldo = puntiAttuali - puntiCoupon;
-                        await fetch("http://localhost:3000/api/v1/cittadini", {
+                        await fetch("/api/v1/cittadini", {
                             method: "PUT",
                             headers: {
                                 "Content-Type": "application/json",

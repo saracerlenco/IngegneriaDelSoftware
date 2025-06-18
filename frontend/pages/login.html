@@ -76,7 +76,7 @@
 
     try {
         // Prova login come cittadino
-        let response = await fetch("http://localhost:3000/api/v1/sessions", {
+        let response = await fetch("/api/v1/sessions", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password, ruolo: "cittadino" })
@@ -85,7 +85,7 @@
 
         if(!response.ok){
             // Prova login come azienda
-            response = await fetch("http://localhost:3000/api/v1/sessions", {
+            response = await fetch("/api/v1/sessions", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password, ruolo: "azienda" })
@@ -95,7 +95,7 @@
 
         if(!response.ok){
             // Prova login come operatore comunale
-            response = await fetch("http://localhost:3000/api/v1/sessions", {
+            response = await fetch("/api/v1/sessions", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password, ruolo: "operatore_comunale" })
@@ -139,7 +139,7 @@
 					
 							try {
 								// Invia una richiesta al backend per il login
-								const response = await fetch("http://localhost:3000/api/v1/sessions", {
+								const response = await fetch("/api/v1/sessions", {
 									method: "POST",
 									headers: { "Content-Type": "application/json" },
 									body: JSON.stringify({ email, password, ruolo: "cittadino" })
@@ -153,7 +153,7 @@
 									localStorage.setItem("token", data.token);
 									window.location.href = "cittadino_area_personale.html"; // Reindirizza alla pagina dell'utente
 								}else{
-									const response = await fetch("http://localhost:3000/api/v1/sessions", {
+									const response = await fetch("/api/v1/sessions", {
 										method: "POST",
 										headers: { "Content-Type": "application/json" },
 										body: JSON.stringify({ email, password, ruolo: "azienda" })
@@ -167,7 +167,7 @@
 										localStorage.setItem("token", data.token);
 										window.location.href = "azienda_area_personale.html"; // Reindirizza alla pagina dell'utente
 									}else{
-										const response = await fetch("http://localhost:3000/api/v1/sessions", {
+										const response = await fetch("/api/v1/sessions", {
 											method: "POST",
 											headers: { "Content-Type": "application/json" },
 											body: JSON.stringify({ email, password, ruolo: "operatore_comunale" })

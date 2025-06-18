@@ -1,0 +1,295 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>DiscoverTrento</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <link rel="shortcut icon" href="../images/logo.ico" />
+    <noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+    <script src="//unpkg.com/jwt-js-decode@1.9.0/dist/jwt-js-decode.pkg.min.js"></script>
+</head>
+<body class="is-preload">
+
+    <div id="wrapper">
+        <header id="header">
+            <h1>Discover-Trento</h1>
+        </header>
+
+        <nav id="nav">
+            <ul class="links" id="nav-links">
+                <li><a href="../index.html">Mappa</a></li>
+                <li><a href="eventi.html">Eventi</a></li>
+                <li><a id="_area_personale">Area personale</a></li>
+                <li class="active"><a href="lascia_feedback.html">Lascia feedback</a></li>
+            </ul>
+            <ul class="icons">
+                <li><a id="log">Logout</a></li>
+            </ul>
+        </nav>
+
+        <div id="main">
+            <section class="post">
+                <h3>Facci sapere com'è andata e guadagna punti!</h3>
+                <div id="punti-container" style="margin-bottom: 20px;">
+                    <p>Punti totali: <span id="punti_cittadino">...</span></p>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome evento</th>
+                                <th>Data</th>
+                                <th>Location</th>
+                                <th>Tipologia</th>
+                                <th>Punti</th>
+                                <th colspan="2">Feedback</th>
+                            </tr>
+                        </thead>
+                        <tbody id="eventi-tbody">
+                            <!-- Gli eventi passati verranno inseriti qui -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const { decode } = jwtJsDecode;
+            const token = localStorage.getItem("token");
+            let errore = false;
+            let ruolo = null;
+            let id_cittadino = null;
+            let puntiCittadino = 0;
+
+            if (!token) {
+                errore = true;
+            } else {
+                try {
+                    const decoded = decode(token);
+                    ruolo = decoded.payload ? decoded.payload.ruolo : decoded.ruolo;
+                    id_cittadino = decoded.payload ? decoded.payload._id : decoded._id;
+                    if (ruolo !== "cittadino") errore = true;
+                } catch (e) {
+                    errore = true;
+                }
+            }
+
+            if (errore) {
+                document.getElementById("main").innerHTML = "<h3>Accesso non autorizzato.<br>Solo i cittadini possono lasciare feedback.</h3>";
+                return;
+            }
+
+            // Mostra punti totali del cittadino
+            async function aggiornaPunti() {
+                try {
+                    const resp = await fetch("/api/v1/cittadini", {
+                        headers: { "Authorization": "Bearer " + token }
+                    });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        puntiCittadino = data.punti || 0;
+                        document.getElementById("punti_cittadino").innerText = puntiCittadino;
+                    } else {
+                        document.getElementById("punti_cittadino").innerText = "Errore";
+                    }
+                } catch (err) {
+                    document.getElementById("punti_cittadino").innerText = "Errore";
+                }
+            }
+            await aggiornaPunti();
+
+            // Logout e area personale
+            document.getElementById("log").innerText = "Logout";
+            document.getElementById("log").href = "javascript:void(0);";
+            document.getElementById("log").onclick = () => {
+                localStorage.removeItem("token");
+                alert("Logout effettuato con successo");
+                window.location.href = "../index.html";
+            };
+            if(document.getElementById("_area_personale"))
+                document.getElementById("_area_personale").href = "cittadino_area_personale.html";
+
+            // Recupera partecipazioni del cittadino loggato
+            let partecipazioni = [];
+            try {
+                const resp = await fetch("/api/v1/partecipazioni", {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+                if (resp.ok) {
+                    partecipazioni = await resp.json();
+                }
+            } catch (err) {
+                document.getElementById("main").innerHTML = "<h3>Errore nel caricamento delle partecipazioni.</h3>";
+                return;
+            }
+            // Ottieni solo gli id_evento prenotati da questo cittadino
+            const eventiPrenotatiIds = partecipazioni.map(p => String(p.id_evento));
+
+            // Recupera tutti gli eventi
+            let eventi = [];
+            try {
+                const resp = await fetch("/api/v1/eventi");
+                if (resp.ok) {
+                    eventi = await resp.json();
+                }
+            } catch (err) {
+                document.getElementById("main").innerHTML = "<h3>Errore nel caricamento degli eventi.</h3>";
+                return;
+            }
+
+            // Recupera tutti i feedback lasciati dal cittadino loggato
+            let feedbacks = [];
+            try {
+                const resp = await fetch("/api/v1/feedbacks", {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+                if (resp.ok) {
+                    feedbacks = await resp.json();
+                }
+            } catch (err) {
+                feedbacks = [];
+            }
+
+            // Crea una mappa evento->feedback lasciato dal cittadino loggato
+            const feedbackMap = {};
+            feedbacks.forEach(fb => {
+                //console.log(fb.id_cittadino === id_cittadino, fb.id_cittadino, id_cittadino) //DEBUG
+                if (fb.id_cittadino === id_cittadino) {
+                    console.log(fb.self)
+                    feedbackMap[fb.self.split('/').pop()] = true;
+                }
+            });
+
+            // Filtra solo gli eventi passati a cui il cittadino ha partecipato e NON ha già lasciato feedback
+            const oggi = new Date();
+            oggi.setHours(0,0,0,0);
+            const mieiEventiPassati = eventi.filter(ev => 
+                eventiPrenotatiIds.includes(String(ev.id_evento)) &&
+                new Date(ev.data) < oggi &&
+                !feedbackMap[String(ev.id_evento)]
+            );
+
+            //console.log(mieiEventiPassati, feedbackMap)//DEBUG
+
+            const tbody = document.getElementById("eventi-tbody");
+            tbody.innerHTML = "";
+
+            if (mieiEventiPassati.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7">Nessun evento passato da valutare.</td></tr>`;
+            } else {
+                mieiEventiPassati.forEach(evento => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${evento.nome_evento}</td>
+                            <td>${new Date(evento.data).toLocaleDateString()}</td>
+                            <td>${evento.luogo}</td>
+                            <td>${evento.tipologia}</td>
+                            <td>${evento.punti || 0}</td>
+                            <td colspan="2">
+                                <form onsubmit="lasciaFeedback(event, '${evento.id_evento}', ${evento.punti || 0})">
+                                    <select name="stelle" required>
+                                        <option value="">Stelle</option>
+                                        <option value="1">★☆☆☆☆</option>
+                                        <option value="2">★★☆☆☆</option>
+                                        <option value="3">★★★☆☆</option>
+                                        <option value="4">★★★★☆</option>
+                                        <option value="5">★★★★★</option>
+                                    </select>
+                                    <input type="text" name="commento" placeholder="Commento (opzionale)" style="width:100%;max-width:400px;">
+                                    <button type="submit" class="button small">Invia</button>
+                                </form>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Funzione per lasciare feedback
+            window.lasciaFeedback = async function(event, id_evento, puntiEvento) {
+                event.preventDefault();
+                const form = event.target;
+                const stelle = form.stelle.value;
+                const commento = form.commento.value;
+                try {
+                    // Invia feedback (usa "rating" come campo)
+                    const resp = await fetch(`/api/v1/feedbacks/${id_evento}`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + token
+                        },
+                        body: JSON.stringify({ rating: stelle, commento })
+                    });
+                    if (resp.ok) {
+                        // Aggiorna i punti del cittadino
+                        if (puntiEvento && puntiEvento > 0) {
+                            let puntiAttuali = puntiCittadino;
+                            try {
+                                const respC = await fetch("/api/v1/cittadini", {
+                                    headers: { "Authorization": "Bearer " + token }
+                                });
+                                if (respC.ok) {
+                                    const data = await respC.json();
+                                    puntiAttuali = data.punti || 0;
+                                }
+                            } catch (err) {}
+                            await fetch("/api/v1/cittadini", {
+                                method: "PUT",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "Authorization": "Bearer " + token
+                                },
+                                body: JSON.stringify({ punti: puntiAttuali + puntiEvento })
+                            });
+                            document.getElementById("punti_cittadino").innerText = puntiAttuali + puntiEvento;
+                            puntiCittadino = puntiAttuali + puntiEvento;
+                        }
+                        alert("Feedback inviato con successo! Hai guadagnato " + (puntiEvento || 0) + " punti.");
+                        // Rimuovi la riga dalla tabella senza ricaricare la pagina
+                        form.closest("tr").remove();
+                        if (tbody.children.length === 0) {
+                            tbody.innerHTML = `<tr><td colspan="7">Nessun evento passato da valutare.</td></tr>`;
+                        }
+                    } else if (resp.status === 409) {
+                        alert("Hai già lasciato un feedback per questo evento.");
+                    } else {
+                        alert("Errore nell'invio del feedback.");
+                    }
+                } catch (err) {
+                    alert("Errore di rete.");
+                }
+            }
+        });
+        </script>
+        <script>
+            // Gestione logout e area personale
+            const { decode } = jwtJsDecode;
+            const token = localStorage.getItem("token"); 
+            if(token && decode(token)){
+                document.getElementById("log").innerText = "Logout";
+                document.getElementById("log").href = "javascript:void(0);";
+                document.getElementById("log").onclick = ()=>{
+                    localStorage.removeItem("token");
+                    alert(`Logout effettuato con successo`);
+                    window.location.href="../index.html";
+                }
+                document.getElementById("_area_personale").href="cittadino_area_personale.html";
+            }
+        </script>
+
+        <div id="copyright">
+            <ul><li>&copy; DiscoverTrento</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+        </div>
+    </div>
+
+    <script src="../assets/js/jquery.min.js"></script>
+    <script src="../assets/js/jquery.scrollex.min.js"></script>
+    <script src="../assets/js/jquery.scrolly.min.js"></script>
+    <script src="../assets/js/browser.min.js"></script> 
+    <script src="../assets/js/breakpoints.min.js"></script>
+    <script src="../assets/js/util.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>
