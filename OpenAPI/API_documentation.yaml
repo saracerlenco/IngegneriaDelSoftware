@@ -1502,46 +1502,6 @@ paths:
                   error:
                     type: "string"
                     example: "Errore del server, riprova più tardi"
-    delete:
-      summary: "Cancellazione coupon"
-      description: "Permette di annullare un coupon"
-      tags: 
-        - "coupon"
-      security:
-        - TokenAutenticazione: []       
-      responses:
-        "204":
-          description: "Il coupon è stato annullato con successo"
-        "403":  
-          description: "Forbidden: la tipologia di utente non permette l'eliminazione di coupon"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  error:
-                    type: "string"
-                    example: "Azione non permessa"
-        "404":
-          description: "Coupon non trovato"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  error:
-                    type: "string"
-                    example: "Coupon non trovato"
-        "500":
-          description: "Errore del server"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  error:
-                    type: "string"
-                    example: "Errore del server, riprova più tardi"
                   
   /coupons_cittadino:
     get:

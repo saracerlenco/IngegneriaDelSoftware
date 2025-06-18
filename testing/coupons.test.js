@@ -29,14 +29,13 @@ describe('POST /coupons', () => {
     app.locals.db = await  mongoose.connect(process.env.DB_URL); 
   });
 
-  test('dovrebbe creare un coupon con successo (201)', async () => {
+  test('Creazione del coupon con successo (201)', async () => {
 
     const res = await request(app)
       .post('/api/v1/coupons')
       .set('x-access-token', tokenAzienda)
       .send({
             descrizione_coupon: 'Coupon di prova',
-            sconto_offerto: 20.0
       });
 
     expect(res.status).toBe(201);
@@ -48,7 +47,6 @@ describe('POST /coupons', () => {
     .set('x-access-token', tokenAzienda)
       .send({ 
         descrizione_coupon: '' ,  // Dato mancante
-        sconto_offerto: 20.0
       });
 
     expect(res.status).toBe(400);
@@ -61,7 +59,6 @@ describe('POST /coupons', () => {
     .set('x-access-token', tokenCittadino)
       .send({ 
         descrizione_coupon: 'Coupon di prova',
-        sconto_offerto: 20.0
       });
 
     expect(res.status).toBe(403);
@@ -101,7 +98,6 @@ describe('PUT /coupons/:{id_coupon}', () => {
       .put('/api/v1/coupons/'+id_coupon)
       .set('x-access-token', tokenComune)
       .send({
-        approvato: true,
         punti: 100,
       });
     expect(res.status).toBe(200);
@@ -112,7 +108,6 @@ describe('PUT /coupons/:{id_coupon}', () => {
       .put('/api/v1/coupons/'+'6781868e62905e7412640d06')
       .set('x-access-token', tokenComune)
       .send({
-        approvato: true,
         punti: 100,
       });
 
@@ -126,7 +121,6 @@ describe('PUT /coupons/:{id_coupon}', () => {
       .put('/api/v1/coupons/'+id_coupon)
       .set('x-access-token', tokenComune)
       .send({
-        approvato: true,
       });
 
     expect(res.status).toBe(400);
@@ -139,7 +133,6 @@ describe('PUT /coupons/:{id_coupon}', () => {
     .delete('/api/v1/coupons/'+id_coupon)
     .set('x-access-token', tokenCittadino)
     .send({
-      approvato: true,
       punti: 100,
     });
 
@@ -148,46 +141,6 @@ describe('PUT /coupons/:{id_coupon}', () => {
   })
 });
 
-// Test per DELETE /coupons/:id_coupon
-describe('DELETE /coupons/:{id_coupon}', () => {
-  
-  test('Azione non permessa a chi non è azienda', async () => {
-    const id_coupon = '677f881c8d6061b10a434280';
-    const res = await request(app)
-    .delete('/api/v1/coupons/'+id_coupon)
-    .set('x-access-token', tokenCittadino);
-
-    expect(res.status).toBe(403);
-    expect(res.body.error).toBe('Azione non permessa');
-  })
-
-  // Questo test, dato che elimina il coupon con successo, necessita di mettere un id_coupon nuovo valido ogni volta
-  test('Cancellazione di un coupon con successo', async () => {
-    const coupon = await Coupon.insertOne({
-      descrizione_coupon: 'Coupon da eliminare',
-      sconto_offerto: 10.0,
-      approvato: false,
-      punti: 0
-    });
-    await coupon.save(); // Salva il coupon nel database
-    const id_coupon = coupon._id.toString(); // Converti l'ObjectId in stringa
-    const res = await request(app)
-      .delete('/api/v1/coupons/'+id_coupon)
-      .set('x-access-token', tokenAzienda);
-
-    expect(res.status).toBe(204);
-  });
-
-  test('Coupon non trovato', async () => {
-    const id_coupon = '677f829c17deac078212f84b'; // Coupon inesistente
-    const res = await request(app)
-    .delete('/api/v1/coupons/'+id_coupon)
-    .set('x-access-token', tokenAzienda);
-
-    expect(res.status).toBe(404);
-    expect(res.body.error).toBe('Coupon non trovato');
-  });
-});
 
 afterAll( () => {
     mongoose.connection.close(true); 

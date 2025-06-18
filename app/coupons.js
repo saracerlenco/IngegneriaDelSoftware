@@ -86,24 +86,5 @@ router.put('/:id_coupon', tokenChecker, async(req,res) => {
     }
 });
 
-// Cancellazione coupon
-router.delete('/:id_coupon', tokenChecker, async (req,res) => {
-    try{
-        if(req.loggedUser.ruolo != 'azienda'){
-            return res.status(403).json({ error: 'Azione non permessa' });
-        }
-        
-        const id_coupon = req.params.id_coupon;
-        const coupon = await Coupon.findByIdAndDelete(id_coupon);
-        if(!coupon) {
-            return res.status(404).json({ error: "Coupon non trovato" });
-        }
-        res.status(204).send();
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Errore del server, riprova più tardi"});
-    }
-});
-
 
 module.exports = router;

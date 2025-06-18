@@ -16,6 +16,11 @@ let tokenComune = jwt.sign(
     process.env.JWT_SECRET, 
     {expiresIn: 43200} 
 );
+let tokenAzienda = jwt.sign( 
+    {email: 'John2@mail.com', _id: '67320f4e18ff615f5fc6c163', ruolo: 'azienda'},
+    process.env.JWT_SECRET, 
+    {expiresIn: 43200} 
+);
 
 describe('POST /api/v1/feedbacks/:{id_evento}', () => {
     beforeAll( async () => {
@@ -99,6 +104,14 @@ describe('GET /api/v1/feedbacks/:{id_evento}', () => {
             .set('x-access-token', tokenComune);
             expect(res.status).toBe(404);
             expect(res.body.error).toBe('Evento non trovato');
+        });
+
+        test('Azione non permessa', async () => {
+            const id_evento = '67321b91b78fd1a0bb33c674'
+            const res = await request(app)
+            .get('/api/v1/feedbacks/'+id_evento)
+            .set('x-access-token', tokenAzienda);
+            expect(res.status).toBe(403);
         });
         
     });  
