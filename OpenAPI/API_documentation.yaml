@@ -4,10 +4,11 @@ info:
   description: "documentazione API per la webapp DiscoverTrento"
   version: "1.0"
 
-#IMPORTANTE! DOBBIAMO SOSTITUIRE I SERVER CON I NOSTRI
 servers:
   - url: /api/v1
     description: Localhost
+  - url: https://discovertrento.onrender.com/
+    description: Production server
 
 components:
   securitySchemes:
