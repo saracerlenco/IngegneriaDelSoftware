@@ -6,17 +6,18 @@ const Azienda = require('../app/models/azienda.js');
 require('dotenv').config();
 
 
+let tokenAzienda = jwt.sign( 
+  {email: 'azienda@mail.com', _id: '68527da629e0851f7f8c39c6', ruolo: 'azienda'},
+  process.env.JWT_SECRET, 
+  {expiresIn: 43200} 
+);
+
+
 describe('GET /api/v1/aziende', () => {
   beforeAll( async () => {
     jest.setTimeout(8000);
     app.locals.db = await  mongoose.connect(process.env.DB_URL); 
   });
-
-  let tokenAzienda = jwt.sign( 
-    {email: 'aziendaProva@mail.com', _id: '68517b59fc361ebb81cab8f8', ruolo: 'azienda'},
-    process.env.JWT_SECRET, 
-    {expiresIn: 43200} 
-  );
 
     // Area personale
   test('GET /api/v1/aziende area personale', () => {
@@ -32,12 +33,6 @@ describe('POST /api/v1/aziende', () => {
       jest.setTimeout(10000);
       app.locals.db = await  mongoose.connect(process.env.DB_URL); 
     });
-
-    let tokenAzienda = jwt.sign( 
-        {email: 'azienda@mail.com', _id: '68517b59fc361ebb81cab8f8', ruolo: 'azienda'},
-        process.env.JWT_SECRET, 
-        {expiresIn: 43200} 
-    );
     
     test('Registrazione non valida per dati mancanti', async () => {
         const res = await request(app)
@@ -56,9 +51,9 @@ describe('POST /api/v1/aziende', () => {
         .post('/api/v1/aziende')
         .set('x-access-token', tokenAzienda)
         .send({
-            nome: 'Azienda',
-            partita_IVA: '12345678911',
-            email: 'azienda@mail.com',
+            nome: 'AziendaProva',
+            partita_IVA: '12345678912',
+            email: 'aziendaProva@mail.com',
             password: 'password123',
         });
         expect(res.status).toBe(201);
@@ -75,12 +70,6 @@ describe('PUT /api/v1/aziende', () => {
     jest.setTimeout(10000);
     app.locals.db = await  mongoose.connect(process.env.DB_URL); 
   });
-
-  let tokenAzienda = jwt.sign( 
-      {email: 'azienda@mail.com', _id: '68517b59fc361ebb81cab8f8', ruolo: 'azienda'},
-      process.env.JWT_SECRET, 
-      {expiresIn: 43200} 
-  );
 
   test('Modifica dei dati avvenuta con successo', async () => {
     const res = await request(app)

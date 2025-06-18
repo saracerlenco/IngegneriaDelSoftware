@@ -6,6 +6,23 @@ const Evento = require('../app/models/evento.js');
 require('dotenv').config();
 
 
+let tokenCittadino = jwt.sign( 
+  {email: 'mario.rossi@mail.com', _id: '68527f9d30f8acbd472e9708', ruolo: 'cittadino'},
+  process.env.JWT_SECRET, 
+  {expiresIn: 43200} 
+);
+let tokenAzienda = jwt.sign( 
+  {email: 'azienda@mail.com', _id: '68527da629e0851f7f8c39c6', ruolo: 'azienda'},
+  process.env.JWT_SECRET, 
+  {expiresIn: 43200} 
+);
+let tokenComune = jwt.sign( 
+  {email: 'mario.rossi@mail.com', _id: '68527da098e8fce64da5ea56', ruolo: 'operatore_comunale'},
+  process.env.JWT_SECRET, 
+  {expiresIn: 43200} 
+);
+
+
 describe('GET /api/v1/eventi', () => {
   beforeAll( async () => {
     jest.setTimeout(8000);
@@ -92,22 +109,6 @@ describe('POST /api/v1/eventi', () => {
       app.locals.db = await  mongoose.connect(process.env.DB_URL); 
     });
 
-    let tokenCittadino = jwt.sign( 
-        {email: 'John@mail.com', _id: '67321bf8b78fd1a0bb33c677', ruolo: 'cittadino'},
-        process.env.JWT_SECRET, 
-        {expiresIn: 43200} 
-    );
-    let tokenComune = jwt.sign( 
-        {email: 'John2@mail.com', _id: '4567321bf8b78fd1a0bb33c6768', ruolo: 'operatore_comunale'},
-        process.env.JWT_SECRET, 
-        {expiresIn: 43200} 
-    );
-    let tokenAzienda = jwt.sign( 
-        {email: 'John3@mail.com', _id: '67321bf8b78fd1a0bb33c679', ruolo: 'azienda'},
-        process.env.JWT_SECRET, 
-        {expiresIn: 43200} 
-    );
-
     test('Creazione evento negato al tipo di utente azienda', async () => {
         const res = await request(app)
         .post('/api/v1/eventi')
@@ -145,11 +146,11 @@ describe('POST /api/v1/eventi', () => {
         .post('/api/v1/eventi')
         .set('x-access-token', tokenCittadino)
         .send({
-            nome_evento: 'Festival dello sport',
-            data: '2025-10-20',
+            nome_evento: 'Evento di prova',
+            data: '2025-5-20',
             luogo: 'Piazza Duomo',
             tipologia: 'sportivo',
-            descrizione: 'Festival dello sport'
+            descrizione: 'Evento creato per il testing'
         });
         expect(res.status).toBe(201);
     });

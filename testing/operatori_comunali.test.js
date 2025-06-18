@@ -5,6 +5,12 @@ const mongoose = require('mongoose');
 const Operatore_Comunale = require('../app/models/operatore_comunale.js');
 require('dotenv').config();
 
+let tokenComune = jwt.sign( 
+  {email: 'mario.rossi@mail.com', _id: '68527da098e8fce64da5ea56', ruolo: 'operatore_comunale'},
+  process.env.JWT_SECRET, 
+  {expiresIn: 43200} 
+);
+
 
 describe('GET /api/v1/operatori_comunali', () => {
   beforeAll( async () => {
@@ -17,12 +23,6 @@ describe('GET /api/v1/operatori_comunali', () => {
       email: 'mario.rossi@mail.com'
     });
   });
-
-  let tokenComune = jwt.sign( 
-    {email: 'mario.rossi@mail.com', _id: '6851882409b10b11f13ea4f5', ruolo: 'operatore_comunale'},
-    process.env.JWT_SECRET, 
-    {expiresIn: 43200} 
-  );
 
     // Area personale
   test('GET /api/v1/operatori_comunali area personale', () => {
@@ -38,12 +38,6 @@ describe('POST /api/v1/operatori_comunali', () => {
       jest.setTimeout(10000);
       app.locals.db = await  mongoose.connect(process.env.DB_URL); 
     });
-
-    let tokenComune = jwt.sign( 
-        {email: 'mario.rossi@mail.com', _id: '67321bf8b78fd1a0bb33c678', ruolo: 'operatore_comunale'},
-        process.env.JWT_SECRET, 
-        {expiresIn: 43200} 
-    );
     
     test('Registrazione non valida per dati mancanti', async () => {
         const res = await request(app)
@@ -64,19 +58,19 @@ describe('POST /api/v1/operatori_comunali', () => {
         .post('/api/v1/operatori_comunali')
         .set('x-access-token', tokenComune)
         .send({
-            nome: 'Mario',
-            cognome: 'Rossi',
-            email: 'mario.rossi@mail.com',
-            codice_fiscale: 'MRRS53JHDB7636T',
-            username: 'mario_rossi',
-            password: 'password123',
+            nome: 'NomeProva',
+            cognome: 'CognomeProva',
+            email: 'mailProva@mail.com',
+            codice_fiscale: 'MRRS53JHDB7636P',
+            username: 'username_prova',
+            password: 'passwordProva',
         });
         expect(res.status).toBe(201);
         expect(res.headers.location).toBe('/api/v1/operatori_comunali');
         // verifica che il nuovo evento sia stato salvato nel DB
-        const op = await Operatore_Comunale.findOne({codice_fiscale: 'MRRS53JHDB7636T'});
+        const op = await Operatore_Comunale.findOne({codice_fiscale: 'MRRS53JHDB7636P'});
         expect(op).toBeDefined();
-        expect(op.codice_fiscale).toBe('MRRS53JHDB7636T');
+        expect(op.codice_fiscale).toBe('MRRS53JHDB7636P');
     });
 });
 
@@ -85,12 +79,6 @@ describe('PUT /api/v1/operatori_comunali', () => {
     jest.setTimeout(10000);
     app.locals.db = await  mongoose.connect(process.env.DB_URL); 
   });
-
-  let tokenComune = jwt.sign( 
-      {email: 'mario.rossi@mail.com', _id: '6851882409b10b11f13ea4f5', ruolo: 'cittadino'},
-      process.env.JWT_SECRET, 
-      {expiresIn: 43200} 
-  );
 
   test('Modifica dei dati avvenuta con successo', async () => {
     const res = await request(app)

@@ -6,17 +6,18 @@ const Cittadino = require('../app/models/cittadino.js');
 require('dotenv').config();
 
 
+let tokenCittadino = jwt.sign( 
+  {email: 'mario.rossi@mail.com', _id: '68527f9d30f8acbd472e9708', ruolo: 'cittadino'},
+  process.env.JWT_SECRET, 
+  {expiresIn: 43200} 
+);
+
+
 describe('GET /api/v1/cittadini', () => {
   beforeAll( async () => {
     jest.setTimeout(8000);
     app.locals.db = await  mongoose.connect(process.env.DB_URL); 
   });
-
-  let tokenCittadino = jwt.sign( 
-    {email: 'mario.rossi@mail.com', _id: '68517c050ff8eec58f8226ec', ruolo: 'cittadino'},
-    process.env.JWT_SECRET, 
-    {expiresIn: 43200} 
-  );
 
     // Area personale
   test('GET /api/v1/cittadini area personale', () => {
@@ -80,11 +81,6 @@ describe('PUT /api/v1/cittadini', () => {
     app.locals.db = await  mongoose.connect(process.env.DB_URL); 
   });
 
-  let tokenCittadino = jwt.sign( 
-      {email: 'mario.rossi@mail.com', _id: '68517c050ff8eec58f8226ec', ruolo: 'cittadino'},
-      process.env.JWT_SECRET, 
-      {expiresIn: 43200} 
-  );
 
   test('Modifica dei dati avvenuta con successo', async () => {
     const res = await request(app)

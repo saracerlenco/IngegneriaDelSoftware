@@ -21,8 +21,6 @@ describe('POST /api/v1/sessions', () => {
         });
 
         expect(res.status).toBe(200);
-        // expect(res.body).toHaveProperty('token');
-        // expect(res.body).toHaveProperty('role', 'cittadino');
     });
 
     test('Autenticazione fallita per credenziali non valide', async () => {

@@ -4,21 +4,23 @@ const jwt      = require('jsonwebtoken');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+
+let tokenCittadino = jwt.sign( 
+  {email: 'mario.rossi@mail.com', _id: '68527f9d30f8acbd472e9708', ruolo: 'cittadino'},
+  process.env.JWT_SECRET, 
+  {expiresIn: 43200} 
+);
+let tokenAzienda = jwt.sign( 
+  {email: 'azienda@mail.com', _id: '68527da629e0851f7f8c39c6', ruolo: 'azienda'},
+  process.env.JWT_SECRET, 
+  {expiresIn: 43200} 
+);
+
+
 describe('POST /api/v1/sponsorizzazioni/{id_evento}', () => {
 beforeAll( async () => {
 jest.setTimeout(10000);
 app.locals.db = await  mongoose.connect(process.env.DB_URL); });
-
-let tokenCittadino = jwt.sign( 
-    {email: 'John@mail.com', _id: '67321bf8b78fd1a0bb33c677', ruolo: 'cittadino'},
-    process.env.JWT_SECRET, 
-    {expiresIn: 43200} 
-);
-let tokenAzienda = jwt.sign( 
-    {email: 'John2@mail.com', _id: '67320f4e18ff615f5fc6c163', ruolo: 'azienda'},
-    process.env.JWT_SECRET, 
-    {expiresIn: 43200} 
-);
 
 test('POST /api/v1/sponsorizzazioni/{id_evento}', async () => {
     const id_evento = '67321b91b78fd1a0bb33c674'
@@ -52,17 +54,6 @@ beforeAll( async () => {
     jest.setTimeout(10000);
     app.locals.db = await  mongoose.connect(process.env.DB_URL); });
     
-    let tokenCittadino = jwt.sign( 
-        {email: 'John@mail.com', _id: '67321bf8b78fd1a0bb33c677', ruolo: 'cittadino'},
-        process.env.JWT_SECRET, 
-        {expiresIn: 43200} 
-    );
-    let tokenAzienda = jwt.sign( 
-        {email: 'John2@mail.com', _id: '67320f4e18ff615f5fc6c163', ruolo: 'azienda'},
-        process.env.JWT_SECRET, 
-        {expiresIn: 43200} 
-    )
-    
     test('GET /api/v1/sponsorizzazioni', async () => {
         const res = await request(app)
         .get('/api/v1/sponsorizzazioni')
@@ -84,16 +75,6 @@ describe('DELETE /sponsorizzazioni/{id_evento}', () => {
         jest.setTimeout(10000);
         app.locals.db = await  mongoose.connect(process.env.DB_URL); 
     });
-    let tokenCittadino = jwt.sign( 
-        {email: 'mario.rossi@mail.com', _id: '67321bf8b78fd1a0bb33c677', ruolo: 'cittadino'},
-        process.env.JWT_SECRET, 
-        {expiresIn: 43200} 
-    );
-    let tokenAzienda = jwt.sign( 
-        {email: 'John2@mail.com', _id: '67320f4e18ff615f5fc6c163', ruolo: 'azienda'},
-        process.env.JWT_SECRET, 
-        {expiresIn: 43200} 
-    )
     
     test('Sponsorizzazione eliminata con successo', async () => {
         const id_evento = '67321b91b78fd1a0bb33c674';

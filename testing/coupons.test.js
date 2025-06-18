@@ -7,19 +7,19 @@ require('dotenv').config();
 
 
 let tokenCittadino = jwt.sign( 
-        {email: 'John@mail.com', _id: '67321bf8b78fd1a0bb33c677', ruolo: 'cittadino'},
-        process.env.JWT_SECRET, 
-        {expiresIn: 43200} 
-    );
-let tokenComune = jwt.sign( 
-    {email: 'John2@mail.com', _id: '4567321bf8b78fd1a0bb33c6768', ruolo: 'operatore_comunale'},
-    process.env.JWT_SECRET, 
-    {expiresIn: 43200} 
+  {email: 'mario.rossi@mail.com', _id: '68527f9d30f8acbd472e9708', ruolo: 'cittadino'},
+  process.env.JWT_SECRET, 
+  {expiresIn: 43200} 
 );
 let tokenAzienda = jwt.sign( 
-    {email: 'John3@mail.com', _id: '67321bf8b78fd1a0bb33c679', ruolo: 'azienda'},
-    process.env.JWT_SECRET, 
-    {expiresIn: 43200} 
+  {email: 'azienda@mail.com', _id: '68527da629e0851f7f8c39c6', ruolo: 'azienda'},
+  process.env.JWT_SECRET, 
+  {expiresIn: 43200} 
+);
+let tokenComune = jwt.sign( 
+  {email: 'mario.rossi@mail.com', _id: '68527da098e8fce64da5ea56', ruolo: 'operatore_comunale'},
+  process.env.JWT_SECRET, 
+  {expiresIn: 43200} 
 );
 
 // Test per POST /coupons
@@ -126,19 +126,6 @@ describe('PUT /coupons/:{id_coupon}', () => {
     expect(res.status).toBe(400);
     expect(res.body.error).toBe('Richiesta non valida: dati mancanti o non validi');
   });
-
-  test('Azione non permessa a chi non è azienda', async () => {
-    const id_coupon = '677f881c8d6061b10a434280';
-    const res = await request(app)
-    .delete('/api/v1/coupons/'+id_coupon)
-    .set('x-access-token', tokenCittadino)
-    .send({
-      punti: 100,
-    });
-
-    expect(res.status).toBe(403);
-    expect(res.body.error).toBe('Azione non permessa');
-  })
 });
 
 

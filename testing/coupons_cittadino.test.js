@@ -7,14 +7,14 @@ require('dotenv').config();
 
 
 let tokenCittadino = jwt.sign( 
-    {email: 'John@mail.com', _id: '67321bf8b78fd1a0bb33c677', ruolo: 'cittadino'},
-    process.env.JWT_SECRET, 
-    {expiresIn: 43200} 
+  {email: 'mario.rossi@mail.com', _id: '68527f9d30f8acbd472e9708', ruolo: 'cittadino'},
+  process.env.JWT_SECRET, 
+  {expiresIn: 43200} 
 );
 let tokenComune = jwt.sign( 
-    {email: 'John2@mail.com', _id: '4567321bf8b78fd1a0bb33c6768', ruolo: 'operatore_comunale'},
-    process.env.JWT_SECRET, 
-    {expiresIn: 43200} 
+  {email: 'mario.rossi@mail.com', _id: '68527da098e8fce64da5ea56', ruolo: 'operatore_comunale'},
+  process.env.JWT_SECRET, 
+  {expiresIn: 43200} 
 );
 
 describe('GET /coupons_cittadino', () => {
