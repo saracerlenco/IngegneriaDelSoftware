@@ -184,6 +184,12 @@
                         });
                         document.getElementById("punti_cittadino").innerText = nuovoSaldo;
                         puntiDisponibili = nuovoSaldo;
+                        // Disabilita il bottone e cambia testo
+                        const btn = document.querySelector(`button[onclick="acquistaCoupon('${id_coupon}', ${puntiCoupon})"]`);
+                        if (btn) {
+                            btn.disabled = true;
+                            btn.innerText = "Acquistato";
+                        }
                         alert("Coupon acquistato con successo!");
                     } else if (resp.status === 409) {
                         alert("Hai già acquistato questo coupon.");
