@@ -20,8 +20,8 @@
             <ul class="links" id="nav-links">
                 <li><a href="../index.html">Mappa</a></li>
                 <li><a href="eventi.html">Eventi</a></li>
-                <li><a id="_area_personale">Area personale</a></li>
-                <li class="active"><a href="eventi_sponsorizzati.html">Eventi sponsorizzati</a></li>
+				<li><a id="_area_personale">Area personale</a></li>
+                <li class="active"><a href="coupon_proposti.html">Coupon proposti</a></li>
             </ul>
             <ul class="icons">
                 <li><a id="log">Logout</a></li>
@@ -30,20 +30,18 @@
 
         <div id="main">
             <section class="post">
-                <h3>Qui sotto vedrai tutti gli eventi che sponsorizzerai in futuro</h3>
+                <h3>Qui sotto vedrai i coupon che hai proposto</h3>
                 <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
-                                <th>Nome evento</th>
-                                <th>Data</th>
-                                <th>Luogo</th>
-                                <th>Tipologia</th>
-                                <th></th>
+                                <th>Descrizione</th>
+                                <th>Approvato</th>
+                                <th>Punti</th>
                             </tr>
                         </thead>
-                        <tbody id="eventi-tbody">
-                            <!-- Gli eventi sponsorizzati verranno inseriti qui -->
+                        <tbody id="coupon-tbody">
+                            <!-- I coupon verranno inseriti qui -->
                         </tbody>
                     </table>
                 </div>
@@ -72,7 +70,7 @@
             }
 
             if (errore) {
-                document.getElementById("main").innerHTML = "<h3>Accesso non autorizzato.<br>Solo le aziende possono vedere i propri eventi sponsorizzati.</h3>";
+                document.getElementById("main").innerHTML = "<h3>Accesso non autorizzato.<br>Solo le aziende possono vedere i propri coupon proposti.</h3>";
                 return;
             }
 
@@ -87,84 +85,43 @@
             if(document.getElementById("_area_personale"))
                 document.getElementById("_area_personale").href = "azienda_area_personale.html";
 
-            let sponsorizzazioni = [];
+            // Carica i coupon proposti da questa azienda
             try {
-                const resp = await fetch("http://localhost:3000/api/v1/sponsorizzazioni", {
-                    headers: { "Authorization": "Bearer " + token }
+                const response = await fetch("/api/v1/coupons", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
                 });
-                if (resp.ok) {
-                    sponsorizzazioni = await resp.json();
+                const coupons = await response.json();
+                const tbody = document.getElementById("coupon-tbody");
+                tbody.innerHTML = "";
+
+                // Filtra solo i coupon dell'azienda loggata
+                const mieiCoupon = coupons.filter(c => {
+                    // id_azienda può essere stringa o oggetto, quindi confronto come stringa
+                    return String(c.id_azienda) === String(id_azienda);
+                });
+
+                if (mieiCoupon.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4">Nessun coupon proposto.</td></tr>`;
+                } else {
+                    mieiCoupon.forEach(coupon => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${coupon.descrizione_coupon}</td>
+                                <td>${coupon.punti > 0 ? "Sì" : "No"}</td>
+                                <td>${coupon.punti ?? ""}</td>
+                            </tr>
+                        `;
+                    });
                 }
             } catch (err) {
-                document.getElementById("main").innerHTML = "<h3>Errore nel caricamento delle sponsorizzazioni.</h3>";
-                return;
-            }
-            // Ottieni solo gli id_evento sponsorizzati da questa azienda
-            const eventiSponsorizzatiIds = sponsorizzazioni.map(s => String(s.id_evento));
-
-            // Recupera tutti gli eventi
-            let eventi = [];
-            try {
-                const resp = await fetch("http://localhost:3000/api/v1/eventi");
-                if (resp.ok) {
-                    eventi = await resp.json();
-                }
-            } catch (err) {
-                document.getElementById("main").innerHTML = "<h3>Errore nel caricamento degli eventi.</h3>";
-                return;
-            }
-
-            // Filtra solo gli eventi futuri sponsorizzati da questa azienda
-            const oggi = new Date();
-            oggi.setHours(0,0,0,0);
-            const mieiEventi = eventi.filter(ev => 
-                eventiSponsorizzatiIds.includes(String(ev.id_evento)) &&
-                new Date(ev.data) >= oggi
-            );
-
-            const tbody = document.getElementById("eventi-tbody");
-            tbody.innerHTML = "";
-
-            if (mieiEventi.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5">Nessun evento sponsorizzato futuro.</td></tr>`;
-            } else {
-                mieiEventi.forEach(evento => {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${evento.nome_evento}</td>
-                            <td>${new Date(evento.data).toLocaleDateString()}</td>
-                            <td>${evento.luogo}</td>
-                            <td>${evento.tipologia}</td>
-                            <td>
-                                <button onclick="eliminaSponsorizzazione('${evento.id_evento}')" class="button small">Elimina sponsorizzazione</button>
-                            </td>
-                        </tr>
-                    `;
-                });
+                document.getElementById("main").innerHTML = "<h3>Errore nel caricamento dei coupon.</h3>";
             }
         });
-
-        // Funzione per eliminare la sponsorizzazione
-        async function eliminaSponsorizzazione(id_evento) {
-            if (!confirm("Sei sicuro di voler eliminare la sponsorizzazione per questo evento?")) return;
-            const token = localStorage.getItem("token");
-            try {
-                const resp = await fetch(`http://localhost:3000/api/v1/sponsorizzazioni/${id_evento}`, {
-                    method: "delete",
-                    headers: { "Authorization": "Bearer " + token }
-                });
-                if (resp.ok) {
-                    alert("Sponsorizzazione eliminata con successo.");
-                    document.querySelector(`button[onclick="eliminaSponsorizzazione('${id_evento}')"]`).closest('tr').remove();
-                } else {
-                    alert("Errore nell'eliminazione della sponsorizzazione.");
-                }
-            } catch (err) {
-                alert("Errore di rete.");
-            }
-        }
         </script>
-        <script>
+		<script>
             // Gestione logout e area personale
             const { decode } = jwtJsDecode;
             const token = localStorage.getItem("token"); 

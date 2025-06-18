@@ -5,11 +5,6 @@ const app = express();
 
 app.use(cors());
 
-// Rotta di esempio
-app.get('/', (req,res) => {
-    res.status(200).send('Hello world!');
-});
-
 // authentication
 const authentication = require('./authentication.js');
 const { tokenChecker, revoke } = require('./tokenChecker.js');
@@ -55,5 +50,6 @@ app.use('/api/v1/sponsorizzazioni', sponsorizzazioni);
 app.use('/api/v1/coupons_cittadino', tokenChecker);
 app.use('/api/v1/coupons_cittadino', coupons_cittadino);
 
+app.use(express.static(Path.join(__dirname, '../frontend')));
 //Esportazione applicazione configurata
 module.exports = app;

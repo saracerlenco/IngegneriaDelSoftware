@@ -82,7 +82,7 @@
 
                 // Carica coupon non ancora approvati
                 try {
-                    const response = await fetch("http://localhost:3000/api/v1/coupons", {
+                    const response = await fetch("/api/v1/coupons", {
                         headers: { "Authorization": "Bearer " + token }
                     });
                     if (!response.ok) throw new Error("Errore nella richiesta coupon");
@@ -134,7 +134,7 @@
                 }
                 const token = localStorage.getItem("token");
                 try {
-                    const response = await fetch(`http://localhost:3000/api/v1/coupons/${id_coupon}`, {
+                    const response = await fetch(`/api/v1/coupons/${id_coupon}`, {
                         method: "PUT",
                         headers: {
                             "Content-Type": "application/json",

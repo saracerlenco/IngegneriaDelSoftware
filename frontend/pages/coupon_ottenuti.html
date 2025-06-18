@@ -20,8 +20,8 @@
             <ul class="links" id="nav-links">
                 <li><a href="../index.html">Mappa</a></li>
                 <li><a href="eventi.html">Eventi</a></li>
-				<li><a id="_area_personale">Area personale</a></li>
-                <li class="active"><a href="coupon_proposti.html">Coupon proposti</a></li>
+                <li><a id="_area_personale">Area personale</a></li>
+                <li class="active"><a href="coupon_ottenuti.html">I tuoi coupon</a></li>
             </ul>
             <ul class="icons">
                 <li><a id="log">Logout</a></li>
@@ -30,14 +30,13 @@
 
         <div id="main">
             <section class="post">
-                <h3>Qui sotto vedrai i coupon che hai proposto</h3>
+                <h3>Qui troverai tutti i tuoi coupon</h3>
                 <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
                                 <th>Descrizione</th>
-                                <th>Approvato</th>
-                                <th>Punti</th>
+                                <th>Punti spesi</th>
                             </tr>
                         </thead>
                         <tbody id="coupon-tbody">
@@ -54,7 +53,6 @@
             const token = localStorage.getItem("token");
             let errore = false;
             let ruolo = null;
-            let id_azienda = null;
 
             if (!token) {
                 errore = true;
@@ -62,15 +60,14 @@
                 try {
                     const decoded = decode(token);
                     ruolo = decoded.payload ? decoded.payload.ruolo : decoded.ruolo;
-                    id_azienda = decoded.payload ? decoded.payload._id : decoded._id;
-                    if (ruolo !== "azienda") errore = true;
+                    if (ruolo !== "cittadino") errore = true;
                 } catch (e) {
                     errore = true;
                 }
             }
 
             if (errore) {
-                document.getElementById("main").innerHTML = "<h3>Accesso non autorizzato.<br>Solo le aziende possono vedere i propri coupon proposti.</h3>";
+                document.getElementById("main").innerHTML = "<h3>Accesso non autorizzato.<br>Solo i cittadini possono vedere i propri coupon ottenuti.</h3>";
                 return;
             }
 
@@ -83,45 +80,63 @@
                 window.location.href = "../index.html";
             };
             if(document.getElementById("_area_personale"))
-                document.getElementById("_area_personale").href = "azienda_area_personale.html";
+                document.getElementById("_area_personale").href = "cittadino_area_personale.html";
 
-            // Carica i coupon proposti da questa azienda
+            // Recupera i coupon ottenuti dal cittadino
+            let couponsOttenuti = [];
             try {
-                const response = await fetch("http://localhost:3000/api/v1/coupons", {
-                    method: "GET",
-                    headers: {
-                        "Authorization": "Bearer " + token
-                    }
+                const resp = await fetch("/api/v1/coupons_cittadino", {
+                    headers: { "Authorization": "Bearer " + token }
                 });
-                const coupons = await response.json();
-                const tbody = document.getElementById("coupon-tbody");
-                tbody.innerHTML = "";
-
-                // Filtra solo i coupon dell'azienda loggata
-                const mieiCoupon = coupons.filter(c => {
-                    // id_azienda può essere stringa o oggetto, quindi confronto come stringa
-                    return String(c.id_azienda) === String(id_azienda);
-                });
-
-                if (mieiCoupon.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4">Nessun coupon proposto.</td></tr>`;
-                } else {
-                    mieiCoupon.forEach(coupon => {
-                        tbody.innerHTML += `
-                            <tr>
-                                <td>${coupon.descrizione_coupon}</td>
-                                <td>${coupon.punti > 0 ? "Sì" : "No"}</td>
-                                <td>${coupon.punti ?? ""}</td>
-                            </tr>
-                        `;
-                    });
+                if (resp.ok) {
+                    couponsOttenuti = await resp.json();
                 }
             } catch (err) {
                 document.getElementById("main").innerHTML = "<h3>Errore nel caricamento dei coupon.</h3>";
+                return;
+            }
+
+            // Recupera tutti i coupon per mostrare le info
+            let coupons = [];
+            try {
+                const resp = await fetch("/api/v1/coupons", {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+                if (resp.ok) {
+                    coupons = await resp.json();
+                }
+            } catch (err) {
+                document.getElementById("main").innerHTML = "<h3>Errore nel caricamento dei coupon.</h3>";
+                return;
+            }
+
+            // Crea una mappa id_coupon -> coupon
+            const couponMap = {};
+            coupons.forEach(c => {
+                couponMap[String(c.id_coupon)] = c;
+            });
+
+            const tbody = document.getElementById("coupon-tbody");
+            tbody.innerHTML = "";
+
+            if (couponsOttenuti.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="2">Nessun coupon ottenuto.</td></tr>`;
+            } else {
+                couponsOttenuti.forEach(citCoupon => {
+                    const coupon = couponMap[String(citCoupon.id_coupon)];
+                    if (coupon) {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${coupon.descrizione_coupon}</td>
+                                <td>${coupon.punti}</td>
+                            </tr>
+                        `;
+                    }
+                });
             }
         });
         </script>
-		<script>
+        <script>
             // Gestione logout e area personale
             const { decode } = jwtJsDecode;
             const token = localStorage.getItem("token"); 
@@ -133,7 +148,7 @@
                     alert(`Logout effettuato con successo`);
                     window.location.href="../index.html";
                 }
-                document.getElementById("_area_personale").href="azienda_area_personale.html";
+                document.getElementById("_area_personale").href="cittadino_area_personale.html";
             }
         </script>
 

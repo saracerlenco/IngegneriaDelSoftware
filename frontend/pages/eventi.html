@@ -95,7 +95,7 @@
 										
 											async function caricaFiltri() {
 												try {
-													const res = await fetch("http://localhost:3000/api/v1/eventi/filtri");
+													const res = await fetch("/api/v1/eventi/filtri");
 													const data = await res.json();
 
 													//console.log("Filtri ricevuti:", data); // DEBUG
@@ -134,9 +134,9 @@
 													if (data && data !== "") params.append("data", data);
 													params.append("futuri", "true"); //per assicurarsi di prendere solo eventi futuri
 													
-													//console.log("URL chiamato:", `http://localhost:3000/api/v1/eventi?${params.toString()}`);// DEBUG
+													//console.log("URL chiamato:", `/api/v1/eventi?${params.toString()}`);// DEBUG
 
-													const response = await fetch(`http://localhost:3000/api/v1/eventi?${params.toString()}`);
+													const response = await fetch(`/api/v1/eventi?${params.toString()}`);
 													if (!response.ok) throw new Error("Errore nella richiesta eventi");
 										
 													const eventi = await response.json();
@@ -147,7 +147,7 @@
 													let partecipazioni = [];
 													if (token && decode(token).payload.ruolo === "cittadino") {
 														// Recupera le partecipazioni dell'utente
-														const resp = await fetch("http://localhost:3000/api/v1/partecipazioni", {
+														const resp = await fetch("/api/v1/partecipazioni", {
 															headers: { "Authorization": token }
 														});
 														if (resp.ok) {
@@ -160,7 +160,7 @@
 													// Controlla se l'utente è loggato come azienda e recupera le sponsorizzazioni
 													let sponsorizzazioni = [];
 													if (token && decode(token).payload.ruolo === "azienda") {
-														const resp = await fetch("http://localhost:3000/api/v1/sponsorizzazioni", {
+														const resp = await fetch("/api/v1/sponsorizzazioni", {
 															headers: { "Authorization": token }
 														});
 														if (resp.ok) {
@@ -251,7 +251,7 @@
 													if (ruolo === "cittadino") {
 														// Partecipazione
 														try {
-															const response = await fetch(`http://localhost:3000/api/v1/partecipazioni/${id_evento}`, {
+															const response = await fetch(`/api/v1/partecipazioni/${id_evento}`, {
 																method: "POST",
 																headers: {
 																	"Content-Type": "application/json",
@@ -274,7 +274,7 @@
 													} else if (ruolo === "azienda") {
 														// Sponsorizzazione
 														try {
-															const response = await fetch(`http://localhost:3000/api/v1/sponsorizzazioni/${id_evento}`, {
+															const response = await fetch(`/api/v1/sponsorizzazioni/${id_evento}`, {
 																method: "POST",
 																headers: {
 																	"Content-Type": "application/json",
