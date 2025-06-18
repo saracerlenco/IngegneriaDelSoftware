@@ -24,14 +24,14 @@ let tokenComune = jwt.sign(
 
 describe('POST /api/v1/feedbacks/:{id_evento}', () => {
     beforeAll( async () => {
-        jest.setTimeout(10000);
+        jest.setTimeout(20000);
         app.locals.db = await  mongoose.connect(process.env.DB_URL); 
     });
     
     test('Creazione feedback con successo', async () => {
         const id_evento = '67321b91b78fd1a0bb33c674'
         // Rimuovo il feedback precedente se esiste
-        await Feedback.deleteMany({ id_evento: id_evento, id_cittadino: '67321bf8b78fd1a0bb33c677' });
+        await Feedback.deleteMany({ id_evento: id_evento, id_cittadino: '68527f9d30f8acbd472e9708' });
         const res = await request(app)
         .post('/api/v1/feedbacks/'+id_evento)
         .set('x-access-token', tokenCittadino)
